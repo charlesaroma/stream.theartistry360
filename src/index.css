@@ -1,111 +1,399 @@
-:root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400..700&display=swap');
+@import "tailwindcss";
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+/* ═══════════════════════════════════════════════
+   ARTISTRY360 STREAM: DESIGN TOKENS
+   Colour tokens match theartistry360.com one-for-one.
+   ═══════════════════════════════════════════════ */
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
+@theme {
+  /* ─── Typography ─── */
+  --font-sans: 'Quicksand', ui-sans-serif, system-ui, sans-serif;
+
+  /* One type scale for the whole site. Fluid sizes clamp between phone and
+     desktop so nothing needs per-breakpoint font overrides. */
+  --text-display: clamp(2.5rem, 1.35rem + 4.8vw, 5.25rem);
+  --text-display--line-height: 1.02;
+  --text-display--letter-spacing: -0.025em;
+  --text-display--font-weight: 700;
+  --text-title: clamp(1.875rem, 1.35rem + 2.2vw, 3.25rem);
+  --text-title--line-height: 1.08;
+  --text-title--letter-spacing: -0.02em;
+  --text-title--font-weight: 700;
+  --text-heading: clamp(1.25rem, 1.08rem + 0.7vw, 1.75rem);
+  --text-heading--line-height: 1.2;
+  --text-heading--letter-spacing: -0.01em;
+  --text-heading--font-weight: 700;
+  --text-subheading: 1.125rem;
+  --text-subheading--line-height: 1.35;
+  --text-subheading--font-weight: 700;
+  --text-lead: clamp(1rem, 0.95rem + 0.3vw, 1.1875rem);
+  --text-lead--line-height: 1.6;
+  --text-body: 1rem;
+  --text-body--line-height: 1.6;
+  --text-small: 0.875rem;
+  --text-small--line-height: 1.5;
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1.4;
+
+  /* ─── Brand: Artistry Orange ─── */
+  --color-brand-50: #fff6ec;
+  --color-brand-100: #ffe9d1;
+  --color-brand-200: #ffcf9f;
+  --color-brand-300: #ffb266;
+  --color-brand-400: #ff9e44;
+  --color-brand-500: #f67d12;
+  --color-brand-600: #d96a0a;
+  --color-brand-700: #b3540b;
+  --color-brand-800: #8f4310;
+  --color-brand-900: #743811;
+  --color-brand-950: #3f1a04;
+  --color-brand: var(--color-brand-500);
+  --color-brand-light: var(--color-brand-400);
+  --color-brand-dark: var(--color-brand-600);
+
+  /* ─── Surfaces: Warm Black ─── */
+  --color-surface-primary: #000000;
+  --color-surface-secondary: #0b0a09;
+  --color-surface-elevated: #131110;
+  --color-surface-card: #1c1a17;
+
+  /* ─── Text ─── */
+  --color-text-primary: #faf7f2;
+  --color-text-secondary: #b8b0a6;
+  --color-text-muted: #8a8279;
+  --color-text-disabled: #4a443e;
+
+  /* ─── Borders ─── */
+  --color-border-default: #2a2622;
+  --color-border-subtle: #34302b;
+  --color-border-hover: #6b635a;
+
+  /* ─── Semantic ─── */
+  --color-success: #22c55e;
+  --color-danger: #ef4444;
+  --color-warning: #eab308;
+  --color-info: #3b82f6;
+  --color-gold: #f5b83d;
+
+  /* ─── Third-party ─── */
+  --color-whatsapp: #25d366;
+  --color-mtn: #ffcc00;
+  --color-airtel: #ff0000;
+
+  /* ─── Layout ─── */
+  --spacing-18: 4.5rem; /* navbar height */
+
+  /* ─── Motion ─── */
+  --ease-cinema: cubic-bezier(0.7, 0, 0.2, 1);
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* ─── Keyframes ─── */
+  --animate-kenburns: kenburns 26s ease-in-out infinite alternate;
+  --animate-rise: rise 700ms var(--ease-out-soft) both;
+  --animate-fade: fade 500ms var(--ease-out-soft) both;
+  --animate-shimmer: shimmer 1.6s linear infinite;
+
+  @keyframes kenburns {
+    from { transform: scale(1.04) translate3d(0, 0, 0); }
+    to { transform: scale(1.14) translate3d(-1.5%, -1%, 0); }
+  }
+  @keyframes rise {
+    from { opacity: 0; transform: translate3d(0, 18px, 0); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes hero-fill {
+    from { width: 0; }
+    to { width: 100%; }
+  }
+  @keyframes shimmer {
+    from { background-position: -200% 0; }
+    to { background-position: 200% 0; }
+  }
+}
+
+/* ─── Base ─── */
+html {
+  background: var(--color-surface-primary);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
+  text-rendering: optimizeLegibility;
+  scrollbar-gutter: stable;
 }
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
-}
-
 body {
-  margin: 0;
+  min-height: 100dvh;
+  background: var(--color-surface-primary);
+}
+::selection {
+  background: color-mix(in oklab, var(--color-brand) 45%, transparent);
+  color: var(--color-text-primary);
+}
+:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 3px;
 }
 
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
+/* ─── Layout Rhythm ───
+   One gutter and one section rhythm, used by every page, so edges line up
+   from the navbar to the footer. */
+@utility shell {
+  width: 100%;
+  margin-inline: auto;
+  max-width: 1680px;
+  padding-inline: clamp(1rem, 4vw, 3.5rem);
 }
-
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
+@utility section-y {
+  padding-block: clamp(3rem, 6vw, 6rem);
 }
-
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
+@utility eyebrow {
+  font-size: var(--text-caption);
+  line-height: var(--text-caption--line-height);
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-brand);
+}
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
   }
 }
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
+
+/* ═══════════════════════════════════════════════
+   MOTION LANGUAGE: "LIGHT & LENS"
+   Deliberately unlike belioras (no squash-and-stretch, no plain frost):
+   glass that catches light, presses that spill molten ember, pages that open
+   like a lens iris, cards lit by a key light.
+   ═══════════════════════════════════════════════ */
+
+/* ─── Molten Glass ───
+   Frosted body, a specular highlight that follows the pointer (--mx/--my set
+   by MotionRoot on any [data-glass]), and a warm caustic that travels the rim. */
+@property --caustic {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@utility molten-glass {
+  /* No position here: callers set relative or absolute, so a floating glass
+     control is never pushed back into the flow. */
+  isolation: isolate;
+  background:
+    linear-gradient(160deg, rgb(255 255 255 / 0.1), rgb(255 255 255 / 0.025) 45%, rgb(255 255 255 / 0.05));
+  -webkit-backdrop-filter: blur(22px) saturate(170%);
+  backdrop-filter: blur(22px) saturate(170%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.2),
+    inset 0 -1px 0 rgb(0 0 0 / 0.35),
+    0 12px 40px rgb(0 0 0 / 0.45);
+
+  /* Specular: a soft light where the pointer is */
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: radial-gradient(360px circle at var(--mx, 30%) var(--my, 0%), rgb(255 236 214 / 0.16), transparent 55%);
+    opacity: var(--glass-lit, 0.6);
+    transition: opacity 400ms var(--ease-out-soft);
+    pointer-events: none;
+  }
+  /* Caustic rim: warm light circling the edge, masked to a 1px ring */
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: conic-gradient(
+      from var(--caustic),
+      rgb(255 255 255 / 0.1),
+      color-mix(in oklab, var(--color-brand) 70%, transparent) 12%,
+      rgb(255 255 255 / 0.12) 24%,
+      rgb(255 255 255 / 0.06) 50%,
+      color-mix(in oklab, var(--color-gold) 45%, transparent) 64%,
+      rgb(255 255 255 / 0.1) 78%
+    );
+    -webkit-mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+    mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+    animation: caustic-drift 12s linear infinite;
+    pointer-events: none;
+  }
+  &:hover {
+    --glass-lit: 1;
   }
 }
-p {
-  margin: 0;
+@keyframes caustic-drift {
+  to { --caustic: 360deg; }
 }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
+/* ─── Ember Press ───
+   On press the control sinks (no squash), and a molten drop blooms from the
+   exact contact point, splitting into droplets through the SVG goo filter
+   (#ember-goo in MotionRoot). Added by the global EmberPress listener. */
+@layer components {
+  /* In the components layer so position utilities (absolute) still win. */
+  .ember {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    transition: transform 180ms var(--ease-out-soft), box-shadow 180ms var(--ease-out-soft), filter 180ms;
+  }
+  .ember.is-pressing {
+    transform: translate3d(0, 1px, 0) scale(0.985);
+    box-shadow: inset 0 2px 10px rgb(0 0 0 / 0.35);
+    filter: brightness(1.06);
+  }
+}
+.ember-layer {
+  position: absolute;
+  inset: -20%;
+  z-index: -1;
+  filter: url(#ember-goo);
+  pointer-events: none;
+}
+.ember-drop {
+  position: absolute;
+  width: var(--ember-size);
+  height: var(--ember-size);
+  margin: calc(var(--ember-size) / -2) 0 0 calc(var(--ember-size) / -2);
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--ember-core, #ffd9a8) 0%, var(--ember-color, var(--color-brand)) 55%, transparent 72%);
+  animation: ember-bloom 720ms var(--ease-out-soft) forwards;
+}
+.ember-drop.is-satellite {
+  --ember-size: 28px !important;
+  animation: ember-fling 720ms var(--ease-out-soft) forwards;
+}
+@keyframes ember-bloom {
+  0% { transform: scale(0.1); opacity: 0.95; }
+  55% { opacity: 0.55; }
+  100% { transform: scale(1); opacity: 0; }
+}
+@keyframes ember-fling {
+  0% { transform: translate(0, 0) scale(0.6); opacity: 0.9; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0.2); opacity: 0; }
 }
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+/* ─── Iris Transition ───
+   Route changes open like a lens aperture from the last press (--iris-x/y on
+   <html>), via the View Transitions API. Unsupported browsers just swap. */
+::view-transition-old(root) {
+  animation: 520ms var(--ease-cinema) both iris-dim;
+}
+::view-transition-new(root) {
+  animation: 620ms var(--ease-cinema) both iris-open;
+}
+@keyframes iris-open {
+  from { clip-path: circle(0% at var(--iris-x, 50%) var(--iris-y, 40%)); }
+  to { clip-path: circle(150% at var(--iris-x, 50%) var(--iris-y, 40%)); }
+}
+@keyframes iris-dim {
+  to { filter: brightness(0.4) blur(2px); }
+}
+
+/* ─── Key Light ───
+   Poster cards tilt toward the pointer and catch a soft light (--lx/--ly,
+   --rx/--ry set by useKeyLight). */
+.keylight {
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateZ(0);
+  transition: transform 420ms var(--ease-out-soft), box-shadow 420ms var(--ease-out-soft);
+  transform-style: preserve-3d;
+}
+.keylight::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(260px circle at var(--lx, 50%) var(--ly, 0%), rgb(255 232 205 / 0.22), transparent 60%);
+  opacity: 0;
+  transition: opacity 300ms var(--ease-out-soft);
+  pointer-events: none;
+}
+.keylight:hover::after,
+.keylight:focus-visible::after {
+  opacity: 1;
+}
+
+/* ─── Film Grain ─── a whisper of texture on hero imagery */
+@utility film-grain {
+  &::after {
+    content: "";
+    position: absolute;
+    inset: -50%;
+    pointer-events: none;
+    opacity: 0.07;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    animation: grain 900ms steps(5) infinite;
+  }
+}
+@keyframes grain {
+  0% { transform: translate(0, 0); }
+  20% { transform: translate(-4%, 3%); }
+  40% { transform: translate(3%, -5%); }
+  60% { transform: translate(-6%, -2%); }
+  80% { transform: translate(5%, 4%); }
+  100% { transform: translate(0, 0); }
+}
+
+/* ─── Skeleton ─── */
+@utility skeleton {
+  background: linear-gradient(90deg, var(--color-surface-card) 25%, var(--color-surface-elevated) 50%, var(--color-surface-card) 75%);
+  background-size: 200% 100%;
+  animation: var(--animate-shimmer);
+}
+
+/* ─── Components ─── */
+@layer components {
+  .btn {
+    @apply inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-full px-7 text-small font-bold tracking-wide transition-colors duration-200 select-none disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply bg-brand text-black hover:bg-brand-400;
+  }
+  .btn-light {
+    @apply bg-text-primary text-black hover:bg-white;
+  }
+  .btn-glass {
+    @apply text-text-primary;
+  }
+  .btn-icon {
+    @apply inline-grid h-12 w-12 cursor-pointer place-items-center rounded-full text-text-primary transition-colors;
+  }
+  .input {
+    @apply w-full rounded-2xl border border-border-subtle bg-surface-secondary px-4 py-3.5 text-body text-text-primary placeholder:text-text-muted transition-colors focus:border-brand focus:outline-none;
+  }
+  .chip {
+    @apply inline-flex min-h-6 items-center gap-1 rounded-full px-2.5 text-caption font-bold;
+  }
+}
+
+/* ─── Reduced Motion ───
+   Every effect above has a still state. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .keylight {
+    transform: none !important;
+  }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
 }

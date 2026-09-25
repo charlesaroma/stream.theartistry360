@@ -1,0 +1,9 @@
+import { z } from "zod";
+
+const email = z.string().trim().min(1, "Enter your email.").email("Enter a valid email.");
+export const signInSchema = z.object({ email, password: z.string().min(1, "Enter your password.") });
+export const signUpSchema = z.object({
+  name: z.string().trim().min(1, "Enter your name."),
+  email,
+  password: z.string().min(8, "Use at least 8 characters."),
+});
