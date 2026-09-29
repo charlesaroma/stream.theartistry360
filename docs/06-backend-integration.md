@@ -13,4 +13,6 @@ Same API as theartistry360.com (`api.theartistry360.com/api/v1`), proxied at `/a
 | player | `GET streaming/titles/:id/play` → signed, expiring HLS URL; `403` if not entitled |
 | `reelsApi.listReels` / `getReel` | `GET streaming/reels`, `GET streaming/reels/:id`. Each reel names its title and `clip`; its stream must be playable without the title's entitlement (a public preview URL), since reels are the free shop window |
 
+Share cards: once the API is live, set `SHARE_API_BASE` in Netlify so link previews read `streaming/titles/:id` and `streaming/reels/:id` from it (`08-sharing-and-seo.md`).
+
 Remove `playbackUrl` from the seed once `/play` exists. The demo stream is Mux's public test HLS.

@@ -18,10 +18,12 @@ import { useWatchlist } from "@/store/tanstackStore/queries/member";
 import { moreLikeThis } from "@/utils/similar";
 import Credits from "./sections/Credits";
 import PrimaryAction from "./sections/PrimaryAction";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 export default function TitlePage() {
   const { id } = useParams();
   const { data: title, isLoading, error } = useTitle(id);
+  usePageMeta({ title: title?.title, description: title?.synopsis });
   const { data: titles = [] } = useTitles();
   const { categoryName } = useTaxonomy();
   const { has, toggle } = useWatchlist();

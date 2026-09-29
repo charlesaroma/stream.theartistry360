@@ -8,6 +8,7 @@ import { REEL_TABS, isPhone, lastReel } from "@/utils/reels";
 import FeaturedReel from "./sections/FeaturedReel";
 import ReelsGrid from "./sections/ReelsGrid";
 import ReelsToolbar from "./sections/ReelsToolbar";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 /**
  * /reels: a feed you drop straight into. A one-line toolbar, the Studio's
@@ -46,6 +47,8 @@ export default function ReelsPage() {
   };
 
   const activeIndex = ordered.findIndex((r) => r.id === reelId);
+  const openReel = ordered[activeIndex];
+  usePageMeta({ title: openReel ? `${openReel.title} · Reels` : "Reels", description: openReel?.caption ?? "Scenes, monologues, auditions and behind the scenes from The Artistry360." });
   const open = (reel) => {
     lastReel.set(reel.id);
     update({ reel: reel.id }, { push: true });

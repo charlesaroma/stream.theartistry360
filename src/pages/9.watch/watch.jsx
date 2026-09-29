@@ -17,6 +17,7 @@ import { useTitle, useTitles } from "@/store/tanstackStore/queries/site";
 import { useWatchlist } from "@/store/tanstackStore/queries/member";
 import { accessFor } from "@/utils/access";
 import { moreLikeThis } from "@/utils/similar";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 /**
  * Watching happens in the page, not a takeover: the player sits under the
@@ -31,6 +32,7 @@ export default function WatchPage() {
   const startAt = Number(params.get("t")) > 0 ? Number(params.get("t")) : null;
   const { member, loading } = useMember();
   const { data: title, isLoading } = useTitle(id);
+  usePageMeta({ title: title ? `Watching ${title.title}` : undefined, description: title?.synopsis });
   const { data: titles = [] } = useTitles();
   const { has, toggle } = useWatchlist();
   const { open, close, attach } = usePlayback();

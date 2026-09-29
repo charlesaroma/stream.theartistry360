@@ -9,9 +9,11 @@ import Modal from "@/components/ui/Modal";
 import { useMember } from "@/store/context/MemberContext";
 import { formatUGX } from "@/utils/formatCurrency";
 import { PlanCards } from "@/pages/2.home/sections/PlansBand";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 export default function PlansPage() {
   const { member, subscribe } = useMember();
+  usePageMeta({ title: "Plans", description: "Watch every Artistry360 film, series and class. Pay by MTN MoMo, Airtel Money or card." });
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const [chosen, setChosen] = useState(null);

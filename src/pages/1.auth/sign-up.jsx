@@ -9,8 +9,10 @@ import Field from "@/components/ui/Field";
 import { useMember } from "@/store/context/MemberContext";
 import AuthFrame from "./AuthFrame";
 import { signUpSchema } from "./schemas";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 export default function SignUpPage() {
+  usePageMeta({ title: "Create your account" });
   const { signUp } = useMember();
   const navigate = useNavigate();
   const [params] = useSearchParams();

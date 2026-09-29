@@ -56,7 +56,9 @@ export default defineConfig([
   // destructuring of query results.
   pluginQuery.configs['flat/recommended'],
 
-  { files: ['vite.config.js'], languageOptions: { globals: globals.node } },
+  { files: ['vite.config.js', 'scripts/**/*.{js,mjs}'], languageOptions: { globals: globals.node } },
+  // Netlify edge functions run on Deno, with web globals and `Netlify`.
+  { files: ['netlify/**/*.js'], languageOptions: { globals: { ...globals.browser, Netlify: 'readonly' } } },
 
   // UI: pages, components, hooks, routes and utils.
   {

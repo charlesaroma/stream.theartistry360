@@ -3,8 +3,10 @@ import PageIntro from "@/components/layout/PageIntro";
 import TitleGrid from "@/components/title/TitleGrid";
 import { useTitles } from "@/store/tanstackStore/queries/site";
 import { useProgress, useWatchlist } from "@/store/tanstackStore/queries/member";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 export default function MyListPage() {
+  usePageMeta({ title: "My List" });
   const { data: titles = [] } = useTitles();
   const { list } = useWatchlist();
   const { progress } = useProgress();

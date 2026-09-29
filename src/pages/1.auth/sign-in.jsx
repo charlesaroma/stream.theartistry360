@@ -9,8 +9,10 @@ import Field from "@/components/ui/Field";
 import { useMember } from "@/store/context/MemberContext";
 import AuthFrame from "./AuthFrame";
 import { signInSchema } from "./schemas";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 export default function SignInPage() {
+  usePageMeta({ title: "Sign in" });
   const { signIn } = useMember();
   const navigate = useNavigate();
   const [params] = useSearchParams();

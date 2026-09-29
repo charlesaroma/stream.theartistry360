@@ -1,7 +1,9 @@
 /* Not Found */
 import Button from "@/components/ui/Button";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 export default function NotFoundPage() {
+  usePageMeta({ title: "Not found" });
   return (
     <section className="shell grid min-h-[80dvh] place-items-center pt-18 text-center">
       <div>

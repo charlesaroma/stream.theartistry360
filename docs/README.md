@@ -25,6 +25,7 @@ Vite 8 · React 19 · React Router 7 (data router) · TanStack Query (TypeScript
 | 3 | Pages: home, films, reels, plans, my list, title, watch, search, auth | `05-pages.md` | done (mock) |
 | 3a | Reels feed: scroll between reels, seek, scene clips, "Watch the film" into the title | `05-pages.md`, `03-data-contract.md` | done (mock) |
 | 3b | Browse pages rebuilt: shared header, one filter row, rows then grid, viewer-aware access labels, Reels as a feed you drop into, phone player controls | `05-pages.md` | done |
+| 3c | Share cards per film and reel, page titles, sitemap | `08-sharing-and-seo.md` | done (verify cards after the first deploy) |
 | 4 | UI/UX audit (type scale, gutter, targets) | `05-pages.md` | done |
 | 5 | Backend integration | `06-backend-integration.md` | pending |
 | 5a | State layer: `src/store/`, TanStack query factories, TypeScript, realtime | `07-state-management.md` | done (realtime waits on the backend socket) |
@@ -41,6 +42,7 @@ Vite 8 · React 19 · React Router 7 (data router) · TanStack Query (TypeScript
 | `05-pages.md` | Every page, what it shows, audit results |
 | `06-backend-integration.md` | Moving from mocks to the API |
 | `07-state-management.md` | The store: keys, caching, mutations, loaders, and how Studio edits reach this site live |
+| `08-sharing-and-seo.md` | Link previews per film and reel (edge function), page titles, sitemap |
 
 ## Verifier
 

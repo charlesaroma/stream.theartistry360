@@ -11,12 +11,14 @@ import { resolveRow, seeAllFor } from "@/utils/rows";
 import Faq from "./sections/Faq";
 import PlansBand from "./sections/PlansBand";
 import WhyStrip from "./sections/WhyStrip";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 /**
  * Hero and rows come from the Studio (Streaming › Stream Site). Visitors who
  * are not signed in also get plans, why, community and FAQ below the rows.
  */
 export default function HomePage() {
+  usePageMeta();
   const { member } = useMember();
   const { data: site } = useSite();
   const { data: titles = [] } = useTitles();

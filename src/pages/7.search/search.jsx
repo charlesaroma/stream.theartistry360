@@ -6,9 +6,11 @@ import { Search } from "lucide-react";
 import PageIntro from "@/components/layout/PageIntro";
 import TitleGrid from "@/components/title/TitleGrid";
 import { useSearch } from "@/store/tanstackStore/queries/site";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 export default function SearchPage() {
   const [params, setParams] = useSearchParams();
+  usePageMeta({ title: params.get("q") ? `Search: ${params.get("q")}` : "Search" });
   const q = params.get("q") ?? "";
   const deferred = useDeferredValue(q);
   const { data: results = [], isFetching } = useSearch(deferred);

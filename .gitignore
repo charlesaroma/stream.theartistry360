@@ -30,3 +30,8 @@ dist-ssr
 .env
 .env.local
 .env.*.local
+
+# Written at build time by scripts/share-catalog.mjs
+public/share/catalog.json
+public/sitemap.xml
+public/robots.txt

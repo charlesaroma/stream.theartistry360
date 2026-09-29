@@ -10,6 +10,7 @@ import FilmRows from "./sections/FilmRows";
 import FilmsHeader from "./sections/FilmsHeader";
 import FilterBar from "./sections/FilterBar";
 import NoMatches from "./sections/NoMatches";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 /**
  * Every title. People browse rows and search grids: with no filters the tab
@@ -21,6 +22,7 @@ export default function FilmsPage() {
   const [params, setParams] = useSearchParams();
   const { data: titles = [], isLoading } = useTitles();
   const { categories } = useTaxonomy();
+  usePageMeta({ title: "Films", description: "Every film, series, short, class and documentary from The Artistry360." });
 
   const tab = tabOf(params.get("tab") ?? "");
   const genre = params.get("genre") ?? "";
