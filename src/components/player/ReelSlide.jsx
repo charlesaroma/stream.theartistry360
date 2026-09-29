@@ -9,6 +9,7 @@ import { formatDuration } from "@/utils/format";
 import CenterFlash from "./CenterFlash";
 import ReelInfo from "./ReelInfo";
 import ReelRail from "./ReelRail";
+import { useBuffering } from "./useBuffering";
 
 const SEEK = 10; // seconds, the same as J/L in the main player
 const WATCHED_AFTER = 5; // seconds of a scene before it counts as watched
@@ -28,7 +29,7 @@ export default function ReelSlide({
   const counted = useRef(false);
   const [elapsed, setElapsed] = useState(0);
   const [playing, setPlaying] = useState(false);
-  const [buffering, setBuffering] = useState(false);
+  const { buffering, wait, done } = useBuffering();
   const [flash, setFlash] = useState(null);
   const { error } = useHls(videoRef, reel.playbackUrl, active);
   const { start, end } = reel.clip;
@@ -119,9 +120,10 @@ export default function ReelSlide({
           }}
           onPlay={() => setPlaying(true)}
           onPause={() => setPlaying(false)}
-          onWaiting={() => setBuffering(true)}
-          onPlaying={() => setBuffering(false)}
-          onLoadStart={() => setBuffering(true)}
+          onWaiting={wait}
+          onPlaying={done}
+          onCanPlay={done}
+          onLoadStart={wait}
           className="h-full w-full cursor-pointer object-cover"
         />
       ) : (

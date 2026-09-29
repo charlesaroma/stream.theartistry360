@@ -45,8 +45,19 @@ export function usePlayer(videoRef, frameRef) {
       if (!v()) return;
       if (v().paused) { v().play(); pulse("play"); } else { v().pause(); pulse("pause"); }
     },
-    seek: (t) => { if (v()) v().currentTime = t; },
-    skip: (d) => { if (!v()) return; v().currentTime = Math.max(0, Math.min(v().duration || 0, v().currentTime + d)); pulse(d < 0 ? "back" : "forward"); },
+    // The time and bar move at once; the picture follows when the seek lands.
+    seek: (t) => {
+      if (!v()) return;
+      v().currentTime = t;
+      setState((s) => ({ ...s, time: t }));
+    },
+    skip: (d) => {
+      if (!v()) return;
+      const t = Math.max(0, Math.min(v().duration || 0, v().currentTime + d));
+      v().currentTime = t;
+      setState((s) => ({ ...s, time: t }));
+      pulse(d < 0 ? "back" : "forward");
+    },
     setVolume: (vol) => {
       if (!v()) return;
       v().volume = vol;
@@ -73,13 +84,22 @@ export function usePlayer(videoRef, frameRef) {
       }
       const frame = frameRef.current;
       const video = v();
+      const native = () => video?.webkitEnterFullscreen?.();
+      // iPhone Safari defines the element methods but full screen is not
+      // enabled there, and calling them does nothing (no error either), so
+      // ask whether it is enabled rather than whether the method exists.
       const request = frame?.requestFullscreen ?? frame?.webkitRequestFullscreen;
-      if (request) {
-        Promise.resolve(request.call(frame))
-          .then(() => screen.orientation?.lock?.("landscape").catch(() => {}))
-          .catch(() => video?.webkitEnterFullscreen?.());
-      } else {
-        video?.webkitEnterFullscreen?.();
+      if (!(doc.fullscreenEnabled || doc.webkitFullscreenEnabled) || !request) {
+        native();
+        return;
+      }
+      try {
+        Promise.resolve(request.call(frame, { navigationUI: "hide" })).then(
+          () => screen.orientation?.lock?.("landscape").catch(() => {}),
+          native,
+        );
+      } catch {
+        native();
       }
     },
     pip: async () => {
