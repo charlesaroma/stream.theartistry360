@@ -1,9 +1,11 @@
 /* Poster Card */
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { useKeyLight } from "@/hooks/useKeyLight";
-import { useProgress } from "@/hooks/useLibrary";
+import { useProgress } from "@/store/tanstackStore/queries/member";
+import { prefetchTitle } from "@/store/tanstackStore/queries/site";
 import { cn } from "@/utils/cn";
 import AccessChip from "./AccessChip";
 import PreviewCard from "./PreviewCard";
@@ -19,6 +21,9 @@ export default function PosterCard({ title, className, rank }) {
   const ref = useRef(null);
   const light = useKeyLight();
   const { progress } = useProgress();
+  const queryClient = useQueryClient();
+  // Hover or focus warms the title page before the click.
+  const warm = () => prefetchTitle(queryClient, title.id);
   const [rect, setRect] = useState(null);
   const timers = useRef({});
   const p = progress[title.id];
@@ -56,7 +61,8 @@ export default function PosterCard({ title, className, rank }) {
         ref={ref}
         to={`/title/${title.id}`}
         viewTransition
-        onPointerEnter={open}
+        onPointerEnter={(e) => { warm(); open(e); }}
+        onFocus={warm}
         onPointerLeave={(e) => { light.onPointerLeave(e); close(); }}
         onPointerMove={light.onPointerMove}
         className="keylight relative block aspect-2/3 overflow-hidden rounded-2xl bg-surface-card shadow-[0_10px_30px_rgb(0_0_0/0.5)] outline-offset-4"

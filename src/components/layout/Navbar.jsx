@@ -1,13 +1,17 @@
 /* Navbar */
-import { useEffect, useState } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
-import { LogOut, Menu, Search, X } from "lucide-react";
+import { lazy, Suspense, useEffect, useState } from "react";
+import { Link, NavLink } from "react-router-dom";
+import { Menu, Search, X } from "lucide-react";
 
 import Logo from "@/assets/images/Logo.png";
 import IconButton from "@/components/ui/IconButton";
-import { useMember } from "@/context/MemberContext";
+import { useMember } from "@/store/context/MemberContext";
 import { cn } from "@/utils/cn";
+import AccountMenu from "./AccountMenu";
 import { NAV_ITEMS } from "./navMenu";
+
+// Loaded on first open, so search costs nothing until someone uses it.
+const SearchDialog = lazy(() => import("@/components/search/SearchDialog"));
 
 /**
  * Floats as clear glass over the hero and firms up once the page scrolls, so
@@ -15,9 +19,22 @@ import { NAV_ITEMS } from "./navMenu";
  */
 export default function Navbar() {
   const { member, signOut } = useMember();
-  const navigate = useNavigate();
   const [solid, setSolid] = useState(false);
   const [open, setOpen] = useState(false);
+  const [searching, setSearching] = useState(false);
+
+  // "/" or Cmd/Ctrl+K opens search from anywhere, unless you're typing.
+  useEffect(() => {
+    const onKey = (e) => {
+      const typing = e.target instanceof HTMLElement && (e.target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(e.target.tagName));
+      if ((e.key === "k" && (e.metaKey || e.ctrlKey)) || (e.key === "/" && !typing)) {
+        e.preventDefault();
+        setSearching(true);
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setSolid(window.scrollY > 24);
@@ -64,14 +81,11 @@ export default function Navbar() {
           </ul>
 
           <div className="ml-auto flex items-center gap-2">
-            <IconButton label="Search" onClick={() => navigate("/search", { viewTransition: true })} className="h-11 w-11">
+            <IconButton label="Search (/ or ⌘K)" onClick={() => setSearching(true)} className="h-11 w-11" aria-haspopup="dialog">
               <Search className="h-5 w-5" aria-hidden="true" />
             </IconButton>
             {member ? (
-              <button type="button" onClick={signOut} title="Sign out" className="hidden min-h-11 cursor-pointer items-center gap-2 rounded-full pl-1 pr-4 text-small font-semibold text-text-secondary hover:text-text-primary sm:inline-flex">
-                <span className="grid h-9 w-9 place-items-center rounded-full bg-brand font-bold text-black">{member.name.charAt(0).toUpperCase()}</span>
-                <LogOut className="h-4 w-4" aria-hidden="true" /> Sign out
-              </button>
+              <AccountMenu />
             ) : (
               <Link to="/sign-in" viewTransition className="btn btn-primary ember hidden min-h-11 px-5 sm:inline-flex">Sign in</Link>
             )}
@@ -81,6 +95,12 @@ export default function Navbar() {
           </div>
         </nav>
       </div>
+
+      {searching && (
+        <Suspense fallback={null}>
+          <SearchDialog onClose={() => setSearching(false)} />
+        </Suspense>
+      )}
 
       {/* Mobile Sheet */}
       <div

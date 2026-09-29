@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, X } from "lucide-react";
 
-import { useSite } from "@/hooks/useCatalog";
+import { useSite } from "@/store/tanstackStore/queries/site";
 
 const DISMISS_KEY = "a360s:announcement";
 

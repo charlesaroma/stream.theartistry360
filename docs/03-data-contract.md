@@ -1,5 +1,7 @@
 # 03 — Data Contract (Studio → Stream)
 
+> The same shapes as TypeScript: `src/store/tanstackStore/services/types.ts` (keep it in step with theartistry360.com's). How they are cached and refreshed live when the Studio changes them: `07-state-management.md`.
+
 The Studio (repo `the_artistry360_2024`, sidebar group **Streaming**) writes. This site reads. Until the API exists, both run on mocks with the **same shapes**. The seeds in `src/data/` mirror the Studio's, so edits in the Studio are not visible here yet; when the API lands, both call the same endpoints.
 
 | This site reads | Studio page | Seed here | API (planned) |
@@ -12,7 +14,7 @@ The Studio (repo `the_artistry360_2024`, sidebar group **Streaming**) writes. Th
 
 ## Visibility rule
 
-A title shows only when `video.status === "ready"` and it is `published`, or `scheduled` with `releaseAt` in the past (`services/catalogApi.js`). The Studio enforces the same rule.
+A title shows only when `video.status === "ready"` and it is `published`, or `scheduled` with `releaseAt` in the past (`store/tanstackStore/services/catalogApi.ts`). The Studio enforces the same rule.
 
 ## Access rule (`utils/access.js`, MOU 3D)
 

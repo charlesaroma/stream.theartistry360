@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Check, ChevronRight, Play, Plus } from "lucide-react";
 
 import IconButton from "@/components/ui/IconButton";
-import { useProgress, useWatchlist } from "@/hooks/useLibrary";
+import { useProgress, useWatchlist } from "@/store/tanstackStore/queries/member";
 import AccessChip from "./AccessChip";
 import MetaLine from "./MetaLine";
 

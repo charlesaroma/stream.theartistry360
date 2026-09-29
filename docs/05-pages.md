@@ -2,14 +2,14 @@
 
 | Folder | Route | What |
 |---|---|---|
-| `1.home` | `/` | Hero (Studio featured order), rows (Studio row settings), then for signed-out visitors: plans, why, FAQ. Community card for everyone |
-| `2.films` | `/films` | Full catalogue; type, category and access chips; sort; filters in the URL (`?type=&category=&access=&sort=`) |
-| `3.plans` | `/plans` | Plan cards (Studio › Subscriptions) → PesaPal stand-in; `?next=` returns to the title |
-| `4.my-list` | `/my-list` | Continue watching and saved titles (per member, local until the API) |
-| `title/` | `/title/:id` | Stage, access-aware main action (Play / Sign up free / Subscribe / Buy UGX), list, share, story, cast & crew, **WhatsApp Channel + Group**, more like this |
-| `watch/` | `/watch/:id` | Full-screen HLS player, free-tier pre-roll, resume, shortcuts (Space/K, J/L, M, F) |
-| `search/` | `/search?q=` | Titles, cast and crew |
-| `auth/` | `/sign-in`, `/sign-up` | Glass card over a cinema still; `?next=` redirect |
+| `1.auth` | `/sign-in`, `/sign-up` | Glass card over a cinema still; `?next=` redirect |
+| `2.home` | `/` | Hero (Studio featured order), rows (Studio row settings), then for signed-out visitors: plans, why, FAQ. Community card for everyone |
+| `3.films` | `/films` | Full catalogue; type, category and access chips; sort; filters in the URL (`?type=&category=&access=&sort=`) |
+| `4.plans` | `/plans` | Plan cards (Studio › Subscriptions) → PesaPal stand-in; `?next=` returns to the title |
+| `5.my-list` | `/my-list` | Continue watching and saved titles (per member, local until the API) |
+| `6.search` | `/search?q=` | Titles, cast and crew |
+| `7.title` | `/title/:id` | Stage, access-aware main action (Play / Sign up free / Subscribe / Buy UGX), list, share, story, cast & crew, **WhatsApp Channel + Group**, more like this |
+| `8.watch` | `/watch/:id` | Full-screen HLS player, free-tier pre-roll, resume, shortcuts (Space/K, J/L, ←/→, ↑/↓ volume, M, F, C, P). A volume readout shows on the picture while the level changes |
 
 ## UI/UX audit (25 Sept 2026)
 

@@ -5,6 +5,7 @@ import { Outlet, ScrollRestoration } from "react-router-dom";
 import AnnouncementBar from "@/components/layout/AnnouncementBar";
 import Footer from "@/components/layout/Footer";
 import Navbar from "@/components/layout/Navbar";
+import PlayerHost from "@/components/player/PlayerHost";
 import MotionRoot from "@/components/motion/MotionRoot";
 import PageLoader from "@/components/ui/PageLoader";
 
@@ -24,6 +25,7 @@ export default function SiteLayout() {
         </Suspense>
       </main>
       <Footer />
+      <PlayerHost />
       <ScrollRestoration />
     </div>
   );

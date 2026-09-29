@@ -1,13 +1,14 @@
 /* Hero */
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Check, Info, Play, Plus } from "lucide-react";
 
 import Button from "@/components/ui/Button";
 import IconButton from "@/components/ui/IconButton";
-import { useWatchlist } from "@/hooks/useLibrary";
+import { useWatchlist } from "@/store/tanstackStore/queries/member";
 import { cn } from "@/utils/cn";
 import AccessChip from "./AccessChip";
 import MetaLine from "./MetaLine";
+import TrailerBackdrop from "./TrailerBackdrop";
 
 const ROTATE_MS = 9000;
 
@@ -19,15 +20,17 @@ const ROTATE_MS = 9000;
 export default function Hero({ titles }) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [trailer, setTrailer] = useState(false);
+  const onTrailer = useCallback((playing) => setTrailer(playing), []);
   const { has, toggle } = useWatchlist();
   const still = typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
   const current = titles[index];
 
   useEffect(() => {
-    if (paused || still || titles.length < 2) return undefined;
+    if (paused || trailer || still || titles.length < 2) return undefined;
     const t = setTimeout(() => setIndex((i) => (i + 1) % titles.length), ROTATE_MS);
     return () => clearTimeout(t);
-  }, [index, paused, still, titles.length]);
+  }, [index, paused, trailer, still, titles.length]);
 
   if (!current) return <div className="skeleton h-[min(92svh,56rem)] w-full" />;
 
@@ -44,12 +47,11 @@ export default function Hero({ titles }) {
       {/* Backdrops, crossfaded */}
       {titles.map((t, i) => (
         <div key={t.id} aria-hidden={i !== index} className={cn("absolute inset-0 -z-10 transition-opacity duration-1000", i === index ? "opacity-100" : "opacity-0")}>
-          <img
-            src={t.backdrop || t.poster}
-            alt=""
-            fetchPriority={i === 0 ? "high" : "low"}
-            className={cn("h-full w-full object-cover", i === index && "animate-kenburns")}
-          />
+          {i === index ? (
+            <TrailerBackdrop key={t.id} title={t} onPlayingChange={onTrailer} imageClassName="animate-kenburns" controlsClassName="bottom-[clamp(5rem,10vw,8rem)] right-[clamp(1rem,4vw,3.5rem)] md:right-[calc(clamp(1rem,4vw,3.5rem)+11rem)]" />
+          ) : (
+            <img src={t.backdrop || t.poster} alt="" fetchPriority="low" className="h-full w-full object-cover" />
+          )}
         </div>
       ))}
       <div className="absolute inset-0 -z-10 bg-linear-to-r from-black via-black/60 to-transparent" />
@@ -90,12 +92,12 @@ export default function Hero({ titles }) {
             >
               <span className="relative block h-1 w-full overflow-hidden rounded-full bg-white/25">
                 <span
-                  key={`${t.id}-${index}-${paused}`}
+                  key={`${t.id}-${index}-${paused}-${trailer}`}
                   className="absolute inset-y-0 left-0 rounded-full bg-text-primary"
                   style={{
                     width: i < index ? "100%" : i === index ? undefined : "0%",
-                    animation: i === index && !paused && !still ? `hero-fill ${ROTATE_MS}ms linear forwards` : undefined,
-                    ...(i === index && (paused || still) ? { width: "100%" } : {}),
+                    animation: i === index && !paused && !trailer && !still ? `hero-fill ${ROTATE_MS}ms linear forwards` : undefined,
+                    ...(i === index && (paused || trailer || still) ? { width: "100%" } : {}),
                   }}
                 />
               </span>

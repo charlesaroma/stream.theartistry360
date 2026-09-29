@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 import Logo from "@/assets/images/Logo.png";
 import { Instagram, TikTok, WhatsApp, YouTube } from "@/components/ui/BrandIcons";
-import { useSite } from "@/hooks/useCatalog";
+import { useSite } from "@/store/tanstackStore/queries/site";
 
 const COLUMNS = [
   { title: "Watch", links: [["Home", "/"], ["Films", "/films"], ["My List", "/my-list"]] },

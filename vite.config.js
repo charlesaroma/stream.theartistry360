@@ -2,10 +2,16 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import path from 'node:path'
+import process from 'node:process'
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  // Busts the persisted query cache on every deploy, so a changed data shape
+  // is never read back from a visitor's storage. Netlify sets COMMIT_REF.
+  define: {
+    __APP_BUILD__: JSON.stringify(process.env.COMMIT_REF ?? Date.now().toString(36)),
+  },
   resolve: {
     alias: { '@': path.resolve(import.meta.dirname, 'src') },
   },

@@ -1,6 +1,6 @@
 # 06 — Backend Integration
 
-Same API as theartistry360.com (`api.theartistry360.com/api/v1`), proxied at `/api`. Same envelope `{ data, meta? } | { error }`, same `ApiError`. Swap one service at a time, as described in `the_artistry360_2024/docs/12-backend-integration.md`.
+Same API as theartistry360.com (`api.theartistry360.com/api/v1`), proxied at `/api`. Same envelope `{ data, meta? } | { error }`, same `ApiError`. Swap one service at a time (`src/store/tanstackStore/services/*.ts`), as described in `the_artistry360_2024/docs/12-backend-integration.md`. Query factories and pages do not change. Every call names `realm: "member"`; this site has no other.
 
 | Service | Endpoint |
 |---|---|

@@ -11,3 +11,10 @@ export function accessFor(title, member) {
 }
 
 export const TIER_LABEL = { free: "Free", subscription: "Subscribers", ppv: "Pay-per-view" };
+
+/** "94% liked it": Love this! and I like this, over every rating. */
+export function likedPercent(ratings) {
+  if (!ratings) return null;
+  const total = (ratings.love ?? 0) + (ratings.like ?? 0) + (ratings.meh ?? 0);
+  return total >= 20 ? Math.round((((ratings.love ?? 0) + (ratings.like ?? 0)) / total) * 100) : null;
+}

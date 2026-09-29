@@ -1,0 +1,117 @@
+import { useCallback, useEffect, useRef, useState } from "react";
+
+const HIDE_AFTER = 2600;
+const VOLUME_HUD_FOR = 900;
+
+/**
+ * Player state and actions in one place, so the controls, the settings menu
+ * and the keyboard all drive the same <video>.
+ */
+export function usePlayer(videoRef, frameRef) {
+  const idle = useRef(0);
+  const flashTimer = useRef(0);
+  const hudTimer = useRef(0);
+  const [chrome, setChrome] = useState(true);
+  const [flash, setFlash] = useState(null); // { kind: "play"|"pause"|"back"|"forward", id } | null
+  const [volumeHud, setVolumeHud] = useState(null); // { volume, muted } | null
+  const [state, setState] = useState({
+    playing: false, time: 0, duration: 0, buffered: 0, muted: false, volume: 1, rate: 1, fullscreen: false, pip: false, captions: -1,
+  });
+
+  const wake = useCallback(() => {
+    setChrome(true);
+    clearTimeout(idle.current);
+    idle.current = setTimeout(() => setChrome(false), HIDE_AFTER);
+  }, []);
+
+  const pulse = useCallback((kind) => {
+    setFlash({ kind, id: Date.now() });
+    clearTimeout(flashTimer.current);
+    flashTimer.current = setTimeout(() => setFlash(null), 650);
+  }, []);
+
+  // Stays up while the level keeps changing; hides a moment after the last change.
+  const showVolume = useCallback((volume, muted) => {
+    setVolumeHud({ volume, muted });
+    clearTimeout(hudTimer.current);
+    hudTimer.current = setTimeout(() => setVolumeHud(null), VOLUME_HUD_FOR);
+  }, []);
+
+  const v = () => videoRef.current;
+  const actions = {
+    toggle: () => {
+      if (!v()) return;
+      if (v().paused) { v().play(); pulse("play"); } else { v().pause(); pulse("pause"); }
+    },
+    seek: (t) => { if (v()) v().currentTime = t; },
+    skip: (d) => { if (!v()) return; v().currentTime = Math.max(0, Math.min(v().duration || 0, v().currentTime + d)); pulse(d < 0 ? "back" : "forward"); },
+    setVolume: (vol) => {
+      if (!v()) return;
+      v().volume = vol;
+      v().muted = vol === 0;
+      setState((s) => ({ ...s, volume: vol, muted: vol === 0 }));
+      showVolume(vol, vol === 0);
+    },
+    mute: () => {
+      if (!v()) return;
+      v().muted = !v().muted;
+      const muted = v().muted;
+      setState((s) => ({ ...s, muted }));
+      showVolume(v().volume, muted);
+    },
+    setRate: (rate) => { if (!v()) return; v().playbackRate = rate; setState((s) => ({ ...s, rate })); },
+    fullscreen: () => (document.fullscreenElement ? document.exitFullscreen() : frameRef.current?.requestFullscreen?.()),
+    pip: async () => {
+      try {
+        if (document.pictureInPictureElement) await document.exitPictureInPicture();
+        else await v()?.requestPictureInPicture();
+      } catch {
+        // Not supported, or blocked by the browser.
+      }
+    },
+    setCaptions: (index) => {
+      const tracks = v()?.textTracks;
+      if (!tracks) return;
+      [...tracks].forEach((t, i) => { t.mode = i === index ? "showing" : "disabled"; });
+      setState((s) => ({ ...s, captions: index }));
+    },
+  };
+
+  // Video element events feed state
+  const events = {
+    onPlay: () => { setState((s) => ({ ...s, playing: true })); wake(); },
+    onPause: () => { setState((s) => ({ ...s, playing: false })); setChrome(true); },
+    onTimeUpdate: (e) => {
+      const el = e.currentTarget;
+      const buffered = el.buffered.length ? (el.buffered.end(el.buffered.length - 1) / (el.duration || 1)) * 100 : 0;
+      setState((s) => ({ ...s, time: el.currentTime, buffered }));
+    },
+  };
+
+  // React has no props for the picture-in-picture events, so listen natively.
+  useEffect(() => {
+    const el = videoRef.current;
+    if (!el) return;
+    const enter = () => setState((s) => ({ ...s, pip: true }));
+    const leave = () => setState((s) => ({ ...s, pip: false }));
+    el.addEventListener("enterpictureinpicture", enter);
+    el.addEventListener("leavepictureinpicture", leave);
+    return () => {
+      el.removeEventListener("enterpictureinpicture", enter);
+      el.removeEventListener("leavepictureinpicture", leave);
+    };
+  }, [videoRef]);
+
+  useEffect(() => {
+    const onFs = () => setState((s) => ({ ...s, fullscreen: Boolean(document.fullscreenElement) }));
+    document.addEventListener("fullscreenchange", onFs);
+    return () => {
+      document.removeEventListener("fullscreenchange", onFs);
+      clearTimeout(idle.current);
+      clearTimeout(flashTimer.current);
+      clearTimeout(hudTimer.current);
+    };
+  }, []);
+
+  return { state, setState, actions, events, chrome, setChrome, wake, flash, volumeHud };
+}

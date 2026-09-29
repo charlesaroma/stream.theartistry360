@@ -2,7 +2,7 @@
 import { Megaphone, Users } from "lucide-react";
 
 import { WhatsApp } from "@/components/ui/BrandIcons";
-import { useSite } from "@/hooks/useCatalog";
+import { useSite } from "@/store/tanstackStore/queries/site";
 import { cn } from "@/utils/cn";
 
 /**

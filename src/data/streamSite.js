@@ -10,6 +10,7 @@ export const streamSiteSeed = {
   },
   hero: {
     featuredIds: ["ttl_004", "ttl_001", "ttl_002"],
+    autoplayTrailers: true,
   },
   // Home page rows, top to bottom. `source` tells the stream site what to list.
   rows: [
