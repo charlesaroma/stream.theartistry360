@@ -5,7 +5,7 @@ import type { Id } from "@/store/tanstackStore/services/api/types";
 import type { Member } from "./types";
 
 /**
- * Members only: this site has no staff realm, and it is the only place the
+ * Members only: this site has no admin realm, and it is the only place the
  * public signs in (theartistry360.com has no public login). Mock mode keeps
  * the member in localStorage so a reload stays signed in. The real API uses
  * member accounts (MOU 3D: email, phone or Google).

@@ -6,7 +6,7 @@ Status: **built** (Sept 2026). This is the stream-site version of theartistry360
 
 ## 1. What differs from the main site
 
-- **One realm: `member`.** This is the only place the public signs in (`pages/1.auth`); theartistry360.com has no public login apart from the Google vote prompt. `Realm` is typed as `"member"` alone, so a staff token cannot even be expressed here.
+- **One realm: `member`.** This is the only place the public signs in (`pages/1.auth`); theartistry360.com has no public login apart from the Google vote prompt. `Realm` is typed as `"member"` alone, so an admin token cannot even be expressed here.
 - **A consumer of Studio edits.** Titles, the hero, home rows, plans, ads and WhatsApp links are all written in the Studio and read here, so realtime matters most on this site (section 6).
 - **A data router.** `routes/router.jsx` uses `createBrowserRouter`, so route loaders warm the cache (section 5).
 

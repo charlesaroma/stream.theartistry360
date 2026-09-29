@@ -1,7 +1,7 @@
 /* Transport Types */
 
 /**
- * Who a request is made as. The stream site has one realm: viewers. Staff
+ * Who a request is made as. The stream site has one realm: viewers. Admins
  * sign in to the Studio on theartistry360.com, and their tokens never reach
  * this origin.
  */
