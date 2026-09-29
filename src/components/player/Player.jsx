@@ -14,6 +14,7 @@ import { useBuffering } from "./useBuffering";
 import EndScreen from "./EndScreen";
 import PlayerSting from "./PlayerSting";
 import PrerollAd from "./PrerollAd";
+import RatingNotice from "./RatingNotice";
 import SettingsMenu from "./SettingsMenu";
 import ShortcutsSheet from "./ShortcutsSheet";
 import { markStingSeen, stingDue } from "./sting";
@@ -201,6 +202,7 @@ export default function Player({ title, media, ads, next, onNext, startAt = null
         </div>
       )}
 
+      {ready && <RatingNotice title={title} playing={state.playing && state.time > 0.5} />}
       <CenterFlash flash={p.flash} />
       <VolumeHud hud={p.volumeHud} />
 

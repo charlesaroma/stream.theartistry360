@@ -4,11 +4,12 @@ import { likedPercent } from "@/utils/access";
 import { cn } from "@/utils/cn";
 import { isSeries, seasonCount } from "@/utils/episodes";
 import { formatDuration } from "@/utils/format";
+import AgeBadge from "./AgeBadge";
 
 /** "Film · 2026 · 16+ · 1:42:00", one dot-separated line everywhere. */
 export default function MetaLine({ title, className, style }) {
   const { typeName } = useTaxonomy();
-  const parts = [typeName(title.type), title.releaseYear, title.ageRating, isSeries(title) ? `${seasonCount(title)} ${seasonCount(title) === 1 ? "season" : "seasons"}` : formatDuration(title.video?.duration)].filter((p) => p && p !== "—");
+  const parts = [typeName(title.type), title.releaseYear, isSeries(title) ? `${seasonCount(title)} ${seasonCount(title) === 1 ? "season" : "seasons"}` : formatDuration(title.video?.duration)].filter((p) => p && p !== "—");
   const liked = likedPercent(title.ratings);
   return (
     <p className={cn("flex flex-wrap items-center gap-x-2 text-small text-text-secondary", className)} style={style}>
@@ -19,6 +20,12 @@ export default function MetaLine({ title, className, style }) {
           {p}
         </span>
       ))}
+      {title.ageRating && (
+        <span className="flex items-center gap-2">
+          <span className="h-1 w-1 rounded-full bg-text-muted" aria-hidden="true" />
+          <AgeBadge value={title.ageRating} />
+        </span>
+      )}
     </p>
   );
 }

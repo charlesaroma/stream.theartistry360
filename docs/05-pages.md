@@ -46,3 +46,10 @@ Measured in headless Chrome at 1440px and 390px:
 - **Rhythm:** home rows are 411px tall with an exact 64px gap. This fixed an earlier 48px drift caused by glass arrow buttons falling back into the flow.
 - **Targets:** all controls are at least 44px tall.
 - **Layout:** no horizontal scroll at 390px. No console errors.
+
+## Parental guidance, comments, community
+
+- **Age rating** (`utils/ageRatings.js`, `AgeBadge`): G, PG, 13+, 16+, 18+ as colour-coded badges on cards and the meta line, with the meaning on hover and for screen readers. The title page's **Parental guidance** block gives the meaning and the content warnings (`advisories`, set in the Studio). When a film starts, "Rated 16+ · Violence, language and alcohol" shows in the corner for 7 s (`RatingNotice`).
+- **Comments** (`components/title/Comments.jsx`, `services/commentsApi.ts`): on the title and watch pages. Anyone reads; members post (500 characters, optional spoiler cover), like, delete their own and report. Top / Newest. Bodies render as plain text. The API must take the author from the session, strip control characters, rate-limit, and queue reports for moderation in the Studio. The mock keeps comments in the browser, seeded from `data/comments.js`.
+- **WhatsApp community card**: live with sample Channel and Group links from the Stream Site settings; set the real ones in Studio › Streaming › Stream Site.
+

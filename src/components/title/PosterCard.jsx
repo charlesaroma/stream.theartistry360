@@ -9,6 +9,7 @@ import { useMember } from "@/store/context/MemberContext";
 import { useProgress, useWatchlist } from "@/store/tanstackStore/queries/member";
 import { prefetchTitle, useTaxonomy } from "@/store/tanstackStore/queries/site";
 import { cn } from "@/utils/cn";
+import AgeBadge from "./AgeBadge";
 import PreviewCard from "./PreviewCard";
 
 const OPEN_DELAY = 480; // hover intent: long enough that sweeping across a row doesn't pop cards
@@ -104,7 +105,7 @@ export default function PosterCard({ title, className, rank }) {
           <span className="line-clamp-1 text-small font-semibold text-text-primary">{title.title}</span>
           <span className="flex min-w-0 items-center gap-2 text-caption text-text-muted">
             {genre && <span className="truncate">{genre}</span>}
-            {title.ageRating && <span className="shrink-0 rounded-md border border-white/15 px-1 leading-4">{title.ageRating}</span>}
+            <AgeBadge value={title.ageRating} />
           </span>
         </span>
       </Link>

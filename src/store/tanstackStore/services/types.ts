@@ -55,6 +55,8 @@ export interface Title {
   categoryIds: Id[];
   language: string;
   ageRating: string;
+  /** Content warnings shown with the rating (Violence, Language…). */
+  advisories?: string[];
   releaseYear: number;
   cast: Credit[];
   crew: Credit[];

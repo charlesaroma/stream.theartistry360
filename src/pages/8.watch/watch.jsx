@@ -4,6 +4,7 @@ import { Navigate, useNavigate, useParams, useSearchParams } from "react-router-
 import { Check, Share2 } from "lucide-react";
 
 import CommunityCard from "@/components/title/CommunityCard";
+import Comments from "@/components/title/Comments";
 import EpisodeGrid from "@/components/title/EpisodeGrid";
 import MetaLine from "@/components/title/MetaLine";
 import RateButtons from "@/components/title/RateButtons";
@@ -127,6 +128,7 @@ export default function WatchPage() {
                 {copied ? <Check className="h-5 w-5" aria-hidden="true" /> : <Share2 className="h-5 w-5" aria-hidden="true" />}
               </IconButton>
             </div>
+            <Comments titleId={title.id} className="mt-12" />
           </div>
         </div>
 

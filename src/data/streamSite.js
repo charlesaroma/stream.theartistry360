@@ -5,8 +5,9 @@ export const streamSiteSeed = {
     enabled: true,
     heading: "Join the Artistry360 community",
     body: "Get new releases, class times and behind-the-scenes first.",
-    channelUrl: "",
-    groupUrl: "",
+    // Sample links for the demo; set the real ones in Studio › Streaming › Stream Site.
+    channelUrl: "https://whatsapp.com/channel/0029VaA360StreamSample",
+    groupUrl: "https://chat.whatsapp.com/A360StreamCommunitySample",
   },
   hero: {
     featuredIds: ["ttl_004", "ttl_001", "ttl_002"],

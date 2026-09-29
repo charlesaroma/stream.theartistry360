@@ -15,9 +15,11 @@ import PageLoader from "@/components/ui/PageLoader";
 import { useTaxonomy, useTitle, useTitles } from "@/store/tanstackStore/queries/site";
 import { useWatchlist } from "@/store/tanstackStore/queries/member";
 import { moreLikeThis } from "@/utils/similar";
+import Comments from "@/components/title/Comments";
 import Episodes from "@/components/title/Episodes";
 import { isSeries } from "@/utils/episodes";
 import Credits from "./sections/Credits";
+import Guidance from "./sections/Guidance";
 import PrimaryAction from "./sections/PrimaryAction";
 import { usePageMeta } from "@/hooks/usePageMeta";
 
@@ -93,8 +95,10 @@ export default function TitlePage() {
             </section>
           )}
           <Credits cast={title.cast} crew={title.crew} />
+          <Comments titleId={title.id} />
         </div>
-        <div className="lg:sticky lg:top-24 lg:self-start">
+        <div className="flex flex-col gap-6 lg:sticky lg:top-24 lg:self-start">
+          <Guidance title={title} />
           <CommunityCard />
         </div>
       </div>
