@@ -93,6 +93,24 @@ export default function TrailerBackdrop({ title, onPlayingChange, controlsClassN
     if (on && v.paused && !done) v.play().catch(() => {});
   };
 
+  // Sound on by default. A browser only allows it after the visitor has
+  // touched the page, so a cold visit starts muted and turns sound on at the
+  // first tap, click or key anywhere (that gesture is what makes it allowed),
+  // unless they chose mute. The sound button handles its own taps.
+  useEffect(() => {
+    if (!autoSound || !showing || !muted || done || soundChoice() === "off") return undefined;
+    const onFirstTouch = (e) => {
+      if (e.target instanceof Element && e.target.closest("[data-sound-toggle]")) return;
+      toggleSound(true);
+    };
+    document.addEventListener("pointerdown", onFirstTouch, { capture: true, once: true });
+    document.addEventListener("keydown", onFirstTouch, { capture: true, once: true });
+    return () => {
+      document.removeEventListener("pointerdown", onFirstTouch, { capture: true });
+      document.removeEventListener("keydown", onFirstTouch, { capture: true });
+    };
+  });
+
   const finish = () => {
     setShowing(false);
     setDone(true);
@@ -145,21 +163,15 @@ export default function TrailerBackdrop({ title, onPlayingChange, controlsClassN
               <RotateCcw className="h-5 w-5" aria-hidden="true" />
             </IconButton>
           ) : (
-            muted ? (
-              // Muted: say so, in words, where it is easy to find.
-              <button
-                type="button"
-                onClick={() => toggleSound(true)}
-                data-glass=""
-                className="molten-glass ember inline-flex min-h-11 items-center gap-2 rounded-full px-4 text-small font-semibold text-text-primary"
-              >
-                <VolumeX className="h-5 w-5" aria-hidden="true" /> Turn sound on
-              </button>
-            ) : (
-              <IconButton label="Mute trailer" pressed onClick={() => toggleSound(false)} className="h-11 w-11">
-                <Volume2 className="h-5 w-5" aria-hidden="true" />
-              </IconButton>
-            )
+            <IconButton
+              label={muted ? "Turn sound on" : "Mute trailer"}
+              pressed={!muted}
+              onClick={() => toggleSound(muted)}
+              data-sound-toggle=""
+              className="h-11 w-11"
+            >
+              {muted ? <VolumeX className="h-5 w-5" aria-hidden="true" /> : <Volume2 className="h-5 w-5" aria-hidden="true" />}
+            </IconButton>
           )}
         </div>
       )}

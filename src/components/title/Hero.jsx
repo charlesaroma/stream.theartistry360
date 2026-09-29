@@ -64,7 +64,9 @@ export default function Hero({ titles }) {
     >
       {/* Backdrops, crossfaded */}
       {titles.map((t, i) => (
-        <div key={t.id} aria-hidden={i !== index} className={cn("absolute inset-0 -z-10 transition-opacity duration-1000", i === index ? "opacity-100" : "opacity-0")}>
+        // A faded-out slide still sits in the stack; it must not take the clicks
+        // meant for the showing title's sound button.
+        <div key={t.id} aria-hidden={i !== index} className={cn("absolute inset-0 -z-10 transition-opacity duration-1000", i === index ? "opacity-100" : "pointer-events-none opacity-0")}>
           {i === index ? (
             <TrailerBackdrop key={t.id} title={t} onPlayingChange={onTrailer} imageClassName="animate-kenburns" // Sound control: top-right on phones and tablets, clear of the title's
             // buttons; beside the progress rail on desktop.
@@ -74,8 +76,9 @@ export default function Hero({ titles }) {
           )}
         </div>
       ))}
-      <div className="absolute inset-0 -z-10 bg-linear-to-r from-black via-black/60 to-transparent" />
-      <div className="absolute inset-0 -z-10 bg-linear-to-t from-surface-primary via-surface-primary/20 to-black/40" />
+      {/* Shading only: never takes a click (it sits over the trailer's sound button) */}
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-linear-to-r from-black via-black/60 to-transparent" />
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-linear-to-t from-surface-primary via-surface-primary/20 to-black/40" />
 
       {/* Content: taps pass through its empty space to the trailer's sound
           control underneath; only its own links and buttons take them. */}
