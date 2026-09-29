@@ -39,38 +39,41 @@ export default function AccountPage() {
   if (!member) return <Navigate to={`/sign-in?next=${encodeURIComponent(`/account?tab=${tab.id}`)}`} replace />;
 
   return (
+    // A centred, narrower column: settings read best short, and cards fit their content.
     <div className="shell pb-[clamp(3rem,6vw,6rem)] pt-[calc(4.5rem+2rem)]">
-      <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="eyebrow mb-2">Account</p>
-          <h1 className="text-title">Account &amp; settings</h1>
-        </div>
-        <p className="text-small text-text-muted">{member.email}</p>
-      </header>
+      <div className="mx-auto w-full max-w-5xl">
+        <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="eyebrow mb-2">Account</p>
+            <h1 className="text-title">Account &amp; settings</h1>
+          </div>
+          <p className="text-small text-text-muted">{member.email}</p>
+        </header>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[15rem_minmax(0,1fr)]">
-        <nav aria-label="Account sections" className="-mx-[clamp(1rem,4vw,3.5rem)] overflow-x-auto px-[clamp(1rem,4vw,3.5rem)] lg:mx-0 lg:overflow-visible lg:px-0">
-          <ul className="flex gap-2 lg:sticky lg:top-24 lg:flex-col lg:gap-1">
-            {TABS.map(({ id, label, icon: Icon }) => (
-              <li key={id} className="shrink-0">
-                <button
-                  type="button"
-                  aria-current={tab.id === id ? "page" : undefined}
-                  onClick={() => setParams({ tab: id }, { replace: true })}
-                  className={cn(
-                    "flex min-h-11 w-full items-center gap-3 rounded-full px-4 text-small font-semibold transition-colors lg:rounded-xl",
-                    tab.id === id ? "bg-brand/15 text-brand" : "text-text-secondary hover:bg-white/6 hover:text-text-primary",
-                  )}
-                >
-                  <Icon className="h-4 w-4" aria-hidden="true" /> {label}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </nav>
-        <div key={tab.id} className="min-w-0 animate-rise">
-          <tab.Panel />
-        </div>
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[15rem_minmax(0,1fr)]">
+          <nav aria-label="Account sections" className="-mx-[clamp(1rem,4vw,3.5rem)] overflow-x-auto px-[clamp(1rem,4vw,3.5rem)] lg:mx-0 lg:overflow-visible lg:px-0">
+            <ul className="flex gap-2 lg:sticky lg:top-24 lg:flex-col lg:gap-1">
+              {TABS.map(({ id, label, icon: Icon }) => (
+                <li key={id} className="shrink-0">
+                  <button
+                    type="button"
+                    aria-current={tab.id === id ? "page" : undefined}
+                    onClick={() => setParams({ tab: id }, { replace: true })}
+                    className={cn(
+                      "flex min-h-11 w-full items-center gap-3 rounded-full px-4 text-small font-semibold transition-colors lg:rounded-xl",
+                      tab.id === id ? "bg-brand/15 text-brand" : "text-text-secondary hover:bg-white/6 hover:text-text-primary",
+                    )}
+                  >
+                    <Icon className="h-4 w-4" aria-hidden="true" /> {label}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </nav>
+          <div key={tab.id} className="min-w-0 animate-rise">
+            <tab.Panel />
+          </div>
+            </div>
       </div>
     </div>
   );
