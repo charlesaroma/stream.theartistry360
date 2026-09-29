@@ -44,7 +44,7 @@ export default function Player({ title, ads, next, onNext, startAt = null }) {
   useEffect(() => () => clearTimeout(taps.current.timer), []);
   const [adDone, setAdDone] = useState(!ads);
   const [settings, setSettings] = useState(false);
-  // Narrow players get the settings as a bottom sheet (see SettingsMenu).
+  // Narrow or short players get the settings as a bottom sheet (see SettingsMenu).
   const [compactSettings, setCompactSettings] = useState(false);
   const [shortcuts, setShortcuts] = useState(false);
   const [ended, setEnded] = useState(false);
@@ -234,8 +234,13 @@ export default function Player({ title, ads, next, onNext, startAt = null }) {
           className={cn("pointer-events-none absolute inset-x-0 bottom-0 z-20 bg-linear-to-t from-black/85 via-black/40 to-transparent transition-opacity duration-500", fs ? "px-8 pb-8 pt-24" : "px-3 pb-2 pt-14 md:px-6 md:pb-3 md:pt-16", visible ? "opacity-100" : "opacity-0")}
         >
           <div className={visible ? "pointer-events-auto" : undefined}>
-          <Controls state={state} actions={actions} large={fs} hasCaptions={captions.length > 0} settingsOpen={settings} onSettings={() => {
-            setCompactSettings((frame.current?.offsetWidth ?? Infinity) < 448);
+          <Controls state={state} actions={actions} large={fs} hasCaptions={captions.length > 0} settingsOpen={settings} onSettings={(e) => {
+            // The dropdown opens upward from the gear. Use the bottom sheet when
+            // it cannot fit there: a narrow player (phone portrait), a short one
+            // (phone landscape), or a player scrolled up under the site header.
+            const header = document.fullscreenElement ? 0 : (document.querySelector("header")?.getBoundingClientRect().bottom ?? 0);
+            const roomAbove = e.currentTarget.getBoundingClientRect().top - header;
+            setCompactSettings((frame.current?.offsetWidth ?? Infinity) < 448 || (frame.current?.offsetHeight ?? Infinity) < 360 || roomAbove < 220);
             setSettings((s) => !s);
           }}>
             {settings && (
