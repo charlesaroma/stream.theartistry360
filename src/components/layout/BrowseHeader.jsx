@@ -2,7 +2,7 @@
 import { cn } from "@/utils/cn";
 
 /**
- * The one-line header for browse pages (Films, Reels): the page name on the
+ * The one-line header for browse pages (Films): the page name on the
  * left, the page's own controls in the middle, actions on the right. It sits
  * straight under the navbar and wraps on narrow screens, so content starts in
  * the first screen. Main-menu pages have no Back button.

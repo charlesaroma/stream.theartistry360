@@ -4,7 +4,6 @@ import { Navigate, useParams } from "react-router-dom";
 import { Check, Plus, Share2 } from "lucide-react";
 
 import CommunityCard from "@/components/title/CommunityCard";
-import AccessLabel from "@/components/title/AccessLabel";
 import TrailerBackdrop from "@/components/title/TrailerBackdrop";
 import MetaLine from "@/components/title/MetaLine";
 import PosterCard from "@/components/title/PosterCard";
@@ -61,7 +60,6 @@ export default function TitlePage() {
           <div className="max-w-3xl animate-rise">
             <BackButton className="mb-8" />
             <div className="mb-4 flex flex-wrap gap-2">
-              <AccessLabel title={title} />
               {title.categoryIds?.map((c) => <span key={c} className="chip bg-white/10 text-text-secondary">{categoryName(c)}</span>)}
             </div>
             {/* Long titles step down a size so they never run to three lines */}

@@ -8,6 +8,7 @@ import Button from "@/components/ui/Button";
 import Field from "@/components/ui/Field";
 import { useMember } from "@/store/context/MemberContext";
 import AuthFrame from "./AuthFrame";
+import GoogleButton, { OrDivider } from "./sections/GoogleButton";
 import { signInSchema } from "./schemas";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { safeNext } from "@/utils/links";
@@ -34,9 +35,14 @@ export default function SignInPage() {
 
   return (
     <AuthFrame title="Welcome back" lead="Sign in to watch and save titles to your list." footer={<>New here? <Link to={`/sign-up?next=${encodeURIComponent(next)}`} viewTransition className="font-bold text-brand">Create a free account</Link></>}>
+      <GoogleButton next={next} />
+      <OrDivider />
       <form onSubmit={submit} noValidate className="flex flex-col gap-5">
         <Field label="Email" type="email" autoComplete="email" input={register("email")} error={errors.email?.message} />
-        <Field label="Password" type="password" autoComplete="current-password" input={register("password")} error={errors.password?.message} />
+        <div className="flex flex-col gap-2">
+          <Field label="Password" type="password" autoComplete="current-password" input={register("password")} error={errors.password?.message} />
+          <Link to="/forgot-password" viewTransition className="self-end py-1 text-small font-semibold text-brand hover:underline">Forgot password?</Link>
+        </div>
         {serverError && <p role="alert" className="text-small font-semibold text-danger">{serverError}</p>}
         <Button type="submit" loading={isSubmitting} className="mt-2 w-full">Sign in</Button>
       </form>

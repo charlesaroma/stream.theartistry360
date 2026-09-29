@@ -1,6 +1,4 @@
 /* Catalogue Browsing */
-import { flatEpisodes, isSeries } from "./episodes";
-import { formatDuration } from "./format";
 
 /**
  * The Films tabs. Each covers one or more video types (the Studio's Types &
@@ -52,13 +50,6 @@ export function matchesQuery(title, q) {
     .includes(needle);
 }
 
-/** "2026 · Film · 1:33:00", or "2026 · Series · 8 episodes". */
-export function cardLine(title, typeName) {
-  const length = isSeries(title)
-    ? `${flatEpisodes(title).length} episodes`
-    : formatDuration(title.video?.duration);
-  return [title.releaseYear, typeName(title.type), length].filter((p) => p && p !== "—").join(" · ");
-}
 
 /** The tab's lead story: the Studio's featured pick, else the most watched. */
 export function featuredIn(titles) {

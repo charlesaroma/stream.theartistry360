@@ -15,7 +15,7 @@ Status: **built** (Sept 2026). This is the stream-site version of theartistry360
 ```
 src/store/
 ├── context/
-│   ├── MemberContext.jsx            ← session: the signed-in member, sign-in/out, subscribe, purchase
+│   ├── MemberContext.jsx            ← session: the signed-in member, sign-in/out, Google, password reset, subscribe, purchase
 │   ├── PlaybackProvider.jsx         ← UI session state for the player (not server state)
 │   └── playbackContext.js
 └── tanstackStore/
@@ -23,10 +23,10 @@ src/store/
     ├── services/
     │   ├── api/                     ← transport (TypeScript, member realm only)
     │   ├── types.ts                 ← the contract; the superset of the Studio's types
-    │   └── authApi.ts  catalogApi.ts  libraryApi.ts  reelsApi.ts  siteApi.ts
+    │   └── authApi.ts  catalogApi.ts  libraryApi.ts  siteApi.ts
     ├── queries/
     │   ├── keys.ts                  ← siteRoot, memberRoot(id), realmRoot
-    │   ├── site/                    ← catalog.ts (titles, search, types, categories), reels.ts, site.ts (stream-site, plans), index.ts
+    │   ├── site/                    ← catalog.ts (titles, search, types, categories), site.ts (stream-site, plans), index.ts
     │   └── member/                  ← library.ts (watchlist, progress, ratings), index.ts
     └── realtime/useLiveInvalidation.ts
 ```
@@ -37,8 +37,8 @@ src/store/
 
 | Root | Holds | Persisted |
 |---|---|---|
-| `["site", …]` | catalogue, search, taxonomy, reels, the stream-site document, plans | yes (`a360s:query-cache`) |
-| `["member", memberId, …]` | watchlist, progress, episode progress, ratings, watched reels | never |
+| `["site", …]` | catalogue, search, taxonomy, the stream-site document, plans | yes (`a360s:query-cache`) |
+| `["member", memberId, …]` | watchlist, progress, episode progress, ratings | never |
 
 - Signed-out visitors use the id `"guest"`.
 - **Whenever the account changes** (sign-in, sign-up, sign-out, or a cleared token), `MemberContext` removes every `["member", …]` entry. A guest's list never mixes with an account's, and nothing of one account is left for the next.
@@ -55,7 +55,6 @@ src/store/
 - **Route loaders warm the cache** while the page chunk downloads:
   - home: stream-site settings and titles
   - films: titles, types and categories
-  - reels: the reels list
   - plans: plans
   - title and watch pages: that title and the list
 
@@ -74,7 +73,6 @@ src/store/
 | Publish, edit or unpublish a title | `{ entity: ["site","titles"] }` | rows, films, the title page, search |
 | Save Stream Site (hero, rows, links) | `{ entity: ["site","stream-site"] }` | home, footer, title-page WhatsApp block |
 | Edit types or categories | `["site","types"]`, `["site","categories"]` | filters, chips |
-| Publish, edit or feature a reel (Studio › Streaming › Reels) | `["site","reels"]` | the reels page, the home strip, the feed |
 | Edit plans or ads | `["site","plans"]`, `["site","ads"]` | plans, the player's pre-roll |
 
 The member channel, authenticated with the member token, carries entitlement changes after a PesaPal IPN (`["member", id, …]`), so Play unlocks without a reload. A channel may only touch its own roots.
@@ -96,5 +94,4 @@ The member channel, authenticated with the member token, carries entitlement cha
   - every page (home, films, plans, my-list, search, title, sign-in, sign-up, 404) with no console errors;
   - sign-up, subscribing and the watchlist toggle;
   - the volume readout on the watch page;
-  - the reels feed: the scene plays, ±10 s seek, the wheel and ↑/↓ move between reels, a shared `?reel=` link opens that reel (first visit and cached), and "Scene from …" opens the film at the scene (`?t=100`, playing at 104.7 s);
   - only `site` keys persisted, signed out and signed in.

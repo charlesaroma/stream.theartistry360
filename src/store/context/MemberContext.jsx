@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 
 import { onTokenChange } from "@/store/tanstackStore/services/api/tokens";
 import * as auth from "@/store/tanstackStore/services/authApi";
+import { useMockApi } from "@/store/tanstackStore/services/api/config";
 import { realmRoot } from "@/store/tanstackStore/queries/keys";
 
 const MemberContext = createContext(null);
@@ -52,6 +53,12 @@ export function MemberProvider({ children }) {
       loading,
       signIn: (c) => switchAccount(auth.signIn, c),
       signUp: (d) => switchAccount(auth.signUp, d),
+      signInWithGoogle: (next) => switchAccount(auth.signInWithGoogle, next),
+      // Password reset doesn't sign anyone in; the member signs in afterwards.
+      requestPasswordReset: auth.requestPasswordReset,
+      resetPassword: auth.resetPassword,
+      /** Mocks on: pages may show demo shortcuts (e.g. the reset link). */
+      demo: useMockApi,
       signOut: () => switchAccount(auth.signOut),
       subscribe: (planId) => run(auth.subscribe, planId),
       purchase: (titleId) => run(auth.purchase, titleId),

@@ -17,7 +17,6 @@ export const streamSiteSeed = {
     { id: "trending", label: "Most Watched", source: "trending", enabled: true },
     { id: "continue", label: "Continue Watching", source: "continue", enabled: true },
     { id: "new", label: "New Releases", source: "new", enabled: true },
-    { id: "reels", label: "Reels & Spotlight Clips", source: "reels", enabled: true },
     { id: "free", label: "Free to Watch", source: "tier:free", enabled: true },
     { id: "classes", label: "Class Replays", source: "type:class", enabled: true },
     { id: "films", label: "Films", source: "type:film", enabled: true },

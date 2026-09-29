@@ -1,4 +1,5 @@
 /* Member Auth Service */
+import { apiRoot, useMockApi } from "@/store/tanstackStore/services/api/config";
 import { ApiError, mockApi } from "@/store/tanstackStore/services/api/mock";
 import { accessToken, clearAccessToken, setAccessToken } from "@/store/tanstackStore/services/api/tokens";
 import type { Id } from "@/store/tanstackStore/services/api/types";
@@ -53,6 +54,47 @@ export function signUp({ name, email, password }: { name: string; email: string;
     setAccessToken("member", `mock.member.${member.id}`);
     return write(member);
   }, 500);
+}
+
+/**
+ * Continue with Google. The real flow is server-side (authorization code with
+ * PKCE and a state check): the browser goes to the API, the API talks to
+ * Google, sets the refresh cookie and sends the member back to `next`. No
+ * Google token ever reaches this page. Mock mode signs in a demo account.
+ */
+export function signInWithGoogle(next: string) {
+  if (!useMockApi) {
+    window.location.assign(`${apiRoot}/auth/member/google?next=${encodeURIComponent(next)}`);
+    return new Promise<never>(() => {}); // the page is leaving
+  }
+  return mockApi(() => {
+    const email = "google.member@gmail.com";
+    const existing = read();
+    const member: Member = existing?.email === email ? existing : { id: `m_${Date.now().toString(36)}`, name: "Google Member", email, subscription: null, purchases: [] };
+    setAccessToken("member", `mock.member.${member.id}`);
+    return write(member);
+  }, 700);
+}
+
+/**
+ * Forgot password: always the same answer, whether or not the email has an
+ * account, so the form can't be used to find out who is a member. The API
+ * emails a single-use link (30 minutes) and rate-limits per email and IP.
+ */
+export function requestPasswordReset({ email }: { email: string }) {
+  return mockApi(() => {
+    if (!email?.trim()) throw new ApiError("Enter your email.", 422);
+    return { sent: true as const };
+  }, 600);
+}
+
+/** Sets a new password from the emailed link. The API rejects used or expired tokens. */
+export function resetPassword({ token, password }: { token: string; password: string }) {
+  return mockApi(() => {
+    if (!token) throw new ApiError("This reset link is incomplete. Request a new one.", 400);
+    if (!password || password.length < 8) throw new ApiError("Use at least 8 characters.", 422);
+    return { reset: true as const };
+  }, 600);
 }
 
 export function signOut() {

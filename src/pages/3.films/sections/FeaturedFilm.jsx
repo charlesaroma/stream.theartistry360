@@ -5,17 +5,13 @@ import { Clapperboard, Info, Play } from "lucide-react";
 
 import MetaLine from "@/components/title/MetaLine";
 import TrailerBackdrop from "@/components/title/TrailerBackdrop";
-import { useMember } from "@/store/context/MemberContext";
-import { accessFor } from "@/utils/access";
 
 /**
  * The tab's lead story: one wide banner with the backdrop, the title, a line
  * of synopsis, and Play or Trailer. Uses the Studio's featured setting.
  */
 export default function FeaturedFilm({ title, eyebrow }) {
-  const { member } = useMember();
   const [trailer, setTrailer] = useState(false);
-  const canWatch = accessFor(title, member).ok;
   const hasTrailer = title.trailer?.status === "ready";
 
   return (
@@ -34,12 +30,12 @@ export default function FeaturedFilm({ title, eyebrow }) {
           <p className="line-clamp-2 text-body text-text-secondary">{title.synopsis}</p>
           <div className="mt-2 flex flex-wrap gap-3">
             <Link
-              to={canWatch ? `/watch/${title.id}` : `/title/${title.id}`}
+              to={`/watch/${title.id}`}
               viewTransition
               className="inline-flex min-h-11 items-center gap-2 rounded-full bg-text-primary px-5 text-small font-bold text-black hover:bg-white"
             >
               <Play className="h-4 w-4 fill-current" aria-hidden="true" />
-              {canWatch ? "Play" : "Watch options"}
+              Play
             </Link>
             {hasTrailer && !trailer && (
               <button type="button" onClick={() => setTrailer(true)} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/25 px-5 text-small font-semibold text-text-primary backdrop-blur-md hover:border-white/50">

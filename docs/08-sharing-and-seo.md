@@ -1,6 +1,6 @@
 # 08 — Sharing and SEO
 
-**Rule:** a shared link shows what it points at. A film link previews with that film's title, one line of synopsis and its image, and so does a reel link. Every other page shows the branded default card.
+**Rule:** a shared link shows what it points at. A film link previews with that film's title, one line of synopsis and its image, Every other page shows the branded default card.
 
 ## Why an edge function
 
@@ -15,12 +15,12 @@ WhatsApp, Facebook, X, iMessage, Slack and LinkedIn build link previews with cra
 
 ## How it works
 
-- `netlify/edge-functions/share-card.js` runs on `/title/*`, `/watch/*` and `/reels`. It looks the item up and swaps the head's `<title>`, description, canonical, `og:*` and `twitter:*` tags. Everyone gets the same HTML, crawler or not.
-- **Links:** a `/watch/:id` link previews as its title page (canonical `/title/:id`). `/reels?reel=<id>` previews as that reel, and plain `/reels` gets a Reels card. An unknown id keeps the default card, and a failed lookup never breaks the page.
-- **Images:** 1200×630. Unsplash images are cropped to that on request. A title uses its backdrop, then its poster; a reel uses its poster. Everything else uses `public/share/default.png` (the logo on black).
+- `netlify/edge-functions/share-card.js` runs on `/title/*` and `/watch/*`. It looks the item up and swaps the head's `<title>`, description, canonical, `og:*` and `twitter:*` tags. Everyone gets the same HTML, crawler or not.
+- **Links:** a `/watch/:id` link previews as its title page (canonical `/title/:id`). An unknown id keeps the default card, and a failed lookup never breaks the page.
+- **Images:** 1200×630. Unsplash images are cropped to that on request. A title uses its backdrop, then its poster. Everything else uses `public/share/default.png` (the logo on black).
 - **Data:**
   - Until the API exists: `public/share/catalog.json`, written at build time (`npm run build` runs `scripts/share-catalog.mjs` first) from the seed, published items only.
-  - Once it does: set `SHARE_API_BASE` in Netlify's environment (e.g. `https://api.theartistry360.com`) and the function reads `GET /api/v1/streaming/titles/:id` and `…/reels/:id` instead. It needs public fields only, and a Studio edit shows in previews at once.
+  - Once it does: set `SHARE_API_BASE` in Netlify's environment (e.g. `https://api.theartistry360.com`) and the function reads `GET /api/v1/streaming/titles/:id` instead. It needs public fields only, and a Studio edit shows in previews at once.
 - **Defaults:** `index.html` carries the default card for every other page.
 
 ## In the app
@@ -29,7 +29,7 @@ WhatsApp, Facebook, X, iMessage, Slack and LinkedIn build link previews with cra
 
 ## Search engines
 
-The same build step writes `public/sitemap.xml` (home, Films, Reels, Plans, every published title and reel) and `public/robots.txt`. The robots file keeps My List and sign-in out of the index and points to the sitemap. Both are generated, not committed.
+The same build step writes `public/sitemap.xml` (home, Films, Plans, every published title) and `public/robots.txt`. The robots file keeps My List, sign-in and password reset out of the index and points to the sitemap. Both are generated, not committed.
 
 ## Checking a card after a deploy
 

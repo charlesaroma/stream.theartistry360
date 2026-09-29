@@ -6,7 +6,6 @@ import Button from "@/components/ui/Button";
 import IconButton from "@/components/ui/IconButton";
 import { useWatchlist } from "@/store/tanstackStore/queries/member";
 import { cn } from "@/utils/cn";
-import AccessLabel from "./AccessLabel";
 import MetaLine from "./MetaLine";
 import TrailerBackdrop from "./TrailerBackdrop";
 
@@ -98,7 +97,6 @@ export default function Hero({ titles }) {
             <IconButton label={has(current.id) ? "Remove from My List" : "Add to My List"} pressed={has(current.id)} onClick={() => toggle(current.id)}>
               {has(current.id) ? <Check className="h-5 w-5" aria-hidden="true" /> : <Plus className="h-5 w-5" aria-hidden="true" />}
             </IconButton>
-            <AccessLabel title={current} className="ml-1" />
           </div>
         </div>
       </div>

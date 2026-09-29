@@ -28,7 +28,7 @@ export default function WatchPage() {
   const { id } = useParams();
   const [params] = useSearchParams();
   const episodeId = params.get("ep");
-  // ?t=<seconds>: start there, e.g. "Scene from …" on a reel.
+  // ?t=<seconds>: start there (a shared timestamp link).
   const startAt = Number(params.get("t")) > 0 ? Number(params.get("t")) : null;
   const { member, loading } = useMember();
   const { data: title, isLoading } = useTitle(id);
@@ -50,7 +50,9 @@ export default function WatchPage() {
   useEffect(() => close, [close]);
 
   if (isLoading || loading) return <PageLoader />;
-  if (!title || !canWatch) return <Navigate to={`/title/${id}`} replace />;
+  if (!title) return <Navigate to="/" replace />;
+  // Can't watch yet: the title page opens its gate (price, sign in, plans).
+  if (!canWatch) return <Navigate to={`/title/${id}?play=1`} replace />;
 
   const similar = moreLikeThis(title, titles);
 

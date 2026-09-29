@@ -4,17 +4,17 @@
  * Link previews (WhatsApp, Facebook, X, iMessage, Slack, LinkedIn) come from
  * crawlers that read the first HTML and never run JavaScript, so a
  * single-page app shows the same generic card for every link. This runs on
- * Netlify's edge before the page is sent: for a film, a series, a class or a
- * reel it writes that item's title, one line, image and link into <head>.
+ * Netlify's edge before the page is sent: for a film, a series or a class
+ * it writes that item's title, one line, image and link into <head>.
  * Everyone gets the same HTML (crawler or not); the app itself is unchanged.
  *
- * Data: the API when SHARE_API_BASE is set (GET streaming/titles/:id and
- * streaming/reels/:id, public fields only), otherwise /share/catalog.json,
+ * Data: the API when SHARE_API_BASE is set (GET streaming/titles/:id,
+ * public fields only), otherwise /share/catalog.json,
  * written at build time from the seed (scripts/share-catalog.mjs).
  */
 
 const SITE = "Artistry360 Stream";
-const DEFAULT_DESCRIPTION = "Films, series, classes and reels from The Artistry360, Kampala.";
+const DEFAULT_DESCRIPTION = "Films from The Artistry360, Kampala.";
 const TTL = 5 * 60 * 1000;
 let cached = null; // { at, catalog }
 
@@ -38,7 +38,7 @@ export default async function shareCard(request, context) {
   return new Response(withCard(html, card), { status: response.status, headers });
 }
 
-export const config = { path: ["/title/*", "/watch/*", "/reels"] };
+export const config = { path: ["/title/*", "/watch/*"] };
 
 /** What the URL points at, as { title, description, image, url, type }. */
 export async function cardFor(url) {
@@ -57,20 +57,6 @@ export async function cardFor(url) {
       type: "video.movie",
     };
   }
-  if (section === "reels") {
-    const reelId = url.searchParams.get("reel");
-    const r = reelId && (await lookup(url, "reels", reelId));
-    if (r) {
-      return {
-        title: `${r.title} · Reels · ${SITE}`,
-        description: r.description,
-        image: image(r.image),
-        url: `${origin}/reels?reel=${encodeURIComponent(reelId)}`,
-        type: "video.other",
-      };
-    }
-    return { title: `Reels · ${SITE}`, description: "Scenes, monologues, auditions and behind the scenes from The Artistry360.", image: image(null), url: `${origin}/reels`, type: "website" };
-  }
   return null;
 }
 
@@ -81,12 +67,12 @@ async function lookup(url, kind, id) {
     if (!res.ok) return null;
     const { data } = await res.json();
     return data
-      ? { title: data.title, description: data.synopsis ?? data.caption ?? "", image: data.backdrop ?? data.poster ?? null, kind: kind === "reels" ? "Reel" : "" }
+      ? { title: data.title, description: data.synopsis ?? "", image: data.backdrop ?? data.poster ?? null, kind: "" }
       : null;
   }
   if (!cached || Date.now() - cached.at > TTL) {
     const res = await fetch(new URL("/share/catalog.json", url.origin));
-    cached = { at: Date.now(), catalog: res.ok ? await res.json() : { titles: {}, reels: {} } };
+    cached = { at: Date.now(), catalog: res.ok ? await res.json() : { titles: {} } };
   }
   return cached.catalog[kind]?.[id] ?? null;
 }

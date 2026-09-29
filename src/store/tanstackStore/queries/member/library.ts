@@ -28,11 +28,6 @@ export const libraryQueries = {
       queryKey: [...memberRoot(memberId), "episode-progress"] as const,
       queryFn: ({ signal }) => library.getEpisodeProgress(memberId, { signal }),
     }),
-  watchedReels: (memberId: MemberId) =>
-    queryOptions({
-      queryKey: [...memberRoot(memberId), "watched-reels"] as const,
-      queryFn: ({ signal }) => library.getWatchedReels(memberId, { signal }),
-    }),
   ratings: (memberId: MemberId) =>
     queryOptions({
       queryKey: [...memberRoot(memberId), "ratings"] as const,
@@ -114,16 +109,3 @@ export function useRatings() {
   return { ratings, rate: (titleId: Id, rating: Rating | null) => rate.mutate({ titleId, rating }) };
 }
 
-/** Reels this viewer has already watched; `mark` records one as it plays. */
-export function useWatchedReels() {
-  const memberId = useMemberId();
-  const qc = useQueryClient();
-  const options = libraryQueries.watchedReels(memberId);
-  const { data: watched = [] } = useQuery(options);
-  const mark = useMutation({
-    mutationFn: (reelId: Id) => library.markReelWatched(memberId, reelId),
-    meta: { handlesErrors: true }, // quiet bookkeeping
-    onSuccess: (next) => qc.setQueryData(options.queryKey, next),
-  });
-  return { has: (id: Id) => watched.includes(id), mark: mark.mutate };
-}

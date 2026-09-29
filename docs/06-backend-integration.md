@@ -7,13 +7,14 @@ Same API as theartistry360.com (`api.theartistry360.com/api/v1`), proxied at `/a
 | `catalogApi.listTitles` / `getTitle` / `searchTitles` | `GET streaming/titles?published=true`, `GET streaming/titles/:id`, `GET streaming/titles?q=` |
 | `catalogApi.listTypes` / `listCategories` | `GET streaming/types`, `GET streaming/categories` |
 | `siteApi.getSite` / `listPlans` | `GET stream/site`, `GET streaming/plans` |
-| `authApi.*` | `POST auth/login`, `POST auth/register`, `GET auth/me` (same member accounts as the main site; phone OTP and Google sign-in per MOU 3D) |
+| `authApi.*` | `POST auth/login`, `POST auth/register`, `GET auth/me` (same member accounts as the main site; phone OTP per MOU 3D) |
+| `authApi.signInWithGoogle` | Browser goes to `GET auth/member/google?next=`; the API runs the OAuth code flow (PKCE + state), links or creates the member, sets the refresh cookie and redirects to `next` (site paths only). No Google token reaches the page |
+| `authApi.requestPasswordReset` / `resetPassword` | `POST auth/password/forgot` (same answer whether or not the email exists; rate-limited per email and IP), `POST auth/password/reset` (single-use token, 30 min; signs out other sessions) |
 | `authApi.subscribe` / `purchase` | `POST payments/orders` → PesaPal redirect; granted only by `POST payments/pesapal/ipn` |
 | `libraryApi.*` | `GET/POST me/watchlist`, `GET/PUT me/progress/:titleId` |
 | player | `GET streaming/titles/:id/play` → signed, expiring HLS URL; `403` if not entitled |
-| `reelsApi.listReels` / `getReel` | `GET streaming/reels`, `GET streaming/reels/:id`. Each reel names its title and `clip`; its stream must be playable without the title's entitlement (a public preview URL), since reels are the free shop window |
 
-Share cards: once the API is live, set `SHARE_API_BASE` in Netlify so link previews read `streaming/titles/:id` and `streaming/reels/:id` from it (`08-sharing-and-seo.md`).
+Share cards: once the API is live, set `SHARE_API_BASE` in Netlify so link previews read `streaming/titles/:id` from it (`08-sharing-and-seo.md`).
 
 Remove `playbackUrl` from the seed once `/play` exists. The demo stream is Mux's public test HLS.
 

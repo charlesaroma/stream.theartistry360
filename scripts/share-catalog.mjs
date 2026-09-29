@@ -1,11 +1,10 @@
 /* Share Catalogue */
 // Writes public/share/catalog.json at build time: the few fields a link
-// preview needs for every public title and reel (title, one line, a 1200×630
+// preview needs for every public title (title, one line, a 1200×630
 // image). The share-card edge function reads it until the API serves the
 // same data (SHARE_API_BASE; see docs/06-backend-integration.md).
 import { mkdirSync, writeFileSync } from "node:fs";
 
-import { streamingReelsSeed } from "../src/data/streamingReels.js";
 import { streamingTitlesSeed } from "../src/data/streamingTitles.js";
 import { streamingTypesSeed } from "../src/data/streamingTypes.js";
 
@@ -43,32 +42,18 @@ const titles = Object.fromEntries(
   ]),
 );
 
-const reels = Object.fromEntries(
-  streamingReelsSeed
-    .filter((r) => (r.status ?? "published") === "published")
-    .map((r) => [
-      r.id,
-      {
-        title: r.title,
-        description: oneLine(`${r.caption}${titles[r.titleId] ? ` From ${titles[r.titleId].title}.` : ""}`),
-        image: card(r.poster),
-        kind: "Reel",
-      },
-    ]),
-);
 
 mkdirSync("public/share", { recursive: true });
-writeFileSync("public/share/catalog.json", JSON.stringify({ generatedAt: new Date().toISOString(), titles, reels }));
-console.log(`share catalogue: ${Object.keys(titles).length} titles, ${Object.keys(reels).length} reels`);
+writeFileSync("public/share/catalog.json", JSON.stringify({ generatedAt: new Date().toISOString(), titles }));
+console.log(`share catalogue: ${Object.keys(titles).length} titles`);
 
-// A sitemap of every public page, film and reel, so search engines find them
+// A sitemap of every public page and film, so search engines find them
 // all; robots.txt points to it. The domain is the production one.
 const SITE = "https://stream.theartistry360.com";
 const urls = [
-  "/", "/films", "/reels", "/plans",
+  "/", "/films", "/plans",
   ...Object.keys(titles).map((id) => `/title/${id}`),
-  ...Object.keys(reels).map((id) => `/reels?reel=${id}`),
 ];
 const xml = urls.map((u) => `  <url><loc>${SITE}${u.replace(/&/g, "&amp;")}</loc></url>`).join("\n");
 writeFileSync("public/sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${xml}\n</urlset>\n`);
-writeFileSync("public/robots.txt", `User-agent: *\nAllow: /\nDisallow: /my-list\nDisallow: /sign-in\nDisallow: /sign-up\n\nSitemap: ${SITE}/sitemap.xml\n`);
+writeFileSync("public/robots.txt", `User-agent: *\nAllow: /\nDisallow: /my-list\nDisallow: /sign-in\nDisallow: /sign-up\nDisallow: /forgot-password\nDisallow: /reset-password\n\nSitemap: ${SITE}/sitemap.xml\n`);

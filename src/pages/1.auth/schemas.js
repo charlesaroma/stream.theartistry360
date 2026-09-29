@@ -7,3 +7,10 @@ export const signUpSchema = z.object({
   email,
   password: z.string().min(8, "Use at least 8 characters."),
 });
+export const forgotSchema = z.object({ email });
+export const resetSchema = z
+  .object({
+    password: z.string().min(8, "Use at least 8 characters.").max(128, "Keep it under 128 characters."),
+    confirm: z.string(),
+  })
+  .refine((v) => v.password === v.confirm, { path: ["confirm"], message: "The passwords don't match." });

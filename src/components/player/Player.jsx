@@ -52,7 +52,7 @@ export default function Player({ title, ads, next, onNext, startAt = null }) {
   const { progress, save } = useProgress();
   const { buffering, wait, done } = useBuffering();
   const p = usePlayer(video, frame);
-  // A requested start (a reel's scene) wins over where the member stopped.
+  // A requested start (?t= in a shared link) wins over where the member stopped.
   const resumeAt = startAt ?? progress[title.id]?.seconds ?? 0;
   // Brand sting before a first play (rules in sting.js); the stream starts after it.
   const [stingDone, setStingDone] = useState(() => !stingDue(title.id, { ads, resumeAt }));

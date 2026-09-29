@@ -8,6 +8,7 @@ import Button from "@/components/ui/Button";
 import Field from "@/components/ui/Field";
 import { useMember } from "@/store/context/MemberContext";
 import AuthFrame from "./AuthFrame";
+import GoogleButton, { OrDivider } from "./sections/GoogleButton";
 import { signUpSchema } from "./schemas";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { safeNext } from "@/utils/links";
@@ -34,13 +35,14 @@ export default function SignUpPage() {
 
   return (
     <AuthFrame title="Create your free account" lead="Watch selected titles free today. Upgrade any time for the whole library." footer={<>Already a member? <Link to={`/sign-in?next=${encodeURIComponent(next)}`} viewTransition className="font-bold text-brand">Sign in</Link></>}>
+      <GoogleButton next={next} />
+      <OrDivider />
       <form onSubmit={submit} noValidate className="flex flex-col gap-5">
         <Field label="Name" autoComplete="name" input={register("name")} error={errors.name?.message} />
         <Field label="Email" type="email" autoComplete="email" input={register("email")} error={errors.email?.message} />
         <Field label="Password" type="password" autoComplete="new-password" input={register("password")} error={errors.password?.message} hint="At least 8 characters." />
         {serverError && <p role="alert" className="text-small font-semibold text-danger">{serverError}</p>}
         <Button type="submit" loading={isSubmitting} className="mt-2 w-full">Create account</Button>
-        <p className="text-center text-caption text-text-muted">Phone number and Google sign-in arrive with the backend.</p>
       </form>
     </AuthFrame>
   );
