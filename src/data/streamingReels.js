@@ -4,7 +4,8 @@
 //
 // A reel is a scene: a window (clip.start to clip.end, in seconds) of the
 // linked title's own stream, so "Scene from …" can open the full title at the
-// same moment. Until the provider cuts real clips, every title (and so every
+// same moment. `featured` is the Studio's pick for the top of /reels (one at
+// most). Until the provider cuts real clips, every title (and so every
 // reel) plays Mux's public test stream.
 const DEMO_HLS = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8";
 
@@ -13,6 +14,7 @@ const reelPoster = (id) => `https://images.unsplash.com/${id}?auto=format&fit=cr
 export const streamingReelsSeed = [
   {
     id: "reel_001",
+    publishedAt: "2026-09-02T09:00:00.000Z",
     title: "The Monologue Breakdown",
     category: "monologue",
     caption: "Alexon breaks down the turning point where an actor shifts from speaking lines to demanding something real from their scene partner.",
@@ -32,6 +34,9 @@ export const streamingReelsSeed = [
   },
   {
     id: "reel_002",
+    publishedAt: "2026-09-20T09:00:00.000Z",
+    // The Studio's featured pick: the moving centrepiece at the top of /reels.
+    featured: true,
     title: "Interrogation Scene Climax",
     category: "highlight",
     caption: "Tendo's raw confrontation in Kings & Queens. Shot in one continuous handheld take on location in Kampala.",
@@ -51,6 +56,7 @@ export const streamingReelsSeed = [
   },
   {
     id: "reel_003",
+    publishedAt: "2026-09-24T09:00:00.000Z",
     title: "The 3-Second Cold Read",
     category: "audition",
     caption: "How to capture the room and own the stillness before speaking a single word of the script.",
@@ -70,6 +76,7 @@ export const streamingReelsSeed = [
   },
   {
     id: "reel_004",
+    publishedAt: "2026-09-11T09:00:00.000Z",
     title: "Lighting The Night Alley",
     category: "bts",
     caption: "Crafting atmospheric neon noir in downtown Kampala using a single key light, wet pavement reflections, and haze.",
@@ -89,6 +96,7 @@ export const streamingReelsSeed = [
   },
   {
     id: "reel_005",
+    publishedAt: "2026-09-27T09:00:00.000Z",
     title: "Screen Presence & Micro-Expressions",
     category: "monologue",
     caption: "Why the camera lens registers your internal dialogue before you ever make an external gesture.",
@@ -108,6 +116,7 @@ export const streamingReelsSeed = [
   },
   {
     id: "reel_006",
+    publishedAt: "2026-09-15T09:00:00.000Z",
     title: "Stunt Choreography Rehearsal",
     category: "bts",
     caption: "Breaking down the corridor chase sequence frame by frame with camera operator pace and stunt padding.",

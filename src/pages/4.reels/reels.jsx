@@ -1,197 +1,101 @@
 /* Reels Page */
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Play, Sparkles } from "lucide-react";
 
-import PageIntro from "@/components/layout/PageIntro";
 import ReelViewer from "@/components/player/ReelViewer";
-import ReelCard from "@/components/title/ReelCard";
-import Button from "@/components/ui/Button";
 import { useReels } from "@/store/tanstackStore/queries/site";
-import { cn } from "@/utils/cn";
-
-const CATEGORIES = [
-  { id: "", label: "All Clips" },
-  { id: "monologue", label: "Monologues" },
-  { id: "highlight", label: "Scene Cuts" },
-  { id: "bts", label: "Behind The Scenes" },
-  { id: "audition", label: "Audition Lab" },
-];
-
-const SORTS = [
-  { id: "popular", label: "Most Watched" },
-  { id: "likes", label: "Most Liked" },
-  { id: "new", label: "Latest" },
-];
+import { REEL_TABS, isPhone, lastReel } from "@/utils/reels";
+import FeaturedReel from "./sections/FeaturedReel";
+import ReelsGrid from "./sections/ReelsGrid";
+import ReelsToolbar from "./sections/ReelsToolbar";
 
 /**
- * Dedicated Reels page (/reels).
- * Showcases short-form cinema clips, monologues, scene cuts, and audition reels
- * in a responsive 9:16 grid with category filtering and an immersive feed viewer.
+ * /reels: a feed you drop straight into. A one-line toolbar, the Studio's
+ * featured reel playing silently, then the grid. Every card, "Watch from
+ * here" and Play Feed open the same full-screen feed.
+ *
+ * The URL holds the state: ?category, ?tab, and ?reel (the feed is open on
+ * that reel). Scrolling the feed keeps ?reel current, so Back from a film
+ * returns to the same clip and a copied link opens it. Phones open straight
+ * into the feed; its "Browse all" sets ?view=grid.
  */
 export default function ReelsPage() {
   const [params, setParams] = useSearchParams();
   const { data: reels = [], isLoading } = useReels();
+  const autoOpened = useRef(false);
 
   const category = params.get("category") ?? "";
-  const sort = params.get("sort") ?? "popular";
+  const tab = REEL_TABS.some((t) => t.id === params.get("tab")) ? params.get("tab") : "trending";
+  const reelId = params.get("reel");
 
-  const [viewerOpen, setViewerOpen] = useState(false);
-  const [activeIndex, setActiveIndex] = useState(0);
+  // Featured first (unfiltered view only), then the rest in the tab's order.
+  // The feed plays them in exactly this order.
+  const { featured, ordered } = useMemo(() => {
+    const sorted = reels.filter((r) => !category || r.category === category).sort(REEL_TABS.find((t) => t.id === tab).sort);
+    const pick = category ? null : (reels.find((r) => r.featured) ?? sorted[0] ?? null);
+    return { featured: pick, ordered: pick ? [pick, ...sorted.filter((r) => r.id !== pick.id)] : sorted };
+  }, [reels, category, tab]);
 
-  const set = (key, value) => {
+  const update = (changes, { push = false } = {}) => {
     const next = new URLSearchParams(params);
-    if (value) next.set(key, value);
-    else next.delete(key);
-    setParams(next, { replace: true });
-  };
-
-  const list = useMemo(() => {
-    const filtered = reels.filter((r) => !category || r.category === category);
-    if (sort === "likes") return filtered.sort((a, b) => (b.likes ?? 0) - (a.likes ?? 0));
-    if (sort === "new") return [...filtered].reverse();
-    return filtered.sort((a, b) => (b.views ?? 0) - (a.views ?? 0));
-  }, [reels, category, sort]);
-
-  // A shared link (/reels?reel=<id>) opens the viewer on that reel once the list is in.
-  const sharedId = params.get("reel");
-  const [openedShared, setOpenedShared] = useState(null);
-  if (sharedId && sharedId !== openedShared && list.length) {
-    setOpenedShared(sharedId);
-    const idx = list.findIndex((r) => r.id === sharedId);
-    if (idx >= 0) {
-      setActiveIndex(idx);
-      setViewerOpen(true);
+    for (const [k, v] of Object.entries(changes)) {
+      if (v) next.set(k, v);
+      else next.delete(k);
     }
-  }
-
-  const closeViewer = () => {
-    setViewerOpen(false);
-    if (sharedId) set("reel", "");
+    setParams(next, { replace: !push });
   };
 
-  const handleOpenAt = (reel) => {
-    const idx = list.findIndex((r) => r.id === reel.id);
-    setActiveIndex(idx >= 0 ? idx : 0);
-    setViewerOpen(true);
+  const activeIndex = ordered.findIndex((r) => r.id === reelId);
+  const open = (reel) => {
+    lastReel.set(reel.id);
+    update({ reel: reel.id }, { push: true });
+  };
+  const onNavigate = (i) => {
+    const reel = ordered[i];
+    if (!reel || reel.id === reelId) return;
+    lastReel.set(reel.id);
+    update({ reel: reel.id });
   };
 
-  const handlePlayAll = () => {
-    setActiveIndex(0);
-    setViewerOpen(true);
-  };
+  // Phones: straight into the feed, where they left off, unless they chose the grid.
+  useEffect(() => {
+    if (autoOpened.current || !ordered.length || reelId || params.get("view") || !isPhone()) return;
+    autoOpened.current = true;
+    const last = lastReel.get();
+    const next = new URLSearchParams(params);
+    next.set("reel", ordered.some((r) => r.id === last) ? last : ordered[0].id);
+    setParams(next, { replace: true });
+  }, [ordered, reelId, params, setParams]);
 
   return (
     <>
-      <PageIntro
-        eyebrow="Spotlight & Quick Takes"
-        title="Reels"
-        lead="Short-form monologues, scene highlights, audition tapes, and behind-the-scenes moments from Artistry360 screen productions."
-      >
-        <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          {/* Category Filter Chips */}
-          <div role="group" aria-label="Filter by category" className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 py-1">
-            {CATEGORIES.map((c) => {
-              const active = category === c.id;
-              return (
-                <button
-                  key={c.id || "all"}
-                  type="button"
-                  aria-pressed={active}
-                  onClick={() => set("category", c.id)}
-                  className={cn(
-                    "ember min-h-11 shrink-0 cursor-pointer rounded-full border px-4 text-small font-semibold transition-colors",
-                    active
-                      ? "border-brand bg-brand text-black shadow-[0_0_16px_color-mix(in_oklab,var(--color-brand)_40%,transparent)]"
-                      : "border-border-subtle text-text-secondary hover:border-border-hover hover:text-text-primary",
-                  )}
-                >
-                  {c.label}
-                </button>
-              );
-            })}
-          </div>
+      <ReelsToolbar
+        category={category}
+        onCategory={(id) => update({ category: id })}
+        tab={tab}
+        onTab={(id) => update({ tab: id === "trending" ? "" : id })}
+        onPlayFeed={() => ordered[0] && open(ordered[0])}
+        canPlay={ordered.length > 0}
+      />
 
-          {/* Right Action: Play Feed CTA & Sort */}
-          <div className="flex items-center gap-3">
-            <select
-              value={sort}
-              aria-label="Sort reels"
-              onChange={(e) => set("sort", e.target.value)}
-              className="min-h-11 rounded-full border border-border-subtle bg-surface-card px-4 text-small font-medium text-text-primary transition-colors hover:border-border-hover focus-visible:outline-brand"
-            >
-              {SORTS.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.label}
-                </option>
-              ))}
-            </select>
+      {featured && <FeaturedReel reel={featured} upNext={ordered.slice(1, 5)} onOpen={open} />}
 
-            {list.length > 0 && (
-              <Button
-                variant="primary"
-                onClick={handlePlayAll}
-                className="gap-2 px-5 font-bold"
-              >
-                <Play className="h-4 w-4 fill-current" aria-hidden="true" />
-                <span>Play Feed</span>
-              </Button>
-            )}
-          </div>
-        </div>
-      </PageIntro>
+      <div className="pb-[clamp(3rem,6vw,6rem)]">
+        <ReelsGrid
+          reels={featured ? ordered.slice(1) : ordered}
+          loading={isLoading}
+          onOpen={open}
+          onReset={() => update({ category: "", tab: "" })}
+        />
+      </div>
 
-      {/* Grid of Reels */}
-      <section className="shell pb-[clamp(3rem,6vw,6rem)]" aria-label="Reels catalogue">
-        {isLoading ? (
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 md:gap-5">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div
-                key={i}
-                className="aspect-9/16 w-full animate-pulse rounded-2xl bg-surface-card/60"
-              />
-            ))}
-          </div>
-        ) : list.length > 0 ? (
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 md:gap-5">
-            {list.map((reel) => (
-              <ReelCard
-                key={reel.id}
-                reel={reel}
-                onOpen={handleOpenAt}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="rounded-3xl border border-dashed border-border-subtle p-12 text-center">
-            <span className="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-full bg-white/5 text-text-muted">
-              <Sparkles className="h-6 w-6" aria-hidden="true" />
-            </span>
-            <h2 className="text-heading text-text-primary">No clips found</h2>
-            <p className="mt-1 text-small text-text-muted">
-              Try selecting another category or resetting filters.
-            </p>
-            <button
-              type="button"
-              onClick={() => {
-                set("category", "");
-                set("sort", "popular");
-              }}
-              className="mt-5 text-small font-bold text-brand hover:underline"
-            >
-              Reset filters
-            </button>
-          </div>
-        )}
-      </section>
-
-      {/* Immersive Vertical Player Modal */}
       <ReelViewer
-        open={viewerOpen}
-        reels={list}
-        activeIndex={activeIndex}
-        onClose={closeViewer}
-        onNavigate={setActiveIndex}
+        open={activeIndex >= 0}
+        reels={ordered}
+        activeIndex={Math.max(activeIndex, 0)}
+        onClose={() => update({ reel: "" })}
+        onNavigate={onNavigate}
+        onBrowseAll={() => update({ reel: "", view: "grid" })}
       />
     </>
   );

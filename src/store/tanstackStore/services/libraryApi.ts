@@ -78,3 +78,13 @@ export const setRating = (memberId: MemberId, titleId: Id, rating: Rating | null
     else all[titleId] = rating;
     return write(key(memberId, "ratings"), all);
   }, 0);
+
+/** Reels this member has watched (ids, newest first), for the line under a card. */
+export const getWatchedReels = (memberId: MemberId, { signal }: RequestOptions = {}) =>
+  mockApi(() => read<Id[]>(key(memberId, "reels-watched"), []), 0, signal);
+
+export const markReelWatched = (memberId: MemberId, reelId: Id) =>
+  mockApi(() => {
+    const seen = read<Id[]>(key(memberId, "reels-watched"), []);
+    return write(key(memberId, "reels-watched"), [reelId, ...seen.filter((x) => x !== reelId)].slice(0, 500));
+  }, 0);

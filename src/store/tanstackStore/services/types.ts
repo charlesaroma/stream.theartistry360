@@ -146,6 +146,10 @@ export interface Reel {
   poster: string;
   views: number;
   likes: number;
+  /** ISO date; orders the New tab. */
+  publishedAt: string;
+  /** The Studio's featured pick, shown large at the top of /reels. */
+  featured?: boolean;
   talent?: {
     name: string;
     role: string;

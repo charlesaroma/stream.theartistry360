@@ -1,15 +1,18 @@
 /* Reel Viewer (Vertical Feed) */
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
 import IconButton from "@/components/ui/IconButton";
-import { useMember } from "@/store/context/MemberContext";
-import { useTitles } from "@/store/tanstackStore/queries/site";
-import { accessFor } from "@/utils/access";
+import { useReelFilm } from "@/hooks/useReelFilm";
+import { useWatchedReels, useWatchlist } from "@/store/tanstackStore/queries/member";
 import ReelSlide from "./ReelSlide";
 
 const reducedMotion = () => window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+// Sound starts on once the visitor has touched the page (opening a reel is
+// that tap); a feed opened cold, e.g. from a shared link, starts muted and
+// turns sound on with the first tap inside it.
+const mayPlaySound = () => Boolean(navigator.userActivation?.hasBeenActive);
 
 /**
  * Immersive vertical reels. The feed is a scroll-snap column, one reel per
@@ -17,15 +20,18 @@ const reducedMotion = () => window.matchMedia?.("(prefers-reduced-motion: reduce
  * (↑/↓, Page Up/Down) all move between reels natively, momentum included.
  * Whichever reel is mostly in view plays; the rest rest on their posters.
  */
-export default function ReelViewer({ open, reels = [], activeIndex = 0, onClose, onNavigate }) {
+export default function ReelViewer({ open, reels = [], activeIndex = 0, onClose, onNavigate, onBrowseAll }) {
   const scroller = useRef(null);
   const [index, setIndex] = useState(activeIndex);
   const [muted, setMuted] = useState(true);
+  // The viewer's own mute choice; it outlasts closing and reopening the feed.
+  const [userMuted, setUserMuted] = useState(false);
   const [likedMap, setLikedMap] = useState({});
-  const { member } = useMember();
-  const { data: titles = [] } = useTitles();
+  const filmFor = useReelFilm();
+  const watchlist = useWatchlist();
+  const watched = useWatchedReels();
 
-  // Opening starts on the reel that was chosen.
+  // Opening starts on the reel that was chosen, with sound if allowed.
   const [wasOpen, setWasOpen] = useState(open);
   const [startIndex, setStartIndex] = useState(activeIndex);
   if (open !== wasOpen) {
@@ -33,8 +39,13 @@ export default function ReelViewer({ open, reels = [], activeIndex = 0, onClose,
     if (open) {
       setIndex(activeIndex);
       setStartIndex(activeIndex);
+      setMuted(!mayPlaySound() || userMuted);
     }
   }
+
+  // Reads the latest callback without re-running the feed's setup: the page
+  // hands a new one every time ?reel changes.
+  const reportActive = useEffectEvent((i) => onNavigate?.(i));
 
   const goTo = (i) => {
     if (i < 0 || i >= reels.length) return;
@@ -58,7 +69,7 @@ export default function ReelViewer({ open, reels = [], activeIndex = 0, onClose,
             if (!entry.isIntersecting) continue;
             const i = Number(entry.target.dataset.index);
             setIndex(i);
-            onNavigate?.(i);
+            reportActive(i);
           }
         },
         { root, threshold: 0.6 },
@@ -73,7 +84,7 @@ export default function ReelViewer({ open, reels = [], activeIndex = 0, onClose,
       sized.disconnect();
       io?.disconnect();
     };
-  }, [open, startIndex, reels.length, onNavigate]);
+  }, [open, startIndex, reels.length]);
 
   // Esc closes; ↑/↓ step one reel (scroll-snap alone would let them nudge).
   // The page behind stays still while the feed is open.
@@ -95,50 +106,58 @@ export default function ReelViewer({ open, reels = [], activeIndex = 0, onClose,
 
   if (!open || !reels.length) return null;
 
-  // The linked title as the catalogue names it, and where "Scene from …"
-  // leads: into the title at the scene if this member may watch it, else to
-  // its page (sign in, subscribe or buy).
-  const filmFor = (reel) => {
-    if (!reel.titleId) return null;
-    const title = titles.find((t) => t.id === reel.titleId);
-    const canWatch = Boolean(title && accessFor(title, member).ok);
-    return {
-      name: title?.title ?? reel.titleName ?? "the full title",
-      titleTo: `/title/${reel.titleId}`,
-      sceneTo: canWatch ? `/watch/${reel.titleId}?t=${reel.clip.start}` : `/title/${reel.titleId}`,
-      canWatch,
-    };
+  const toggleMute = () => {
+    setUserMuted(!muted);
+    setMuted(!muted);
+  };
+  // The first tap in a muted feed turns sound on, unless the viewer chose mute.
+  const firstTap = () => {
+    if (muted && !userMuted) setMuted(false);
   };
 
   return createPortal(
-    <div role="dialog" aria-modal="true" aria-label="Reels" className="fixed inset-0 z-100 animate-fade bg-black/90 backdrop-blur-xl">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Reels"
+      onPointerDownCapture={firstTap}
+      className="fixed inset-0 z-100 animate-fade bg-black/90 backdrop-blur-xl"
+    >
       <div
         ref={scroller}
         tabIndex={-1}
         className="no-scrollbar h-full snap-y snap-mandatory overflow-y-auto overscroll-contain outline-none"
       >
-        {reels.map((reel, i) => (
-          <section
-            key={reel.id}
-            data-index={i}
-            // A click on the backdrop beside the reel closes, as before.
-            onClick={(e) => e.target === e.currentTarget && onClose?.()}
-            className="flex h-dvh snap-start snap-always items-center justify-center md:py-[4vh]"
-          >
-            <ReelSlide
-              reel={reel}
-              index={i}
-              total={reels.length}
-              active={i === index}
-              muted={muted}
-              onToggleMute={() => setMuted((m) => !m)}
-              liked={Boolean(likedMap[reel.id])}
-              onToggleLike={() => setLikedMap((m) => ({ ...m, [reel.id]: !m[reel.id] }))}
-              film={filmFor(reel)}
-              onClose={onClose}
-            />
-          </section>
-        ))}
+        {reels.map((reel, i) => {
+          const film = filmFor(reel);
+          return (
+            <section
+              key={reel.id}
+              data-index={i}
+              // A click on the backdrop beside the reel closes, as before.
+              onClick={(e) => e.target === e.currentTarget && onClose?.()}
+              className="flex h-dvh snap-start snap-always items-center justify-center md:py-[4vh]"
+            >
+              <ReelSlide
+                reel={reel}
+                index={i}
+                total={reels.length}
+                active={i === index}
+                muted={muted}
+                onToggleMute={toggleMute}
+                onSoundBlocked={() => setMuted(true)}
+                liked={Boolean(likedMap[reel.id])}
+                onToggleLike={() => setLikedMap((m) => ({ ...m, [reel.id]: !m[reel.id] }))}
+                film={film}
+                inList={Boolean(film && watchlist.has(film.id))}
+                onToggleList={() => film && watchlist.toggle(film.id)}
+                onWatched={() => watched.mark(reel.id)}
+                onClose={onClose}
+                onBrowseAll={onBrowseAll}
+              />
+            </section>
+          );
+        })}
       </div>
 
       {/* Desktop: step buttons beside the reel (scrolling works too) */}
