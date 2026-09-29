@@ -23,9 +23,9 @@ export function usePayments() {
   return useQuery(accountQueries.payments(useMemberId()));
 }
 
-/** The member's data: download it, or clear what they've watched. */
+/** Clearing what the member has watched. */
 export function useAccountData() {
   const memberId = useMemberId();
   const clearHistory = useMutation({ mutationFn: () => account.clearHistory(memberId!), meta: { invalidates: [[...memberRoot(memberId)]], handlesErrors: true } });
-  return { clearHistory: clearHistory.mutateAsync, exportData: account.exportData };
+  return { clearHistory: clearHistory.mutateAsync };
 }

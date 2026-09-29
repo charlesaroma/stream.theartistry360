@@ -34,7 +34,7 @@ Remove `playbackUrl` from the seed once `/play` exists. The demo stream is Mux's
 | `changePassword` | `POST auth/me/password` (current password unless Google-only; revokes other sessions) |
 | `setCancelAtPeriodEnd` | `PATCH payments/subscription` (cancel or keep; access to `renewsAt`) |
 | sign out everywhere | `POST auth/sessions/revoke-all` |
-| `exportData` | `GET account/export` (everything held about the member) |
+| (on request by email) | a copy of the member's data, as the Data Protection and Privacy Act requires |
 | `clearHistory` | `DELETE library/progress` |
 | `deleteAccount` | `DELETE auth/me` (erases personal data; payment records kept only as the law requires, without personal details) |
 

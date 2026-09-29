@@ -84,7 +84,7 @@ export function setCancelAtPeriodEnd(member: Member | null, cancel: boolean) {
   }, 500);
 }
 
-/* Your data (Data Protection and Privacy Act 2019) */
+/* Watch history and deleting the account */
 
 const memberKeys = (memberId: Id) => {
   try {
@@ -94,21 +94,6 @@ const memberKeys = (memberId: Id) => {
   }
 };
 
-/** Everything held about the member, as one JSON document to download. */
-export const exportData = (member: Member) =>
-  mockApi(() => {
-    const data: Record<string, unknown> = {};
-    for (const k of memberKeys(member.id)) data[k.split(":")[1]] = read(k, null);
-    const comments: unknown[] = [];
-    try {
-      for (const k of Object.keys(localStorage).filter((x) => x.startsWith("a360s:comments:"))) {
-        for (const c of read<{ author: { id: Id } }[]>(k, [])) if (c.author.id === member.id) comments.push({ titleId: k.split(":")[2], ...c });
-      }
-    } catch {
-      // Storage unreadable: export what we have.
-    }
-    return { exportedAt: new Date().toISOString(), account: member, ...data, comments };
-  }, 300);
 
 export const clearHistory = (memberId: Id) =>
   mockApi(() => {

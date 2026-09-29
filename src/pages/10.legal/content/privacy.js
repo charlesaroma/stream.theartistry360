@@ -10,7 +10,7 @@ export default {
   summary: [
     "We collect what we need to run your account, your payments and the services you use, and nothing we don't.",
     "We never sell your data. We share it only with the companies that help us run the service (payments, video, hosting), or when the law requires.",
-    "You can see, download, correct or delete your data at any time from Account › Privacy & data, or by emailing us.",
+    "You can ask for a copy of your data, correct it or delete your account at any time, from your account or by emailing us.",
     "We follow Uganda's Data Protection and Privacy Act, 2019. You can complain to the Personal Data Protection Office if we get it wrong.",
   ],
   sections: [
@@ -130,9 +130,9 @@ export default {
         "Under the Act you can:",
         {
           list: [
-            "See the data we hold about you, and get a copy (Account › Privacy & data › Download my data).",
+            "See the data we hold about you, and get a copy (email us and we'll send it).",
             "Correct anything that's wrong (Account › Security, or email us).",
-            "Have your data deleted (Account › Privacy & data › Delete account).",
+            "Have your data deleted (Account › Security › Delete account).",
             "Object to, or stop, processing we do on the basis of legitimate interest, and stop marketing at any time.",
             "Withdraw any consent you've given.",
             "Complain to the Personal Data Protection Office (PDPO) if you're unhappy with how we handle your data.",

@@ -95,7 +95,7 @@ export default {
     {
       id: "ending",
       title: "Suspending or closing accounts",
-      blocks: ["You can delete your account at any time in Account › Privacy & data. We may suspend or close an account that seriously or repeatedly breaks these terms. Where we can, we'll warn you first and explain why."],
+      blocks: ["You can delete your account at any time in Account › Security. We may suspend or close an account that seriously or repeatedly breaks these terms. Where we can, we'll warn you first and explain why."],
     },
     {
       id: "changes",
