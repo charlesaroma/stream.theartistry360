@@ -21,8 +21,3 @@ export function advisoryLine(list = []) {
   const items = list.map((a, i) => (i === 0 ? a : a.toLowerCase()));
   return items.length > 1 ? `${items.slice(0, -1).join(", ")} and ${items.at(-1)}` : items[0] ?? "";
 }
-
-/** Ratings in order, lowest first: a limit of PG allows G and PG. */
-export const RATING_ORDER = ["G", "PG", "13+", "16+", "18+"];
-export const aboveLimit = (rating, limit) =>
-  Boolean(limit) && RATING_ORDER.indexOf(rating) > RATING_ORDER.indexOf(limit);

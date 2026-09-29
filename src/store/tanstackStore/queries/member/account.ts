@@ -50,15 +50,12 @@ export function useAccountSettings() {
     onError: (_e, _patch, ctx) => ctx?.previous && qc.setQueryData(options.queryKey, ctx.previous),
     meta,
   });
-  const parental = useMutation({ mutationFn: (v: Parameters<typeof account.updateParental>[1]) => account.updateParental(memberId!, v), meta });
   const clearHistory = useMutation({ mutationFn: () => account.clearHistory(memberId!), meta: { invalidates: [[...memberRoot(memberId)]], handlesErrors: true } });
   return {
     settings: query.data ?? account.DEFAULT_SETTINGS,
     isLoading: query.isLoading,
     saveNotifications: notifications.mutateAsync,
-    saveParental: parental.mutateAsync,
     clearHistory: clearHistory.mutateAsync,
-    verifyPin: (pin: string) => account.verifyPin(memberId!, pin),
     exportData: account.exportData,
   };
 }

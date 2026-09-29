@@ -19,7 +19,6 @@ export default {
               ["Sign-in", "Keeps you signed in", "Until you sign out"],
               ["Playback settings", "Auto next, subtitles, data saver", "Until you change or clear them"],
               ["Recently viewed and saved data", "Loads pages faster and works offline for a while", "Up to 24 hours"],
-              ["Parental unlock", "Remembers a PIN-unlocked title", "Until you close the browser"],
             ],
           },
         },

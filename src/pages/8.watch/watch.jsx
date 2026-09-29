@@ -9,9 +9,7 @@ import EpisodeGrid from "@/components/title/EpisodeGrid";
 import MetaLine from "@/components/title/MetaLine";
 import RateButtons from "@/components/title/RateButtons";
 import RelatedList from "@/components/title/RelatedList";
-import PinGate from "@/components/player/PinGate";
 import WatchToolbar from "@/components/player/WatchToolbar";
-import { useParentalLock } from "@/hooks/useParentalLock";
 import BackButton from "@/components/ui/BackButton";
 import IconButton from "@/components/ui/IconButton";
 import PageLoader from "@/components/ui/PageLoader";
@@ -52,15 +50,12 @@ export default function WatchPage() {
   const navigate = useNavigate();
   const access = title ? accessFor(title, member) : null;
   const canWatch = Boolean(access?.ok);
-  // Above the member's parental limit: the PIN comes first.
-  const parental = useParentalLock(title);
-  const mayPlay = canWatch && !parental.locked && !parental.checking;
 
   // The player itself is rendered by PlayerHost in the layout; this page
   // starts the session and lends it a slot.
   useEffect(() => {
-    if (mayPlay) open(title, episodeId, access.ads, startAt);
-  }, [mayPlay, title, episodeId, access?.ads, open, startAt]);
+    if (canWatch) open(title, episodeId, access.ads, startAt);
+  }, [canWatch, title, episodeId, access?.ads, open, startAt]);
 
   // Leaving stops playback. Switch to park() once Player has its mini variant.
   useEffect(() => close, [close]);
@@ -106,7 +101,7 @@ export default function WatchPage() {
         <div className="min-w-0">
           <div className={cn(lightsOff && "relative z-[60]")}>
             {/* Player slot: PlayerHost portals the player in; it never moves in the tree, so Expand never restarts the video */}
-            {parental.locked ? <PinGate title={title} limit={parental.limit} onUnlock={parental.unlock} /> : <div ref={attach} />}
+            <div ref={attach} />
             <div className="mt-2 px-2 md:px-0">
               <WatchToolbar
                 series={Boolean(current)}

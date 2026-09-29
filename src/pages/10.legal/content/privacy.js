@@ -67,7 +67,7 @@ export default {
       title: "Children",
       blocks: [
         "You must be 18 or older to create an account or pay. The Act protects children's data specially, so we don't knowingly collect it without a parent's or guardian's consent.",
-        "Younger viewers should watch through a parent's account. Parents can set a maximum age rating and a PIN in Account › Parental controls. If you think a child has given us their data, email us and we'll delete it.",
+        "Younger viewers should watch through a parent's account; every title shows its age rating and content warnings. If you think a child has given us their data, email us and we'll delete it.",
       ],
     },
     {
@@ -119,7 +119,7 @@ export default {
       id: "security",
       title: "How we protect it",
       blocks: [
-        "Everything travels encrypted (https). Passwords and parental PINs are stored scrambled (hashed), never as you typed them. Only the staff who need your data can see it, and we keep a record of who does.",
+        "Everything travels encrypted (https). Passwords are stored scrambled (hashed), never as you typed them. Only the staff who need your data can see it, and we keep a record of who does.",
         "If a breach puts your data at risk, we'll tell the Personal Data Protection Office and you, as the Act requires, and say what we're doing about it.",
       ],
     },

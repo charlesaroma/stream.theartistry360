@@ -1,13 +1,12 @@
 /* Account And Settings */
 import { Navigate, useSearchParams } from "react-router-dom";
-import { Bell, CreditCard, Crown, LockKeyhole, MonitorPlay, ShieldCheck, User } from "lucide-react";
+import { Bell, CreditCard, Crown, MonitorPlay, ShieldCheck, User } from "lucide-react";
 
 import PageLoader from "@/components/ui/PageLoader";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { useMember } from "@/store/context/MemberContext";
 import { cn } from "@/utils/cn";
 import NotificationsPanel from "./sections/NotificationsPanel";
-import ParentalPanel from "./sections/ParentalPanel";
 import PlaybackPanel from "./sections/PlaybackPanel";
 import PrivacyPanel from "./sections/PrivacyPanel";
 import ProfilePanel from "./sections/ProfilePanel";
@@ -19,7 +18,6 @@ const TABS = [
   { id: "purchases", label: "Purchases & payments", icon: CreditCard, Panel: PurchasesPanel },
   { id: "profile", label: "Profile & sign-in", icon: User, Panel: ProfilePanel },
   { id: "playback", label: "Playback", icon: MonitorPlay, Panel: PlaybackPanel },
-  { id: "parental", label: "Parental controls", icon: LockKeyhole, Panel: ParentalPanel },
   { id: "notifications", label: "Notifications", icon: Bell, Panel: NotificationsPanel },
   { id: "privacy", label: "Privacy & data", icon: ShieldCheck, Panel: PrivacyPanel },
 ];

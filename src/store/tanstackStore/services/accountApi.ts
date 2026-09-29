@@ -1,6 +1,6 @@
 /* Member Account Service */
 // Everything on /account: payments and receipts, profile, password, the
-// plan, parental controls, notifications, and the member's data. The mock
+// plan, notifications, and the member's data. The mock
 // keeps it in this browser. The real API (auth/me, payments, account/*)
 // must check every change against the session, never the request body:
 // the member id below comes from the signed-in member only.
@@ -46,14 +46,13 @@ export function recordPayment(memberId: Id, payment: Omit<Payment, "id" | "refer
 /* Settings */
 
 export const DEFAULT_SETTINGS: MemberSettings = {
-  parental: { maxRating: null, pinHash: null },
   notifications: { newReleases: true, newEpisodes: true, payments: true, channel: "email" },
 };
 
 export const getSettings = (memberId: Id, { signal }: RequestOptions = {}) =>
   mockApi(() => {
     const s = read<Partial<MemberSettings>>(K("settings", memberId), {});
-    return { parental: { ...DEFAULT_SETTINGS.parental, ...s.parental }, notifications: { ...DEFAULT_SETTINGS.notifications, ...s.notifications } };
+    return { notifications: { ...DEFAULT_SETTINGS.notifications, ...s.notifications } };
   }, 0, signal);
 
 const saveSettings = (memberId: Id, next: MemberSettings) => write(K("settings", memberId), next);
@@ -63,32 +62,6 @@ export const updateNotifications = (memberId: Id, patch: Partial<MemberSettings[
     const s = await getSettings(memberId);
     return saveSettings(memberId, { ...s, notifications: { ...s.notifications, ...patch } });
   }, 150);
-
-/**
- * The parental PIN is stored hashed, salted with the member id, never as the
- * four digits. (The real API hashes it server-side with a slow hash.)
- */
-async function hashPin(memberId: Id, pin: string) {
-  const bytes = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`${memberId}:parental:${pin}`));
-  return [...new Uint8Array(bytes)].map((b) => b.toString(16).padStart(2, "0")).join("");
-}
-
-export async function verifyPin(memberId: Id, pin: string) {
-  const s = await getSettings(memberId);
-  return Boolean(s.parental.pinHash) && s.parental.pinHash === (await hashPin(memberId, pin));
-}
-
-/** Set or change the limit. Once a PIN exists, changing anything needs it. */
-export function updateParental(memberId: Id, { maxRating, newPin, currentPin }: { maxRating: string | null; newPin?: string; currentPin?: string }) {
-  return mockApi(async () => {
-    const s = await getSettings(memberId);
-    if (s.parental.pinHash && !(await verifyPin(memberId, currentPin ?? ""))) throw new ApiError("That PIN isn't right.", 403);
-    if (newPin !== undefined && !/^\d{4}$/.test(newPin)) throw new ApiError("The PIN is 4 digits.", 422);
-    if (maxRating && !newPin && !s.parental.pinHash) throw new ApiError("Set a 4-digit PIN to lock titles above the limit.", 422);
-    const pinHash = maxRating ? (newPin ? await hashPin(memberId, newPin) : s.parental.pinHash) : null;
-    return saveSettings(memberId, { ...s, parental: { maxRating, pinHash } });
-  }, 250);
-}
 
 /* Profile and sign-in */
 

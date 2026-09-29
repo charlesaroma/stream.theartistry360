@@ -143,7 +143,6 @@ export interface Payment {
 }
 
 export interface MemberSettings {
-  parental: { maxRating: string | null; pinHash: string | null };
   notifications: { newReleases: boolean; newEpisodes: boolean; payments: boolean; channel: "email" | "whatsapp" | "both" };
 }
 

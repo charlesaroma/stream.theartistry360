@@ -69,7 +69,7 @@ export default {
     {
       id: "ratings",
       title: "Age ratings and parental guidance",
-      blocks: ["Each title shows an age rating (G, PG, 13+, 16+, 18+) and content warnings, as guidance. Parents and guardians decide what's right for their children; Account › Parental controls lets you set a limit and a PIN."],
+      blocks: ["Each title shows an age rating (G, PG, 13+, 16+, 18+) and content warnings, as guidance. Parents and guardians decide what's right for their children."],
     },
     {
       id: "comments",
