@@ -2,6 +2,8 @@
 
 Same API as theartistry360.com (`api.theartistry360.com/api/v1`), proxied at `/api`. Same envelope `{ data, meta? } | { error }`, same `ApiError`. Swap one service at a time (`src/store/tanstackStore/services/*.ts`), as described in `the_artistry360_2024/docs/12-backend-integration.md`. Query factories and pages do not change. Every call names `realm: "member"`; this site has no other.
 
+The Flutter app uses the same API and endpoints (`the_artistry360_2024/docs/17-api-server.md`), with two additions this site will adopt too: `POST streaming/playback` (a signed, short-lived HLS URL after an access check, replacing the stored `playbackUrl`) and `GET app/config` (app only).
+
 | Service | Endpoint |
 |---|---|
 | `catalogApi.listTitles` / `getTitle` / `searchTitles` | `GET streaming/titles?published=true`, `GET streaming/titles/:id`, `GET streaming/titles?q=` |

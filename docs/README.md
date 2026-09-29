@@ -43,6 +43,7 @@ Vite 8 · React 19 · React Router 7 (data router) · TanStack Query (TypeScript
 | `07-state-management.md` | The store: keys, caching, mutations, loaders, and how Studio edits reach this site live |
 | `08-sharing-and-seo.md` | Link previews per film (edge function), page titles, sitemap |
 | `09-legal.md` | Legal pages (Terms, Privacy, Refunds, Community, Cookies & Ads, Copyright) and what to confirm before launch |
+| Mobile app and API | The Flutter app and the shared Node server are designed in `the_artistry360_2024/docs/16-mobile-app.md` and `17-api-server.md` |
 
 ## Verifier
 
