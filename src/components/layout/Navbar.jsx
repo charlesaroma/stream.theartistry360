@@ -3,7 +3,7 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { Menu, Search, X } from "lucide-react";
 
-import Logo from "@/assets/images/Logo.png";
+import BrandLogo from "@/components/ui/brand/BrandLogo";
 import IconButton from "@/components/ui/IconButton";
 import { useMember } from "@/store/context/MemberContext";
 import { cn } from "@/utils/cn";
@@ -61,7 +61,7 @@ export default function Navbar() {
       <div className={cn("transition-[background-color,backdrop-filter,box-shadow] duration-500", solid ? "bg-surface-primary/80 shadow-[0_1px_0_rgb(255_255_255/0.06)] backdrop-blur-xl" : "bg-linear-to-b from-black/70 to-transparent")}>
         <nav aria-label="Main" className="shell flex h-18 items-center gap-6">
           <Link to="/" viewTransition className="flex min-h-11 shrink-0 items-center gap-3" aria-label="Artistry360 Stream home">
-            <img src={Logo} alt="" className="h-8 w-auto" />
+            <BrandLogo intro label="" className="h-8 w-auto" />
             <span className="hidden text-caption font-bold uppercase tracking-[0.25em] text-text-secondary sm:inline">Stream</span>
           </Link>
 

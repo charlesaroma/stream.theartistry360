@@ -1,7 +1,7 @@
 /* Route Error */
 import { Link, useRouteError } from "react-router-dom";
 
-import Logo from "@/assets/images/Logo.png";
+import BrandLogo from "@/components/ui/brand/BrandLogo";
 
 /**
  * Shown when a page throws, instead of the router's developer screen. The
@@ -14,7 +14,7 @@ export default function RouteError() {
   return (
     <main className="shell grid min-h-dvh place-items-center text-center">
       <div className="max-w-md">
-        <img src={Logo} alt="The Artistry360" className="mx-auto mb-10 h-9 w-auto" />
+        <BrandLogo label="The Artistry360" className="mx-auto mb-10 h-9 w-auto" />
         <p className="eyebrow mb-4">{is404 ? "404" : "Something went wrong"}</p>
         <h1 className="text-title">{is404 ? "This reel is missing" : "We lost the picture"}</h1>
         <p className="mt-4 text-lead text-text-secondary">

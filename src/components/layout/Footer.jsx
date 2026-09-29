@@ -1,7 +1,7 @@
 /* Footer */
 import { Link } from "react-router-dom";
 
-import Logo from "@/assets/images/Logo.png";
+import BrandLogo from "@/components/ui/brand/BrandLogo";
 import { Instagram, TikTok, WhatsApp, YouTube } from "@/components/ui/BrandIcons";
 import { useSite } from "@/store/tanstackStore/queries/site";
 
@@ -19,7 +19,7 @@ export default function Footer() {
     <footer className="mt-auto border-t border-border-default bg-surface-secondary">
       <div className="shell grid grid-cols-2 gap-10 py-16 md:grid-cols-5">
         <div className="col-span-2">
-          <img src={Logo} alt="The Artistry360" className="h-10 w-auto" />
+          <BrandLogo label="The Artistry360" className="h-10 w-auto" />
           <p className="mt-4 max-w-xs text-small text-text-muted">Films, shorts and replays from The Artistry360, Kampala.</p>
           <div className="mt-6 flex gap-2">
             {[

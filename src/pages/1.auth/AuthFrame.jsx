@@ -1,5 +1,5 @@
 /* Auth Frame */
-import Logo from "@/assets/images/Logo.png";
+import BrandLogo from "@/components/ui/brand/BrandLogo";
 import BackButton from "@/components/ui/BackButton";
 
 const BACKDROP = "https://images.unsplash.com/photo-1478720568477-152d9b164e26?auto=format&fit=crop&q=80&w=1600&h=900";
@@ -13,7 +13,7 @@ export default function AuthFrame({ title, lead, children, footer }) {
       <div className="w-full max-w-md">
       <BackButton className="mb-6" />
       <div data-glass="" className="molten-glass relative w-full max-w-md animate-rise rounded-4xl p-8 sm:p-10">
-        <img src={Logo} alt="" className="mb-8 h-9 w-auto" />
+        <BrandLogo label="" className="mb-8 h-9 w-auto" />
         <h1 className="text-heading">{title}</h1>
         {lead && <p className="mt-2 text-small text-text-secondary">{lead}</p>}
         <div className="mt-8">{children}</div>

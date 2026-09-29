@@ -12,7 +12,8 @@ Vite 8 · React 19 · React Router 7 (data router) · TanStack Query (TypeScript
 4. **Numbering starts at 1, and every page folder is numbered.** Auth is always `1.auth`, then the nav (`2.home`, `3.films`, `4.plans`, `5.my-list`), then pages outside the nav (`6.search`, `7.title`, `8.watch`). `not-found.jsx` is a loose file, not a folder.
 5. **One type scale, one gutter.** Use `text-display` / `title` / `heading` / `subheading` / `lead` / `body` / `small` / `caption` only, and `shell`, `section-y` and `PageIntro`. Nothing below 12px, and targets are at least 44px.
 6. **Light & Lens motion** (`04-motion.md`): glass, ember press, iris, key light. Every effect has a still state under reduced motion.
-7. **Code splitting.** Every page is a lazy route; hls.js loads only when someone presses play.
+7. **Logo.** Orbit A, the same logo as theartistry360.com. Use `<BrandLogo />` (`src/components/ui/brand/`; the navbar uses `intro` for the animated entrance). Files are in `public/brand/`, web icons in `public/`, guide in `docs/brand/README.md`.
+8. **Code splitting.** Every page is a lazy route; hls.js loads only when someone presses play.
 
 ## Phases
 
@@ -34,6 +35,7 @@ Vite 8 · React 19 · React Router 7 (data router) · TanStack Query (TypeScript
 | `02-dependencies.md` | Packages and why |
 | `03-data-contract.md` | The shapes the Studio writes and this site reads |
 | `04-motion.md` | The Light & Lens motion language |
+| `brand/README.md` | The Orbit A logo (shared with theartistry360.com): variations, colours, clear space, animation, web icons. Files are in `public/brand/` |
 | `05-pages.md` | Every page, what it shows, audit results |
 | `06-backend-integration.md` | Moving from mocks to the API |
 | `07-state-management.md` | The store: keys, caching, mutations, loaders, and how Studio edits reach this site live |

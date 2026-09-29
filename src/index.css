@@ -406,3 +406,36 @@ body {
     animation: none !important;
   }
 }
+
+/* ─── Brand Logo (Orbit A) ─── */
+/* Colours come from the tokens, so the logo follows the palette. */
+@layer components {
+  .brand-logo { overflow: visible; }
+  .brand-logo-ring { fill: none; stroke: var(--color-brand); stroke-width: 30; stroke-linecap: round; }
+  .brand-logo-dot, .brand-logo-the, .brand-logo-num { fill: var(--color-brand); }
+  .brand-logo-a { fill: var(--color-brand); stroke: var(--color-brand); stroke-width: 6; stroke-linejoin: round; }
+  .brand-logo-play { fill: var(--color-text-primary); stroke: var(--color-text-primary); stroke-width: 8; stroke-linejoin: round; }
+  .brand-logo-artistry { fill: var(--color-text-primary); }
+  .brand-logo-orbit, .brand-logo-dot, .brand-logo-play, .brand-logo-a,
+  .brand-logo-the, .brand-logo-artistry, .brand-logo-num { transform-box: fill-box; transform-origin: 50% 50%; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .brand-logo[data-intro] .brand-logo-ring { stroke-dasharray: 1; stroke-dashoffset: 1; animation: brand-logo-draw 1s cubic-bezier(0.65, 0, 0.35, 1) 0.1s forwards; }
+    .brand-logo[data-intro] .brand-logo-dot { transform: scale(0); animation: brand-logo-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) 0.95s forwards; }
+    .brand-logo[data-intro] .brand-logo-a { opacity: 0; transform: translateY(60px); animation: brand-logo-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.25s forwards; }
+    .brand-logo[data-intro] .brand-logo-play { transform: scale(0); animation: brand-logo-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.8s forwards; }
+    .brand-logo[data-intro] :is(.brand-logo-the, .brand-logo-artistry, .brand-logo-num) { opacity: 0; transform: translateY(24px); animation: brand-logo-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+    .brand-logo[data-intro] .brand-logo-the { animation-delay: 0.55s; }
+    .brand-logo[data-intro] .brand-logo-artistry { animation-delay: 0.65s; }
+    .brand-logo[data-intro] .brand-logo-num { animation-delay: 0.8s; }
+    .brand-logo[data-intro] .brand-logo-orbit { animation: brand-logo-spin 1.2s cubic-bezier(0.65, 0, 0.35, 1) 1.5s; }
+    /* Hover, or hover on the link around it, turns the orbit a full 360. */
+    :is(a, button):hover > .brand-logo:not([data-intro]) .brand-logo-orbit,
+    .brand-logo:not([data-intro]):hover .brand-logo-orbit { animation: brand-logo-spin 1s cubic-bezier(0.65, 0, 0.35, 1); }
+  }
+}
+
+@keyframes brand-logo-draw { to { stroke-dashoffset: 0; } }
+@keyframes brand-logo-pop { to { transform: scale(1); } }
+@keyframes brand-logo-rise { to { opacity: 1; transform: none; } }
+@keyframes brand-logo-spin { to { transform: rotate(360deg); } }
