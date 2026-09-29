@@ -1,5 +1,6 @@
 /* Buy Dialog (pay-per-view) */
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { ShieldCheck } from "lucide-react";
 
 import Button from "@/components/ui/Button";
@@ -51,6 +52,9 @@ export default function BuyDialog({ title, open, onClose, onDone }) {
       <Button className="mt-8 w-full" onClick={pay} loading={busy}>Pay {formatUGX(title.access.priceUGX)} with PesaPal</Button>
       <p className="mt-4 flex items-center justify-center gap-2 text-caption text-text-muted">
         <ShieldCheck className="h-4 w-4" aria-hidden="true" /> Secured by PesaPal. Demo mode: no money moves.
+      </p>
+      <p className="mt-2 text-center text-caption text-text-muted">
+        By paying you agree to our <Link to="/legal/terms" className="underline hover:text-brand">Terms</Link> and <Link to="/legal/refunds" className="underline hover:text-brand">Refunds policy</Link>.
       </p>
     </Modal>
   );

@@ -1,6 +1,6 @@
 /* Plans */
 import { useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { ShieldCheck } from "lucide-react";
 
 import PageIntro from "@/components/layout/PageIntro";
@@ -53,6 +53,9 @@ export default function PlansPage() {
             <p className="mt-2 text-body text-text-secondary">You'll be taken to PesaPal to pay with MTN MoMo, Airtel Money or card.</p>
             <Button className="mt-8 w-full" onClick={pay} loading={busy}>Continue to PesaPal</Button>
             <p className="mt-4 flex items-center justify-center gap-2 text-caption text-text-muted"><ShieldCheck className="h-4 w-4" aria-hidden="true" /> Demo mode: no money moves.</p>
+            <p className="mt-2 text-center text-caption text-text-muted">
+              Cancel any time. By paying you agree to our <Link to="/legal/terms" className="underline hover:text-brand">Terms</Link> and <Link to="/legal/refunds" className="underline hover:text-brand">Refunds policy</Link>.
+            </p>
           </>
         )}
       </Modal>

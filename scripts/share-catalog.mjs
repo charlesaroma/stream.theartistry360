@@ -51,7 +51,7 @@ console.log(`share catalogue: ${Object.keys(titles).length} titles`);
 // all; robots.txt points to it. The domain is the production one.
 const SITE = "https://stream.theartistry360.com";
 const urls = [
-  "/", "/films", "/plans",
+  "/", "/films", "/plans", "/legal/terms", "/legal/privacy", "/legal/refunds", "/legal/community", "/legal/cookies", "/legal/copyright",
   ...Object.keys(titles).map((id) => `/title/${id}`),
 ];
 const xml = urls.map((u) => `  <url><loc>${SITE}${u.replace(/&/g, "&amp;")}</loc></url>`).join("\n");

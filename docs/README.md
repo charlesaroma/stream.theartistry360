@@ -42,6 +42,7 @@ Vite 8 · React 19 · React Router 7 (data router) · TanStack Query (TypeScript
 | `06-backend-integration.md` | Moving from mocks to the API |
 | `07-state-management.md` | The store: keys, caching, mutations, loaders, and how Studio edits reach this site live |
 | `08-sharing-and-seo.md` | Link previews per film (edge function), page titles, sitemap |
+| `09-legal.md` | Legal pages (Terms, Privacy, Refunds, Community, Cookies & Ads, Copyright) and what to confirm before launch |
 
 ## Verifier
 

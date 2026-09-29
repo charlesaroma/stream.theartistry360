@@ -43,6 +43,11 @@ export default function SignUpPage() {
         <Field label="Password" type="password" autoComplete="new-password" input={register("password")} error={errors.password?.message} hint="At least 8 characters." />
         {serverError && <p role="alert" className="text-small font-semibold text-danger">{serverError}</p>}
         <Button type="submit" loading={isSubmitting} className="mt-2 w-full">Create account</Button>
+        <p className="text-center text-caption text-text-muted">
+          You must be 18 or older. By creating an account you agree to our{" "}
+          <Link to="/legal/terms" className="font-semibold text-text-secondary underline hover:text-brand">Terms of Use</Link> and{" "}
+          <Link to="/legal/privacy" className="font-semibold text-text-secondary underline hover:text-brand">Privacy Policy</Link>.
+        </p>
       </form>
     </AuthFrame>
   );

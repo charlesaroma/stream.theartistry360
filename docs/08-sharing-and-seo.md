@@ -15,7 +15,7 @@ WhatsApp, Facebook, X, iMessage, Slack and LinkedIn build link previews with cra
 
 ## How it works
 
-- `netlify/edge-functions/share-card.js` runs on `/title/*` and `/watch/*`. It looks the item up and swaps the head's `<title>`, description, canonical, `og:*` and `twitter:*` tags. Everyone gets the same HTML, crawler or not.
+- `netlify/edge-functions/share-card.js` runs on every page (files excluded). Titles get their own card; the home page and every other page get the branded card, with the image and link built from **the address that was shared** (the Netlify URL before the domain is connected, the real domain after). A card pointing at an unresolvable domain shows no thumbnail, which is what happened while stream.theartistry360.com had no DNS. It looks the item up and swaps the head's `<title>`, description, canonical, `og:*` and `twitter:*` tags. Everyone gets the same HTML, crawler or not.
 - **Links:** a `/watch/:id` link previews as its title page (canonical `/title/:id`). An unknown id keeps the default card, and a failed lookup never breaks the page.
 - **Images:** 1200×630. Unsplash images are cropped to that on request. A title uses its backdrop, then its poster. Everything else uses `public/share/default.png` (the logo on black).
 - **Data:**

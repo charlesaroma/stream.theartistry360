@@ -9,6 +9,7 @@ export const pages = {
   title: () => import("@/pages/7.title/title"),
   watch: () => import("@/pages/8.watch/watch"),
   account: () => import("@/pages/9.account/account"),
+  legal: () => import("@/pages/10.legal/legal"),
   search: () => import("@/pages/6.search/search"),
   signIn: () => import("@/pages/1.auth/sign-in"),
   signUp: () => import("@/pages/1.auth/sign-up"),

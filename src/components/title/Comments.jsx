@@ -81,6 +81,7 @@ export default function Comments({ titleId, className }) {
                 <input type="checkbox" checked={spoiler} onChange={(e) => setSpoiler(e.target.checked)} className="h-4 w-4 accent-(--color-brand)" />
                 Contains spoilers
               </label>
+              <Link to="/legal/community" className="text-caption text-text-muted underline hover:text-brand">Community Guidelines</Link>
               <span className="ml-auto text-caption tabular-nums text-text-muted">{body.length}/{COMMENT_MAX}</span>
               <button type="submit" disabled={!body.trim() || c.posting} className="btn btn-primary min-h-10 px-5 disabled:opacity-50">
                 {c.posting ? "Posting…" : "Post"}

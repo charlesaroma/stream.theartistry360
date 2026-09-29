@@ -1,5 +1,5 @@
 /* Router */
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 
 import { catalogQueries, siteQueries } from "@/store/tanstackStore/queries/site";
 import { queryClient } from "@/store/tanstackStore/queryClient";
@@ -33,6 +33,9 @@ export const router = createBrowserRouter([
       { path: "watch/:id", lazy: lazy(pages.watch), loader: titleLoader },
       { path: "search", lazy: lazy(pages.search) },
       { path: "account", lazy: lazy(pages.account) },
+      { path: "legal/:doc", lazy: lazy(pages.legal) },
+      { path: "terms", element: <Navigate to="/legal/terms" replace /> },
+      { path: "privacy", element: <Navigate to="/legal/privacy" replace /> },
       { path: "sign-in", lazy: lazy(pages.signIn) },
       { path: "sign-up", lazy: lazy(pages.signUp) },
       { path: "forgot-password", lazy: lazy(pages.forgotPassword) },

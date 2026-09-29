@@ -10,6 +10,7 @@ const COLUMNS = [
   { title: "Watch", links: [["Home", "/"], ["Films", "/films"], ["My List", "/my-list"]] },
   { title: "Account", links: [["Plans", "/plans"], ["Sign in", "/sign-in"], ["Create account", "/sign-up"]] },
   { title: "The Artistry360", links: [["Academy & classes", "https://theartistry360.com/classes"], ["Voting", "https://theartistry360.com/voting"], ["Contact", "https://theartistry360.com/contact"]] },
+  { title: "Legal", links: [["Terms of Use", "/legal/terms"], ["Privacy Policy", "/legal/privacy"], ["Refunds & Cancellation", "/legal/refunds"], ["Community Guidelines", "/legal/community"], ["Cookies & Ads", "/legal/cookies"], ["Copyright", "/legal/copyright"]] },
 ];
 
 export default function Footer() {
@@ -18,8 +19,8 @@ export default function Footer() {
 
   return (
     <footer className="mt-auto border-t border-border-default bg-surface-secondary">
-      <div className="shell grid grid-cols-2 gap-10 py-16 md:grid-cols-5">
-        <div className="col-span-2">
+      <div className="shell grid grid-cols-2 gap-10 py-16 md:grid-cols-4 lg:grid-cols-6">
+        <div className="col-span-2 md:col-span-4 lg:col-span-2">
           <BrandLogo label="The Artistry360" className="h-10 w-auto" />
           <p className="mt-4 max-w-xs text-small text-text-muted">Films, shorts and replays from The Artistry360, Kampala.</p>
           <div className="mt-6 flex gap-2">

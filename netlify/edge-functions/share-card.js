@@ -38,7 +38,15 @@ export default async function shareCard(request, context) {
   return new Response(withCard(html, card), { status: response.status, headers });
 }
 
-export const config = { path: ["/title/*", "/watch/*"] };
+// Every page, so even the home page's card points at the address that was
+// actually shared (the Netlify URL today, the real domain later). Files skip it.
+export const config = {
+  path: "/*",
+  excludedPath: ["/assets/*", "/share/*", "/captions/*", "/brand/*", "/*.png", "/*.ico", "/*.svg", "/*.webmanifest", "/*.xml", "/*.txt", "/*.json", "/*.js", "/*.css"],
+};
+
+// Named pages get their own card title; everything else uses the site's.
+const PAGE_TITLES = { films: "Films", plans: "Plans", "my-list": "My List", search: "Search", "sign-in": "Sign in", "sign-up": "Create your account", legal: "Legal" };
 
 /** What the URL points at, as { title, description, image, url, type }. */
 export async function cardFor(url) {
@@ -48,8 +56,7 @@ export async function cardFor(url) {
 
   if ((section === "title" || section === "watch") && id) {
     const t = await lookup(url, "titles", id);
-    if (!t) return null;
-    return {
+    if (t) return {
       title: `${t.title} · ${SITE}`,
       description: [t.kind, t.description].filter(Boolean).join(" — "),
       image: image(t.image),
@@ -57,7 +64,16 @@ export async function cardFor(url) {
       type: "video.movie",
     };
   }
-  return null;
+  // The home page, other pages, and unknown titles: the branded card, with
+  // the image and link on this origin.
+  const page = PAGE_TITLES[section];
+  return {
+    title: page ? `${page} · ${SITE}` : SITE,
+    description: DEFAULT_DESCRIPTION,
+    image: image(null),
+    url: `${origin}${url.pathname === "/" ? "/" : url.pathname}`,
+    type: "website",
+  };
 }
 
 async function lookup(url, kind, id) {
@@ -91,6 +107,8 @@ export function withCard(html, card) {
     `<meta property="og:description" content="${esc(card.description || DEFAULT_DESCRIPTION)}" />`,
     `<meta property="og:url" content="${esc(card.url)}" />`,
     `<meta property="og:image" content="${esc(card.image)}" />`,
+    `<meta property="og:image:width" content="1200" />`,
+    `<meta property="og:image:height" content="630" />`,
     `<meta property="og:image:alt" content="${esc(card.title)}" />`,
     `<meta name="twitter:card" content="summary_large_image" />`,
     `<meta name="twitter:title" content="${esc(card.title)}" />`,
