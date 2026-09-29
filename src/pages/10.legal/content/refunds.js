@@ -15,7 +15,7 @@ export default {
       id: "cancelling",
       title: "Cancelling a plan",
       blocks: [
-        "Go to Account › Subscription › Cancel plan. Nothing more is charged, and you keep full access until the end of the period you've paid for. Changed your mind? Press Keep my plan before then.",
+        "Go to Account › Membership › Cancel plan. Nothing more is charged, and you keep full access until the end of the period you've paid for. Changed your mind? Press Keep my plan before then.",
         "We don't refund the unused part of a period you've started, unless the law requires it or we've let you down (see below).",
       ],
     },
@@ -42,7 +42,7 @@ export default {
       id: "how",
       title: "How to ask for a refund",
       blocks: [
-        `Email ${COMPANY.email} or call ${COMPANY.phone} within 14 days of the payment, with the PesaPal reference from Account › Purchases & payments and what went wrong.`,
+        `Email ${COMPANY.email} or call ${COMPANY.phone} within 14 days of the payment, with the PesaPal reference from Account › Membership and what went wrong.`,
         "We reply within 3 working days. Approved refunds go back to the way you paid, usually within 7 working days; mobile money and card providers can take a little longer to show it.",
       ],
     },

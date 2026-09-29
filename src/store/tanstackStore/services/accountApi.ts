@@ -1,12 +1,12 @@
 /* Member Account Service */
-// Everything on /account: payments and receipts, profile, password, the
-// plan, notifications, and the member's data. The mock
+// Everything on /account: the plan, payments and receipts, profile and
+// password, and the member's data. The mock
 // keeps it in this browser. The real API (auth/me, payments, account/*)
 // must check every change against the session, never the request body:
 // the member id below comes from the signed-in member only.
 import { ApiError, mockApi } from "@/store/tanstackStore/services/api/mock";
 import type { Id, RequestOptions } from "@/store/tanstackStore/services/api/types";
-import type { Member, MemberSettings, Payment } from "./types";
+import type { Member, Payment } from "./types";
 
 const K = (what: string, memberId: Id) => `a360s:${what}:${memberId}`;
 function read<T>(k: string, fallback: T): T {
@@ -42,26 +42,6 @@ export function recordPayment(memberId: Id, payment: Omit<Payment, "id" | "refer
   write(K("payments", memberId), [row, ...read<Payment[]>(K("payments", memberId), [])]);
   return row;
 }
-
-/* Settings */
-
-export const DEFAULT_SETTINGS: MemberSettings = {
-  notifications: { newReleases: true, newEpisodes: true, payments: true },
-};
-
-export const getSettings = (memberId: Id, { signal }: RequestOptions = {}) =>
-  mockApi(() => {
-    const s = read<Partial<MemberSettings>>(K("settings", memberId), {});
-    return { notifications: { ...DEFAULT_SETTINGS.notifications, ...s.notifications } };
-  }, 0, signal);
-
-const saveSettings = (memberId: Id, next: MemberSettings) => write(K("settings", memberId), next);
-
-export const updateNotifications = (memberId: Id, patch: Partial<MemberSettings["notifications"]>) =>
-  mockApi(async () => {
-    const s = await getSettings(memberId);
-    return saveSettings(memberId, { ...s, notifications: { ...s.notifications, ...patch } });
-  }, 150);
 
 /* Profile and sign-in */
 

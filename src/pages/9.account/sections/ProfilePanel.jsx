@@ -9,7 +9,7 @@ import { Card, Status } from "./ui";
 const input = "w-full rounded-2xl border border-white/10 bg-surface-primary px-4 py-3 text-body text-text-primary focus:border-brand focus:outline-none";
 const label = "mb-2 block text-caption font-bold uppercase tracking-[0.12em] text-text-secondary";
 
-/** Name and phone, email (changed through a confirmation link), password, and signing out everywhere. */
+/** Security: name and phone, email (changed through a confirmation link), password, and signing out everywhere. */
 export default function ProfilePanel() {
   const { member, updateProfile, requestEmailChange, changePassword, signOutEverywhere } = useMember();
   const google = member.provider === "google";

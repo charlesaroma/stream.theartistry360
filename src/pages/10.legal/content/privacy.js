@@ -55,7 +55,7 @@ export default {
             "To take payments, send receipts and keep financial records (our agreement, and the law).",
             "To recommend films, remember where you stopped and keep your settings (our agreement).",
             "To answer bookings and enquiries you send us (your request).",
-            "To send news, new releases and reminders, only if you switch them on in Account › Notifications (your consent, which you can withdraw at any time).",
+            "To email you receipts and account messages, and news or new releases only if you agree (your consent, which you can withdraw with the link in any email).",
             "To keep the service safe: preventing fraud, abuse and hacking (our legitimate interest, and the law).",
             "To meet legal duties, such as tax records or a lawful request from an authority.",
           ],
@@ -131,7 +131,7 @@ export default {
         {
           list: [
             "See the data we hold about you, and get a copy (Account › Privacy & data › Download my data).",
-            "Correct anything that's wrong (Account › Profile & sign-in, or email us).",
+            "Correct anything that's wrong (Account › Security, or email us).",
             "Have your data deleted (Account › Privacy & data › Delete account).",
             "Object to, or stop, processing we do on the basis of legitimate interest, and stop marketing at any time.",
             "Withdraw any consent you've given.",

@@ -142,10 +142,6 @@ export interface Payment {
   paidAt: string;
 }
 
-export interface MemberSettings {
-  /** Email only. */
-  notifications: { newReleases: boolean; newEpisodes: boolean; payments: boolean };
-}
 
 /** Where a member stopped a title (the latest episode for a series). */
 export interface ProgressEntry {

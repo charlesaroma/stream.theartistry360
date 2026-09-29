@@ -1,29 +1,30 @@
 /* Account And Settings */
 import { Navigate, useSearchParams } from "react-router-dom";
-import { Bell, CreditCard, Crown, MonitorPlay, ShieldCheck, User } from "lucide-react";
+import { Crown, History, Lock, MonitorPlay, ShieldCheck } from "lucide-react";
 
 import PageLoader from "@/components/ui/PageLoader";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { useMember } from "@/store/context/MemberContext";
 import { cn } from "@/utils/cn";
-import NotificationsPanel from "./sections/NotificationsPanel";
+import ActivityPanel from "./sections/ActivityPanel";
+import MembershipPanel from "./sections/MembershipPanel";
 import PlaybackPanel from "./sections/PlaybackPanel";
 import PrivacyPanel from "./sections/PrivacyPanel";
 import ProfilePanel from "./sections/ProfilePanel";
-import PurchasesPanel from "./sections/PurchasesPanel";
-import SubscriptionPanel from "./sections/SubscriptionPanel";
 
 const TABS = [
-  { id: "subscription", label: "Subscription", icon: Crown, Panel: SubscriptionPanel },
-  { id: "purchases", label: "Purchases & payments", icon: CreditCard, Panel: PurchasesPanel },
-  { id: "profile", label: "Profile & sign-in", icon: User, Panel: ProfilePanel },
+  { id: "membership", label: "Membership", icon: Crown, Panel: MembershipPanel },
+  { id: "security", label: "Security", icon: ShieldCheck, Panel: ProfilePanel },
   { id: "playback", label: "Playback", icon: MonitorPlay, Panel: PlaybackPanel },
-  { id: "notifications", label: "Notifications", icon: Bell, Panel: NotificationsPanel },
-  { id: "privacy", label: "Privacy & data", icon: ShieldCheck, Panel: PrivacyPanel },
+  { id: "activity", label: "Viewing activity", icon: History, Panel: ActivityPanel },
+  { id: "privacy", label: "Privacy & data", icon: Lock, Panel: PrivacyPanel },
 ];
+// Older links (from before the tabs were merged) still land in the right place.
+const MOVED = { subscription: "membership", purchases: "membership", profile: "security" };
 
 /**
- * /account?tab=…: a member's plan, payments, profile and settings. Tabs sit
+ * /account?tab=…: Membership, Security, Playback, Viewing activity, Privacy
+ * & data, the same set most streaming services offer. Tabs sit
  * in a column on desktop and scroll sideways on phones. Signed out, it asks
  * you to sign in and comes back here.
  */
@@ -31,7 +32,8 @@ export default function AccountPage() {
   usePageMeta({ title: "Account & settings" });
   const { member, loading } = useMember();
   const [params, setParams] = useSearchParams();
-  const tab = TABS.find((t) => t.id === params.get("tab")) ?? TABS[0];
+  const asked = params.get("tab");
+  const tab = TABS.find((t) => t.id === (MOVED[asked] ?? asked)) ?? TABS[0];
 
   if (loading) return <PageLoader />;
   if (!member) return <Navigate to={`/sign-in?next=${encodeURIComponent(`/account?tab=${tab.id}`)}`} replace />;

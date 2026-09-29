@@ -53,7 +53,7 @@ export default function AccountMenu() {
             <Link role="menuitem" to="/my-list" viewTransition onClick={close} className={item}>
               <ListVideo className="h-4 w-4" aria-hidden="true" /> My List
             </Link>
-            <Link role="menuitem" to={subscribed ? "/account?tab=subscription" : "/plans"} viewTransition onClick={close} className={item}>
+            <Link role="menuitem" to={subscribed ? "/account?tab=membership" : "/plans"} viewTransition onClick={close} className={item}>
               <Crown className="h-4 w-4" aria-hidden="true" /> {subscribed ? "Manage plan" : "Upgrade to watch everything"}
             </Link>
             <Link role="menuitem" to="/account" viewTransition onClick={close} className={item}>

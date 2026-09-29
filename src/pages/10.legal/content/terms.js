@@ -21,7 +21,7 @@ export default {
           list: [
             "You must be 18 or older to create an account or pay. Younger viewers watch through a parent's or guardian's account.",
             "Give us true details, and keep your password secret. You're responsible for what happens on your account.",
-            "Tell us straight away if you think someone else is using it. You can sign out of all devices from Account › Profile & sign-in.",
+            "Tell us straight away if you think someone else is using it. You can sign out of all devices from Account › Security.",
             "One account is for you and the people you live with. Selling or publicly sharing access isn't allowed.",
           ],
         },
@@ -36,7 +36,7 @@ export default {
             "Prices are in Uganda shillings (UGX) and include any taxes that apply. You pay through PesaPal with MTN MoMo, Airtel Money or a card.",
             "A plan gives you the whole library, without adverts, for the period you pay for (a month, 3 months or a year).",
             "We remind you 3 days before a plan renews. If a renewal isn't paid, your account goes back to the free tier; nothing is lost.",
-            "You can cancel any time in Account › Subscription. You keep access until the end of the period you've paid for.",
+            "You can cancel any time in Account › Membership. You keep access until the end of the period you've paid for.",
             "We'll give you at least 30 days' notice before a price change affects your plan.",
           ],
         },

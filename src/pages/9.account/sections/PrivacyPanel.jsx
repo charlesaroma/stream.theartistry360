@@ -1,21 +1,20 @@
 /* Privacy And Your Data */
 import { useState } from "react";
-import { Download, History, Trash2 } from "lucide-react";
+import { Download, Trash2 } from "lucide-react";
 
 import Button from "@/components/ui/Button";
 import { useMember } from "@/store/context/MemberContext";
-import { useAccountSettings } from "@/store/tanstackStore/queries/member";
+import { useAccountData } from "@/store/tanstackStore/queries/member";
 import { Card, Status } from "./ui";
 
 /**
  * Your data under Uganda's Data Protection and Privacy Act 2019: download a
- * copy, clear what you've watched, or delete the account.
+ * copy, or delete the account. (Clearing what you've watched is in Viewing activity.)
  */
 export default function PrivacyPanel() {
   const { member, deleteAccount } = useMember();
-  const { exportData, clearHistory } = useAccountSettings();
+  const { exportData } = useAccountData();
   const [msg, setMsg] = useState({});
-  const [clearing, setClearing] = useState(false);
   const [confirmText, setConfirmText] = useState("");
   const [deleting, setDeleting] = useState(false);
 
@@ -28,11 +27,6 @@ export default function PrivacyPanel() {
     setMsg({ download: { ok: "Downloaded." } });
   };
 
-  const clear = async () => {
-    await clearHistory();
-    setClearing(false);
-    setMsg({ history: { ok: "Watch history cleared. Continue Watching is empty now." } });
-  };
 
   const remove = async (e) => {
     e.preventDefault();
@@ -50,19 +44,6 @@ export default function PrivacyPanel() {
       <Card title="Download your data" description="A copy of everything we hold about you: account, plan, payments, My List, what you've watched, ratings, comments and settings.">
         <Button variant="glass" onClick={download}><Download className="h-4 w-4" aria-hidden="true" /> Download my data</Button>
         <Status {...msg.download} />
-      </Card>
-
-      <Card title="Watch history" description="Clears where you stopped in every film and episode. My List and ratings stay.">
-        {clearing ? (
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="text-small text-text-secondary">Clear all of it? This can't be undone.</span>
-            <Button variant="glass" onClick={() => setClearing(false)}>Keep it</Button>
-            <Button onClick={clear}>Clear history</Button>
-          </div>
-        ) : (
-          <Button variant="glass" onClick={() => setClearing(true)}><History className="h-4 w-4" aria-hidden="true" /> Clear watch history</Button>
-        )}
-        <Status {...msg.history} />
       </Card>
 
       <Card tone="danger" title="Delete account" description="Deletes your account and everything tied to it. Payment records are kept only as long as the law requires, without your details. An active plan stops immediately, with no refund for the rest of the period.">
