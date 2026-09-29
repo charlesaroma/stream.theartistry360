@@ -9,6 +9,7 @@ import { cn } from "@/utils/cn";
 import CenterFlash from "./CenterFlash";
 import VolumeHud from "./VolumeHud";
 import Controls from "./Controls";
+import { useBuffering } from "./useBuffering";
 import EndScreen from "./EndScreen";
 import PlayerSting from "./PlayerSting";
 import PrerollAd from "./PrerollAd";
@@ -26,6 +27,9 @@ const typing = (el) => el instanceof HTMLElement && (el.isContentEditable || ["I
  * - Full screen: after a short idle everything goes, cursor included, and
  *   any movement brings it back. Larger controls and a title bar.
  */
+
+const TAP_WAIT = 260; // ms before a tap counts as single
+const DOUBLE_TAP = 300; // ms between the taps of a double tap
 export default function Player({ title, ads, next, onNext, startAt = null }) {
   const frame = useRef(null);
   const video = useRef(null);
@@ -33,6 +37,11 @@ export default function Player({ title, ads, next, onNext, startAt = null }) {
   // When a tap last revealed the controls; the same tap's click must not
   // then land on the centre button that appeared under the finger.
   const revealedAt = useRef(0);
+  // Touch taps: one tap shows or hides the controls, two quick taps in the
+  // same spot toggle full screen. The single tap waits TAP_WAIT to be sure.
+  const taps = useRef({ at: 0, x: 0, y: 0, timer: 0 });
+  const lastPointer = useRef("mouse");
+  useEffect(() => () => clearTimeout(taps.current.timer), []);
   const [adDone, setAdDone] = useState(!ads);
   const [settings, setSettings] = useState(false);
   // Narrow players get the settings as a bottom sheet (see SettingsMenu).
@@ -41,7 +50,7 @@ export default function Player({ title, ads, next, onNext, startAt = null }) {
   const [ended, setEnded] = useState(false);
   const [showNext, setShowNext] = useState(true);
   const { progress, save } = useProgress();
-  const [buffering, setBuffering] = useState(false);
+  const { buffering, wait, done } = useBuffering();
   const p = usePlayer(video, frame);
   // A requested start (a reel's scene) wins over where the member stopped.
   const resumeAt = startAt ?? progress[title.id]?.seconds ?? 0;
@@ -99,9 +108,12 @@ export default function Player({ title, ads, next, onNext, startAt = null }) {
       // Only a mouse leaving hides the controls: touch sends pointerleave after
       // every tap, which used to hide them the moment they appeared.
       onPointerLeave={(e) => e.pointerType === "mouse" && state.playing && !settings && p.setChrome(false)}
-      onDoubleClick={(e) => e.target === video.current && actions.fullscreen()}
+      onPointerDown={(e) => { lastPointer.current = e.pointerType; }}
+      // Mouse double-click toggles full screen; touch has its own detection below
+      // (the browser's dblclick on touch is unreliable and zooms on iPhone).
+      onDoubleClick={(e) => lastPointer.current === "mouse" && e.target === video.current && actions.fullscreen()}
       className={cn(
-        "group/player relative isolate w-full overflow-hidden bg-black",
+        "group/player relative isolate w-full touch-manipulation overflow-hidden bg-black",
         fs ? "h-full" : "aspect-video max-h-[calc(100dvh-7rem)] md:rounded-3xl",
         fs && !visible && "cursor-none",
       )}
@@ -115,15 +127,30 @@ export default function Player({ title, ads, next, onNext, startAt = null }) {
         playsInline
         autoPlay
         crossOrigin="anonymous"
-        // Mouse: click plays or pauses. Touch: a tap shows the controls, and a
-        // second tap while playing hides them again, as on every phone player.
+        // Mouse: click plays or pauses. Touch: a tap shows the controls (or
+        // hides them while playing), and a double tap toggles full screen.
         onPointerUp={(e) => {
-          if (e.pointerType === "mouse") actions.toggle();
-          else if (visible && state.playing && !settings) p.setChrome(false);
-          else {
-            if (!visible) revealedAt.current = e.timeStamp;
-            p.wake();
+          if (e.pointerType === "mouse") {
+            actions.toggle();
+            return;
           }
+          const t = taps.current;
+          const near = Math.hypot(e.clientX - t.x, e.clientY - t.y) < 48;
+          clearTimeout(t.timer);
+          if (e.timeStamp - t.at < DOUBLE_TAP && near) {
+            t.at = 0;
+            actions.fullscreen(); // still inside the tap, so the browser allows it
+            return;
+          }
+          Object.assign(t, { at: e.timeStamp, x: e.clientX, y: e.clientY });
+          const hide = visible && state.playing && !settings;
+          t.timer = setTimeout(() => {
+            if (hide) p.setChrome(false);
+            else {
+              revealedAt.current = performance.now();
+              p.wake();
+            }
+          }, TAP_WAIT);
         }}
         onLoadedMetadata={(e) => {
           // Read the element now: React clears currentTarget before the updater runs.
@@ -134,10 +161,10 @@ export default function Player({ title, ads, next, onNext, startAt = null }) {
           p.setState((s) => ({ ...s, duration }));
         }}
         onPlay={p.events.onPlay}
-        onLoadStart={() => setBuffering(true)}
-        onWaiting={() => setBuffering(true)}
-        onPlaying={() => setBuffering(false)}
-        onCanPlay={() => setBuffering(false)}
+        onLoadStart={wait}
+        onWaiting={wait}
+        onPlaying={done}
+        onCanPlay={done}
         onPause={p.events.onPause}
         onEnded={() => { setEnded(true); setShowNext(true); save({ titleId: title.id, seconds: state.duration, duration: state.duration }); }}
         onTimeUpdate={(e) => {
