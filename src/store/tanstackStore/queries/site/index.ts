@@ -4,6 +4,7 @@
 import { useQuery, type QueryClient } from "@tanstack/react-query";
 
 import { catalogQueries } from "./catalog";
+import { reelsQueries } from "./reels";
 import { siteQueries } from "./site";
 
 export const useTitles = () => useQuery(catalogQueries.titles());
@@ -13,6 +14,8 @@ export const useTypes = () => useQuery(catalogQueries.types());
 export const useCategories = () => useQuery(catalogQueries.categories());
 export const useSite = () => useQuery(siteQueries.settings());
 export const usePlans = () => useQuery(siteQueries.plans());
+export const useReels = () => useQuery(reelsQueries.list());
+export const useReel = (id?: string) => useQuery(reelsQueries.reel(id));
 
 /** id -> name lookups for types and categories. */
 export function useTaxonomy() {
@@ -31,4 +34,5 @@ export function prefetchTitle(queryClient: QueryClient, id: string) {
   queryClient.query(catalogQueries.title(id)).catch(() => {});
 }
 
-export { catalogQueries, siteQueries };
+export { catalogQueries, reelsQueries, siteQueries };
+

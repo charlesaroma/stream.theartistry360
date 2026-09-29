@@ -88,6 +88,20 @@ In the websites the logo is drawn inline by `BrandLogo` (`src/components/ui/bran
 
 Use `<BrandLogo intro />` where the page first loads (navbars) and `<BrandLogo />` elsewhere. Under reduced motion it is static. For video, email or other sites, `public/brand/logo/svg/artistry360-logo-animated.svg` plays the same intro on its own.
 
+## Where the logo moves
+
+| Moment | Site | What happens | Code |
+|---|---|---|---|
+| First load | Both | Black splash: the orbit draws in, the A rises, the play button pops, then it fades as the app appears. Full draw only on the first visit of a session; later visits show a turning orbit only while loading. | `index.html` (#splash), hidden by `src/main.jsx` |
+| Page and data loading | Both | The orbit turns while the A holds still. Fades in after 150 ms, so fast loads show nothing. | `PageLoader` → `BrandMark motion="spin"` |
+| Navbar | Both | The full logo plays its entrance once, and turns 360 on hover. | `BrandLogo intro` |
+| Studio session check | Website | Full screen "Studio · Opening the Studio" with the turning orbit. | `StudioSplash` in `RequireAuth` |
+| Studio sign-in | Website | After a correct password: "Welcome, {name}", the orbit turns once, then the dashboard opens (1.3 s). | `studio-login.jsx` |
+| Before a film | Stream | 1.5 s sting: the orbit draws, the play button presses, the film starts. Once per title per session; never on resume, never before an ad. | `PlayerSting`, rules in `player/sting.js` |
+| Buffering | Stream | The turning orbit over the picture until frames arrive. | `Player.jsx` |
+
+All of it stops under reduced motion: the logo simply appears.
+
 ## Web icons
 
 Both repos use the same file set in `public/`:

@@ -27,6 +27,8 @@ export default function WatchPage() {
   const { id } = useParams();
   const [params] = useSearchParams();
   const episodeId = params.get("ep");
+  // ?t=<seconds>: start there, e.g. "Scene from …" on a reel.
+  const startAt = Number(params.get("t")) > 0 ? Number(params.get("t")) : null;
   const { member, loading } = useMember();
   const { data: title, isLoading } = useTitle(id);
   const { data: titles = [] } = useTitles();
@@ -39,8 +41,8 @@ export default function WatchPage() {
   // The player itself is rendered by PlayerHost in the layout; this page
   // starts the session and lends it a slot.
   useEffect(() => {
-    if (canWatch) open(title, episodeId, access.ads);
-  }, [canWatch, title, episodeId, access?.ads, open]);
+    if (canWatch) open(title, episodeId, access.ads, startAt);
+  }, [canWatch, title, episodeId, access?.ads, open, startAt]);
 
   // Leaving stops playback. Switch to park() once Player has its mini variant.
   useEffect(() => close, [close]);

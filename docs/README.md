@@ -2,14 +2,14 @@
 
 **stream.theartistry360.com**: where members watch The Artistry360's films, shorts and replays. It is **strictly streaming**: no class timetable, no academy pages, no voting. Those live on theartistry360.com. The **Studio** (in the `the_artistry360_2024` repo, Streaming group) controls everything shown here.
 
-Vite 8 · React 19 · React Router 7 (data router) · TanStack Query (TypeScript store layer) · Tailwind 4 · react-hook-form + zod · Lucide · Motion · hls.js. It still runs on mock data in `src/data/`, reached only through `src/services/`.
+Vite 8 · React 19 · React Router 7 (data router) · TanStack Query (TypeScript store layer) · Tailwind 4 · react-hook-form + zod · Lucide · Motion · hls.js. It still runs on mock data in `src/data/`, reached only through `src/store/tanstackStore/services/`.
 
 ## Golden Rules
 
 1. **Strictly streaming.** No timetables, classes pages or academy features. Recorded classes are ordinary titles (type *Class Replay*).
 2. **The Studio decides.** What is published, the hero, the home rows, plans, ads and the WhatsApp links all come from Studio settings (`03-data-contract.md`). Nothing is hard-coded here that the Studio can change.
 3. **Backend-ready.** UI → query hook → service → api, all under `src/store/` (`07-state-management.md`); ESLint blocks services, the transport and `@/data/*` in UI.
-4. **Numbering starts at 1, and every page folder is numbered.** Auth is always `1.auth`, then the nav (`2.home`, `3.films`, `4.plans`, `5.my-list`), then pages outside the nav (`6.search`, `7.title`, `8.watch`). `not-found.jsx` is a loose file, not a folder.
+4. **Numbering starts at 1, and every page folder is numbered.** Auth is always `1.auth`, then the nav (`2.home`, `3.films`, `4.reels`, `5.plans`, `6.my-list`), then pages outside the nav (`7.search`, `8.title`, `9.watch`). `not-found.jsx` is a loose file, not a folder.
 5. **One type scale, one gutter.** Use `text-display` / `title` / `heading` / `subheading` / `lead` / `body` / `small` / `caption` only, and `shell`, `section-y` and `PageIntro`. Nothing below 12px, and targets are at least 44px.
 6. **Light & Lens motion** (`04-motion.md`): glass, ember press, iris, key light. Every effect has a still state under reduced motion.
 7. **Logo.** Orbit A, the same logo as theartistry360.com. Use `<BrandLogo />` (`src/components/ui/brand/`; the navbar uses `intro` for the animated entrance). Files are in `public/brand/`, web icons in `public/`, guide in `docs/brand/README.md`.
@@ -22,7 +22,8 @@ Vite 8 · React 19 · React Router 7 (data router) · TanStack Query (TypeScript
 | 0 | Config & dependencies | `02-dependencies.md` | done |
 | 1 | Data contract & services | `03-data-contract.md` | done (mock) |
 | 2 | Design system & motion | `04-motion.md` | done |
-| 3 | Pages: home, films, plans, my list, title, watch, search, auth | `05-pages.md` | done (mock) |
+| 3 | Pages: home, films, reels, plans, my list, title, watch, search, auth | `05-pages.md` | done (mock) |
+| 3a | Reels feed: scroll between reels, seek, scene clips, "Scene from …" into the title | `05-pages.md`, `03-data-contract.md` | done (mock; no Studio module yet) |
 | 4 | UI/UX audit (type scale, gutter, targets) | `05-pages.md` | done |
 | 5 | Backend integration | `06-backend-integration.md` | pending |
 | 5a | State layer: `src/store/`, TanStack query factories, TypeScript, realtime | `07-state-management.md` | done (realtime waits on the backend socket) |

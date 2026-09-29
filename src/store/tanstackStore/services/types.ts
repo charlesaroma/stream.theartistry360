@@ -129,3 +129,30 @@ export interface EpisodeProgress {
   done: boolean;
   updatedAt: string;
 }
+
+export type ReelCategory = "monologue" | "highlight" | "bts" | "audition" | "teaser";
+
+export interface Reel {
+  id: Id;
+  title: string;
+  category: ReelCategory;
+  caption: string;
+  /** Seconds; clip.end - clip.start. */
+  duration: number;
+  /** The linked title's HLS stream; the reel plays the clip window of it. */
+  playbackUrl: string;
+  /** The scene, in seconds into the title, so "Scene from …" opens the title there. */
+  clip: { start: number; end: number };
+  poster: string;
+  views: number;
+  likes: number;
+  talent?: {
+    name: string;
+    role: string;
+    avatar?: string;
+  };
+  titleId?: Id;
+  /** Display fallback only; the viewer names the title from the catalogue. */
+  titleName?: string;
+}
+

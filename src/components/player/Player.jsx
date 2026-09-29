@@ -1,7 +1,8 @@
 /* Player */
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Minimize, Pause, Play } from "lucide-react";
 
+import BrandMark from "@/components/ui/brand/BrandMark";
 import { useHls } from "@/hooks/useHls";
 import { useProgress } from "@/store/tanstackStore/queries/member";
 import { cn } from "@/utils/cn";
@@ -9,9 +10,11 @@ import CenterFlash from "./CenterFlash";
 import VolumeHud from "./VolumeHud";
 import Controls from "./Controls";
 import EndScreen from "./EndScreen";
+import PlayerSting from "./PlayerSting";
 import PrerollAd from "./PrerollAd";
 import SettingsMenu from "./SettingsMenu";
 import ShortcutsSheet from "./ShortcutsSheet";
+import { markStingSeen, stingDue } from "./sting";
 import { usePlayer } from "./usePlayer";
 
 const typing = (el) => el instanceof HTMLElement && (el.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(el.tagName));
@@ -23,7 +26,7 @@ const typing = (el) => el instanceof HTMLElement && (el.isContentEditable || ["I
  * - Full screen: after a short idle everything goes, cursor included, and
  *   any movement brings it back. Larger controls and a title bar.
  */
-export default function Player({ title, ads, next, onNext }) {
+export default function Player({ title, ads, next, onNext, startAt = null }) {
   const frame = useRef(null);
   const video = useRef(null);
   const lastSaved = useRef(0);
@@ -33,19 +36,28 @@ export default function Player({ title, ads, next, onNext }) {
   const [ended, setEnded] = useState(false);
   const [showNext, setShowNext] = useState(true);
   const { progress, save } = useProgress();
+  const [buffering, setBuffering] = useState(false);
   const p = usePlayer(video, frame);
-  const hls = useHls(video, title.playbackUrl, adDone);
+  // A requested start (a reel's scene) wins over where the member stopped.
+  const resumeAt = startAt ?? progress[title.id]?.seconds ?? 0;
+  // Brand sting before a first play (rules in sting.js); the stream starts after it.
+  const [stingDone, setStingDone] = useState(() => !stingDue(title.id, { ads, resumeAt }));
+  const endSting = useCallback(() => {
+    markStingSeen(title.id);
+    setStingDone(true);
+  }, [title.id]);
+  const ready = adDone && stingDone;
+  const hls = useHls(video, title.playbackUrl, ready);
   const { state, actions } = p;
   const fs = state.fullscreen;
   const captions = title.captions ?? [];
-  const resumeAt = progress[title.id]?.seconds ?? 0;
   const visible = p.chrome || !state.playing || settings || ended;
   const pct = state.duration ? (state.time / state.duration) * 100 : 0;
 
   // Shortcuts, while this player is on screen.
   useEffect(() => {
     const onKey = (e) => {
-      if (!adDone || typing(e.target) || document.querySelector('[role="dialog"][aria-label="Search"]')) return;
+      if (!ready || typing(e.target) || document.querySelector('[role="dialog"][aria-label="Search"]')) return;
       const k = e.key.toLowerCase();
       const v = video.current;
       const handled = {
@@ -87,6 +99,7 @@ export default function Player({ title, ads, next, onNext }) {
       )}
     >
       {!adDone && <PrerollAd onDone={() => setAdDone(true)} />}
+      {adDone && !stingDone && <PlayerSting onDone={endSting} />}
 
       <video
         ref={video}
@@ -99,11 +112,15 @@ export default function Player({ title, ads, next, onNext }) {
           // Read the element now: React clears currentTarget before the updater runs.
           const v = e.currentTarget;
           const duration = Number.isFinite(v.duration) ? v.duration : 0;
-          if (resumeAt > 5 && resumeAt < duration - 10) v.currentTime = resumeAt;
+          if ((startAt !== null || resumeAt > 5) && resumeAt < duration - 10) v.currentTime = resumeAt;
           [...v.textTracks].forEach((t) => { t.mode = "disabled"; });
           p.setState((s) => ({ ...s, duration }));
         }}
         onPlay={p.events.onPlay}
+        onLoadStart={() => setBuffering(true)}
+        onWaiting={() => setBuffering(true)}
+        onPlaying={() => setBuffering(false)}
+        onCanPlay={() => setBuffering(false)}
         onPause={p.events.onPause}
         onEnded={() => { setEnded(true); setShowNext(true); save({ titleId: title.id, seconds: state.duration, duration: state.duration }); }}
         onTimeUpdate={(e) => {
@@ -118,11 +135,18 @@ export default function Player({ title, ads, next, onNext }) {
         {captions.map((c) => <track key={c.lang} kind="subtitles" src={c.src} srcLang={c.lang.slice(0, 2)} label={c.label} />)}
       </video>
 
+      {/* Buffering: the orbit turns until frames arrive */}
+      {ready && buffering && !ended && !hls.error && (
+        <div role="status" aria-label="Loading video" className="pointer-events-none absolute inset-0 z-10 grid place-items-center">
+          <BrandMark motion="spin" className="brand-loader h-16 w-16 drop-shadow-[0_2px_12px_rgb(0_0_0/0.6)]" />
+        </div>
+      )}
+
       <CenterFlash flash={p.flash} />
       <VolumeHud hud={p.volumeHud} />
 
       {/* Touch: a big centre button, since a tap only reveals the controls */}
-      {visible && adDone && !ended && (
+      {visible && ready && !ended && (
         <button
           type="button"
           onClick={actions.toggle}
@@ -155,7 +179,7 @@ export default function Player({ title, ads, next, onNext }) {
       )}
 
       {/* Controls */}
-      {adDone && (
+      {ready && (
         <div className={cn("absolute inset-x-0 bottom-0 z-20 bg-linear-to-t from-black/85 via-black/40 to-transparent transition-opacity duration-500", fs ? "px-8 pb-8 pt-24" : "px-4 pb-3 pt-16 md:px-6", visible ? "opacity-100" : "pointer-events-none opacity-0")}>
           <Controls state={state} actions={actions} large={fs} hasCaptions={captions.length > 0} settingsOpen={settings} onSettings={() => setSettings((s) => !s)}>
             {settings && (
@@ -166,7 +190,7 @@ export default function Player({ title, ads, next, onNext }) {
       )}
 
       {/* In-page, controls hidden: a thin progress line keeps your place */}
-      {!fs && adDone && (
+      {!fs && ready && (
         <div className={cn("absolute inset-x-0 bottom-0 z-10 h-[3px] bg-white/15 transition-opacity duration-500", visible ? "opacity-0" : "opacity-100")} aria-hidden="true">
           <div className="h-full bg-brand" style={{ width: `${pct}%` }} />
         </div>

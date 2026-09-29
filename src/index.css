@@ -430,8 +430,8 @@ body {
     .brand-logo[data-intro] .brand-logo-num { animation-delay: 0.8s; }
     .brand-logo[data-intro] .brand-logo-orbit { animation: brand-logo-spin 1.2s cubic-bezier(0.65, 0, 0.35, 1) 1.5s; }
     /* Hover, or hover on the link around it, turns the orbit a full 360. */
-    :is(a, button):hover > .brand-logo:not([data-intro]) .brand-logo-orbit,
-    .brand-logo:not([data-intro]):hover .brand-logo-orbit { animation: brand-logo-spin 1s cubic-bezier(0.65, 0, 0.35, 1); }
+    :is(a, button):hover > .brand-logo:not([data-intro], .brand-mark) .brand-logo-orbit,
+    .brand-logo:not([data-intro], .brand-mark):hover .brand-logo-orbit { animation: brand-logo-spin 1s cubic-bezier(0.65, 0, 0.35, 1); }
   }
 }
 
@@ -439,3 +439,31 @@ body {
 @keyframes brand-logo-pop { to { transform: scale(1); } }
 @keyframes brand-logo-rise { to { opacity: 1; transform: none; } }
 @keyframes brand-logo-spin { to { transform: rotate(360deg); } }
+
+/* ─── Brand Mark: loaders and intros ─── */
+@layer components {
+  .brand-mark .brand-logo-orbit { transform-box: view-box; transform-origin: 256px 256px; }
+  /* Loaders fade in after a beat, so a fast load shows nothing at all. */
+  .brand-loader { animation: brand-loader-in 0.3s ease 0.15s both; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .brand-mark[data-motion="spin"] .brand-logo-orbit { animation: brand-logo-spin 1.1s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite; }
+    .brand-mark:is([data-motion="draw"], [data-motion="press"]) .brand-logo-ring { stroke-dasharray: 1; stroke-dashoffset: 1; animation: brand-logo-draw 0.8s cubic-bezier(0.65, 0, 0.35, 1) forwards; }
+    .brand-mark:is([data-motion="draw"], [data-motion="press"]) .brand-logo-dot { transform: scale(0); animation: brand-logo-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.7s forwards; }
+    .brand-mark:is([data-motion="draw"], [data-motion="press"]) .brand-logo-a { opacity: 0; transform: translateY(60px); animation: brand-logo-rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.15s forwards; }
+    .brand-mark[data-motion="draw"] .brand-logo-play { transform: scale(0); animation: brand-logo-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) 0.55s forwards; }
+    .brand-mark[data-motion="press"] .brand-logo-play { transform: scale(0); animation: brand-logo-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) 0.55s forwards, brand-mark-press 0.35s ease-in-out 1.05s; }
+    .brand-mark[data-motion="turn"] .brand-logo-orbit { animation: brand-logo-spin 1s cubic-bezier(0.65, 0, 0.35, 1) 0.1s; }
+  }
+}
+
+@keyframes brand-mark-press { 0%, 100% { transform: scale(1); } 50% { transform: scale(0.72); } }
+@keyframes brand-loader-in { from { opacity: 0; } }
+
+/* ─── Player Sting ─── */
+@layer components {
+  @media (prefers-reduced-motion: no-preference) {
+    .player-sting { animation: player-sting-out 0.3s ease 1.2s forwards; }
+  }
+}
+@keyframes player-sting-out { to { opacity: 0; } }

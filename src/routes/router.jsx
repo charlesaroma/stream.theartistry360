@@ -1,7 +1,7 @@
 /* Router */
 import { createBrowserRouter } from "react-router-dom";
 
-import { catalogQueries, siteQueries } from "@/store/tanstackStore/queries/site";
+import { catalogQueries, reelsQueries, siteQueries } from "@/store/tanstackStore/queries/site";
 import { queryClient } from "@/store/tanstackStore/queryClient";
 
 import RouteError from "./RouteError";
@@ -27,6 +27,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, lazy: lazy(pages.home), loader: () => warm(siteQueries.settings(), catalogQueries.titles()) },
       { path: "films", lazy: lazy(pages.films), loader: () => warm(catalogQueries.titles(), catalogQueries.types(), catalogQueries.categories()) },
+      { path: "reels", lazy: lazy(pages.reels), loader: () => warm(reelsQueries.list()) },
       { path: "plans", lazy: lazy(pages.plans), loader: () => warm(siteQueries.plans()) },
       { path: "my-list", lazy: lazy(pages.myList) },
       { path: "title/:id", lazy: lazy(pages.title), loader: titleLoader },

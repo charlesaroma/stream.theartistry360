@@ -22,7 +22,7 @@ export default function PlayerHost() {
   const navigate = useNavigate();
   if (!session) return null;
 
-  const { title, episodeId, ads } = session;
+  const { title, episodeId, ads, startAt } = session;
   const media = mediaFor(title, episodeId);
   const go = (path) => navigate(path, { viewTransition: true });
 
@@ -45,10 +45,12 @@ export default function PlayerHost() {
     <>
       {createPortal(
         <Player
-          key={media.key}
+          // A new start time remounts the player so it seeks there.
+          key={`${media.key}:${startAt ?? ""}`}
           media={media}
           title={title}
           ads={ads}
+          startAt={startAt}
           next={next}
           onNext={() => nextPath && go(nextPath)}
           variant={mode}

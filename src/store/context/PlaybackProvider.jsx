@@ -14,7 +14,7 @@ import { PlaybackContext } from "./playbackContext";
  * move puts it straight back.
  */
 export default function PlaybackProvider({ children }) {
-  const [session, setSession] = useState(null); // { title, episodeId, ads }
+  const [session, setSession] = useState(null); // { title, episodeId, ads, startAt }
   const [mode, setMode] = useState("page");
   const [container] = useState(() => {
     const el = document.createElement("div");
@@ -23,8 +23,14 @@ export default function PlaybackProvider({ children }) {
   });
   const miniSlotRef = useRef(null);
 
-  const open = useCallback((title, episodeId, ads) => {
-    setSession((prev) => (prev && prev.title.id === title.id && prev.episodeId === episodeId ? prev : { title, episodeId, ads }));
+  // The same title and episode keeps playing; a start time (?t=) always
+  // starts a fresh session there.
+  const open = useCallback((title, episodeId, ads, startAt = null) => {
+    setSession((prev) =>
+      prev && prev.title.id === title.id && prev.episodeId === episodeId && prev.startAt === startAt
+        ? prev
+        : { title, episodeId, ads, startAt },
+    );
   }, []);
 
   const close = useCallback(() => {

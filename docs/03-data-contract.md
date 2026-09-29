@@ -11,6 +11,22 @@ The Studio (repo `the_artistry360_2024`, sidebar group **Streaming**) writes. Th
 | Plans | Streaming › Subscriptions | `data/streamingPlans.js` | `GET streaming/plans` |
 | Hero, home rows, WhatsApp links, announcement | Streaming › Stream Site | `data/streamSite.js` | `GET stream/site` |
 | Ad tag (free tier) | Streaming › Ads | (player stand-in) | `GET streaming/ads/public` |
+| Reels | **not in the Studio yet** (see below) | `data/streamingReels.js` | `GET streaming/reels` |
+
+## Reels are scenes
+
+A reel is a window of a title's own stream, not a separate video:
+
+| Field | Meaning |
+|---|---|
+| `titleId` | The title the scene comes from |
+| `playbackUrl` | That title's HLS stream |
+| `clip: { start, end }` | Seconds into the title; the reel loops this window |
+| `duration` | `end - start` |
+
+So "Scene from …" can open the full title at `clip.start` (`/watch/:id?t=<start>`). The title's name comes from the catalogue, never from the reel.
+
+The Studio has no Reels module yet. Until it does, `data/streamingReels.js` is the only source. The module to add is Streaming › Reels: pick a title, mark the start and end on its video, and write the caption and talent.
 
 ## Visibility rule
 

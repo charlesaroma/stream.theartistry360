@@ -11,5 +11,6 @@ Same API as theartistry360.com (`api.theartistry360.com/api/v1`), proxied at `/a
 | `authApi.subscribe` / `purchase` | `POST payments/orders` → PesaPal redirect; granted only by `POST payments/pesapal/ipn` |
 | `libraryApi.*` | `GET/POST me/watchlist`, `GET/PUT me/progress/:titleId` |
 | player | `GET streaming/titles/:id/play` → signed, expiring HLS URL; `403` if not entitled |
+| `reelsApi.listReels` / `getReel` | `GET streaming/reels`, `GET streaming/reels/:id`. Each reel names its title and `clip`; its stream must be playable without the title's entitlement (a public preview URL), since reels are the free shop window |
 
 Remove `playbackUrl` from the seed once `/play` exists. The demo stream is Mux's public test HLS.
