@@ -34,6 +34,7 @@ export default {
         {
           list: [
             "Prices are in Uganda shillings (UGX) and include any taxes that apply. You pay through PesaPal with MTN MoMo, Airtel Money or a card.",
+            "Your card details and mobile money PIN go straight to PesaPal and never reach our servers. We never ask for your PIN by phone, SMS, email or WhatsApp; anyone who does isn't us.",
             "A plan gives you the whole library, without adverts, for the period you pay for (a month, 3 months or a year).",
             "We remind you 3 days before a plan renews. If a renewal isn't paid, your account goes back to the free tier; nothing is lost.",
             "You can cancel any time in Account › Membership. You keep access until the end of the period you've paid for.",

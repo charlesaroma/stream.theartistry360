@@ -9,6 +9,7 @@ export default {
   updated: UPDATED,
   summary: [
     "We collect what we need to run your account, your payments and the services you use, and nothing we don't.",
+    "Your card number and mobile money PIN go straight to PesaPal, our payment provider. They never reach our servers; we never see or store them.",
     "We never sell your data. We share it only with the companies that help us run the service (payments, video, hosting), or when the law requires.",
     "You can ask for a copy of your data, correct it or delete your account at any time, from your account or by emailing us.",
     "We follow Uganda's Data Protection and Privacy Act, 2019. You can complain to the Personal Data Protection Office if we get it wrong.",
@@ -119,6 +120,7 @@ export default {
       id: "security",
       title: "How we protect it",
       blocks: [
+        "Payments are handled by PesaPal on its own secure pages. Your card number, card security code and mobile money PIN go straight to PesaPal and never reach our servers; we only receive the result (paid or not), the amount and a reference.",
         "Everything travels encrypted (https). Passwords are stored scrambled (hashed), never as you typed them. Only the staff who need your data can see it, and we keep a record of who does.",
         "If a breach puts your data at risk, we'll tell the Personal Data Protection Office and you, as the Act requires, and say what we're doing about it.",
       ],
