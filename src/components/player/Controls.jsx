@@ -1,4 +1,5 @@
 /* Player Controls */
+import { useRef, useState } from "react";
 import { Maximize, Minimize, Pause, PictureInPicture2, Play, RotateCcw, RotateCw, Settings, Subtitles, Volume1, Volume2, VolumeX } from "lucide-react";
 
 import { cn } from "@/utils/cn";
@@ -17,7 +18,27 @@ const clock = (s) => (formatDuration(s) === "—" ? "0:00" : formatDuration(s));
  */
 export default function Controls({ state, actions, large, hasCaptions, settingsOpen, onSettings, children }) {
   const { playing, time, duration, muted, volume, fullscreen, buffered, captions } = state;
-  const pct = duration ? (time / duration) * 100 : 0;
+  // Scrubbing: while a finger or mouse drags the bar, only the handle and the
+  // time move; the video seeks once, on release. Seeking on every step (20+
+  // seeks per drag) made the picture stutter and stall. Keys seek at once.
+  const [scrub, setScrub] = useState(null);
+  const dragging = useRef(false);
+  const shown = scrub ?? time;
+  const pct = duration ? (shown / duration) * 100 : 0;
+  const startDrag = () => {
+    dragging.current = true;
+    const end = () => {
+      window.removeEventListener("pointerup", end);
+      window.removeEventListener("pointercancel", end);
+      dragging.current = false;
+      setScrub((s) => {
+        if (s !== null) actions.seek(s);
+        return null;
+      });
+    };
+    window.addEventListener("pointerup", end);
+    window.addEventListener("pointercancel", end);
+  };
   const ctl = cn("grid cursor-pointer place-items-center rounded-full text-text-primary transition-colors hover:bg-white/15", large ? "h-14 w-14" : "h-11 w-11");
   const icon = large ? "h-7 w-7" : "h-5 w-5";
   const VolIcon = muted || volume === 0 ? VolumeX : volume < 0.5 ? Volume1 : Volume2;
@@ -32,13 +53,14 @@ export default function Controls({ state, actions, large, hasCaptions, settingsO
             <div className="absolute inset-y-0 left-0 rounded-full bg-brand" style={{ width: `${pct}%` }} />
           </div>
           <input
-            type="range" min={0} max={duration || 0} step={1} value={time}
-            onChange={(e) => actions.seek(Number(e.target.value))}
-            aria-label="Seek" aria-valuetext={`${clock(time)} of ${clock(duration)}`}
+            type="range" min={0} max={duration || 0} step={1} value={shown}
+            onPointerDown={startDrag}
+            onChange={(e) => (dragging.current ? setScrub(Number(e.target.value)) : actions.seek(Number(e.target.value)))}
+            aria-label="Seek" aria-valuetext={`${clock(shown)} of ${clock(duration)}`}
             className="relative h-full w-full cursor-pointer appearance-none bg-transparent [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-brand [&::-moz-range-thumb]:opacity-0 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-brand [&::-webkit-slider-thumb]:opacity-0 group-hover/seek:[&::-moz-range-thumb]:opacity-100 group-hover/seek:[&::-webkit-slider-thumb]:opacity-100 pointer-coarse:[&::-moz-range-thumb]:opacity-100 pointer-coarse:[&::-webkit-slider-thumb]:h-5 pointer-coarse:[&::-webkit-slider-thumb]:w-5 pointer-coarse:[&::-webkit-slider-thumb]:opacity-100"
           />
         </div>
-        <span className={cn("shrink-0 whitespace-nowrap tabular-nums text-text-secondary", large ? "text-body" : "text-caption @md:text-small")}>{clock(time)} / {clock(duration)}</span>
+        <span className={cn("shrink-0 whitespace-nowrap tabular-nums text-text-secondary", large ? "text-body" : "text-caption @md:text-small")}>{clock(shown)} / {clock(duration)}</span>
       </div>
 
       <div className="flex min-w-0 items-center gap-0.5 @md:gap-1">
