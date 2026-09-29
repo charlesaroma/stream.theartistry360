@@ -5,7 +5,7 @@ import RateButtons from "@/components/title/RateButtons";
 import UpNext from "./UpNext";
 
 /** When a title ends: rate it, replay it, or roll into the next one. */
-export default function EndScreen({ title, next, onReplay, onNext, onDismissNext, showNext }) {
+export default function EndScreen({ title, next, onReplay, onNext, onDismissNext, showNext, autoNext = true }) {
   return (
     <div className="absolute inset-0 z-20 grid animate-fade place-items-center bg-black/70 p-6 backdrop-blur-sm">
       <div className="text-center">
@@ -16,7 +16,7 @@ export default function EndScreen({ title, next, onReplay, onNext, onDismissNext
           <RotateCcw className="h-4 w-4" aria-hidden="true" /> Watch again
         </button>
       </div>
-      {next && showNext && <UpNext next={next} onPlay={onNext} onCancel={onDismissNext} />}
+      {next && showNext && <UpNext next={next} auto={autoNext} onPlay={onNext} onCancel={onDismissNext} />}
     </div>
   );
 }

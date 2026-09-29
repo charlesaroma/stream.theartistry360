@@ -4,6 +4,7 @@ import { ChevronsRight, Minimize, Pause, Play } from "lucide-react";
 
 import BrandMark from "@/components/ui/brand/BrandMark";
 import { useHls } from "@/hooks/useHls";
+import { useWatchPrefs } from "@/hooks/useWatchPrefs";
 import { useProgress } from "@/store/tanstackStore/queries/member";
 import { cn } from "@/utils/cn";
 import CenterFlash from "./CenterFlash";
@@ -51,6 +52,7 @@ export default function Player({ title, media, ads, next, onNext, startAt = null
   const [ended, setEnded] = useState(false);
   const [showNext, setShowNext] = useState(true);
   const { progress, episodes, save } = useProgress();
+  const prefs = useWatchPrefs();
   const { buffering, wait, done } = useBuffering();
   const p = usePlayer(video, frame);
   // A requested start (?t= in a shared link) wins over where the member stopped.
@@ -70,6 +72,14 @@ export default function Player({ title, media, ads, next, onNext, startAt = null
   const saveAt = (seconds, duration) => save({ titleId: title.id, episodeId: media.episodeId, seconds, duration });
   // Skip intro: offered while the episode's intro is running.
   const inIntro = Boolean(media.intro) && state.time >= media.intro.start && state.time < media.intro.end - 1;
+  // Auto skip intro (toolbar choice): jump once per play of this episode.
+  const skipped = useRef(false);
+  useEffect(() => {
+    if (inIntro && prefs.autoSkip && !skipped.current) {
+      skipped.current = true;
+      actions.seek(media.intro.end);
+    }
+  }, [inIntro, prefs.autoSkip, actions, media.intro]);
   const visible = p.chrome || !state.playing || settings || ended;
   const pct = state.duration ? (state.time / state.duration) * 100 : 0;
 
@@ -222,7 +232,7 @@ export default function Player({ title, media, ads, next, onNext, startAt = null
       )}
 
       {ended && (
-        <EndScreen title={title} next={next} showNext={showNext} onReplay={replay} onNext={onNext} onDismissNext={() => setShowNext(false)} />
+        <EndScreen title={title} next={next} showNext={showNext} autoNext={prefs.autoNext} onReplay={replay} onNext={onNext} onDismissNext={() => setShowNext(false)} />
       )}
 
       {/* Full-screen title bar */}

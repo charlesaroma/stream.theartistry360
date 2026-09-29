@@ -9,7 +9,7 @@
 | `5.my-list` | `/my-list` | Continue watching and saved titles (per member, local until the API) |
 | `6.search` | `/search?q=` | Titles, cast and crew |
 | `7.title` | `/title/:id`, `?play=1` | Stage, **Play** (the price gate opens only when pressed), list, share, story, cast & crew, **WhatsApp Channel + Group**, more like this. `?play=1` opens the gate on arrival |
-| `8.watch` | `/watch/:id`, `?ep=`, `?t=<seconds>` | Full-screen HLS player, free-tier pre-roll, resume, shortcuts (Space/K, J/L, ←/→, ↑/↓ volume, M, F, C, P). A volume readout shows on the picture while the level changes. `?t=` starts at that second (a shared timestamp). Someone who can't watch yet is sent to `/title/:id?play=1` |
+| `8.watch` | `/watch/:id`, `?ep=`, `?t=<seconds>` | Full-screen HLS player, free-tier pre-roll, resume, shortcuts (Space/K, J/L, ←/→, ↑/↓ volume, M, F, C, P). A volume readout shows on the picture while the level changes. `?t=` starts at that second (a shared timestamp). Someone who can't watch yet is sent to `/title/:id?play=1`  Desktop: player in a main column with a toolbar under it (Expand/theatre, Auto next, Auto skip intro, Lights, Prev/Next episode, My List; choices kept in this browser, `hooks/useWatchPrefs.js`) and a sidebar: episode number grid for series, More like this, community. Phones stack it. |
 
 Folders follow the nav (Home, Films, Plans, My List), with `1.auth` first and the pages outside the nav after.
 
