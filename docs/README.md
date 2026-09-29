@@ -23,7 +23,8 @@ Vite 8 · React 19 · React Router 7 (data router) · TanStack Query (TypeScript
 | 1 | Data contract & services | `03-data-contract.md` | done (mock) |
 | 2 | Design system & motion | `04-motion.md` | done |
 | 3 | Pages: home, films, reels, plans, my list, title, watch, search, auth | `05-pages.md` | done (mock) |
-| 3a | Reels feed: scroll between reels, seek, scene clips, "Scene from …" into the title | `05-pages.md`, `03-data-contract.md` | done (mock; no Studio module yet) |
+| 3a | Reels feed: scroll between reels, seek, scene clips, "Watch the film" into the title | `05-pages.md`, `03-data-contract.md` | done (mock) |
+| 3b | Browse pages rebuilt: shared header, one filter row, rows then grid, viewer-aware access labels, Reels as a feed you drop into, phone player controls | `05-pages.md` | done |
 | 4 | UI/UX audit (type scale, gutter, targets) | `05-pages.md` | done |
 | 5 | Backend integration | `06-backend-integration.md` | pending |
 | 5a | State layer: `src/store/`, TanStack query factories, TypeScript, realtime | `07-state-management.md` | done (realtime waits on the backend socket) |

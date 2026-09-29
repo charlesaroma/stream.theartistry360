@@ -78,7 +78,7 @@ export default function ReelsPage() {
         canPlay={ordered.length > 0}
       />
 
-      {featured && <FeaturedReel reel={featured} upNext={ordered.slice(1, 5)} onOpen={open} />}
+      {featured && <FeaturedReel reel={featured} upNext={ordered.slice(1, 5)} onOpen={open} paused={activeIndex >= 0} />}
 
       <div className="pb-[clamp(3rem,6vw,6rem)]">
         <ReelsGrid

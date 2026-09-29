@@ -6,7 +6,15 @@ import { formatDuration } from "@/utils/format";
 
 const clock = (s) => (formatDuration(s) === "—" ? "0:00" : formatDuration(s));
 
-/** Seek bar and button row. `large` in full screen, where the screen is far away. */
+/**
+ * Seek bar and button row. `large` in full screen, where the screen is far away.
+ * The row fits the player's own width (a container query), not the screen's,
+ * so a phone, a small window and the mini player all get a clean row: on a
+ * narrow player, subtitles (also in Settings) and picture-in-picture step
+ * aside, and every button stays at least 44px. The time sits beside the seek
+ * bar, where it has room and never wraps. On touch screens the seek
+ * handle is always shown and the bar is taller, so it is easy to grab.
+ */
 export default function Controls({ state, actions, large, hasCaptions, settingsOpen, onSettings, children }) {
   const { playing, time, duration, muted, volume, fullscreen, buffered, captions } = state;
   const pct = duration ? (time / duration) * 100 : 0;
@@ -15,22 +23,25 @@ export default function Controls({ state, actions, large, hasCaptions, settingsO
   const VolIcon = muted || volume === 0 ? VolumeX : volume < 0.5 ? Volume1 : Volume2;
 
   return (
-    <div className="flex flex-col gap-2">
-      {/* Seek */}
-      <div className="group/seek relative flex h-6 items-center">
-        <div className={cn("absolute inset-x-0 rounded-full bg-white/20 transition-[height]", large ? "h-1.5 group-hover/seek:h-2" : "h-1 group-hover/seek:h-1.5")}>
-          <div className="absolute inset-y-0 left-0 rounded-full bg-white/30" style={{ width: `${buffered}%` }} />
-          <div className="absolute inset-y-0 left-0 rounded-full bg-brand" style={{ width: `${pct}%` }} />
+    <div className="@container flex flex-col gap-1.5">
+      {/* Seek, with the time beside it so the numbers never wrap */}
+      <div className="flex items-center gap-3">
+        <div className="group/seek relative flex h-6 min-w-0 flex-1 items-center pointer-coarse:h-9">
+          <div className={cn("absolute inset-x-0 rounded-full bg-white/20 transition-[height]", large ? "h-1.5 group-hover/seek:h-2" : "h-1 group-hover/seek:h-1.5 pointer-coarse:h-1.5")}>
+            <div className="absolute inset-y-0 left-0 rounded-full bg-white/30" style={{ width: `${buffered}%` }} />
+            <div className="absolute inset-y-0 left-0 rounded-full bg-brand" style={{ width: `${pct}%` }} />
+          </div>
+          <input
+            type="range" min={0} max={duration || 0} step={1} value={time}
+            onChange={(e) => actions.seek(Number(e.target.value))}
+            aria-label="Seek" aria-valuetext={`${clock(time)} of ${clock(duration)}`}
+            className="relative h-full w-full cursor-pointer appearance-none bg-transparent [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-brand [&::-moz-range-thumb]:opacity-0 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-brand [&::-webkit-slider-thumb]:opacity-0 group-hover/seek:[&::-moz-range-thumb]:opacity-100 group-hover/seek:[&::-webkit-slider-thumb]:opacity-100 pointer-coarse:[&::-moz-range-thumb]:opacity-100 pointer-coarse:[&::-webkit-slider-thumb]:h-5 pointer-coarse:[&::-webkit-slider-thumb]:w-5 pointer-coarse:[&::-webkit-slider-thumb]:opacity-100"
+          />
         </div>
-        <input
-          type="range" min={0} max={duration || 0} step={1} value={time}
-          onChange={(e) => actions.seek(Number(e.target.value))}
-          aria-label="Seek" aria-valuetext={`${clock(time)} of ${clock(duration)}`}
-          className="relative w-full cursor-pointer appearance-none bg-transparent [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-brand [&::-webkit-slider-thumb]:opacity-0 group-hover/seek:[&::-webkit-slider-thumb]:opacity-100"
-        />
+        <span className={cn("shrink-0 whitespace-nowrap tabular-nums text-text-secondary", large ? "text-body" : "text-caption @md:text-small")}>{clock(time)} / {clock(duration)}</span>
       </div>
 
-      <div className="flex items-center gap-1">
+      <div className="flex min-w-0 items-center gap-0.5 @md:gap-1">
         <button type="button" className={ctl} onClick={actions.toggle} aria-label={playing ? "Pause (K)" : "Play (K)"}>
           {playing ? <Pause className={cn(icon, "fill-current")} aria-hidden="true" /> : <Play className={cn(icon, "fill-current")} aria-hidden="true" />}
         </button>
@@ -48,11 +59,9 @@ export default function Controls({ state, actions, large, hasCaptions, settingsO
           />
         </div>
 
-        <span className={cn("ml-2 tabular-nums text-text-secondary", large ? "text-body" : "text-small")}>{clock(time)} / {clock(duration)}</span>
-
-        <div className="relative ml-auto flex items-center gap-1">
+        <div className="relative ml-auto flex shrink-0 items-center gap-0.5 @md:gap-1">
           {hasCaptions && (
-            <button type="button" className={cn(ctl, captions !== -1 && "text-brand")} onClick={() => actions.setCaptions(captions === -1 ? 0 : -1)} aria-label={captions === -1 ? "Subtitles on (C)" : "Subtitles off (C)"} aria-pressed={captions !== -1}>
+            <button type="button" className={cn(ctl, "hidden @sm:grid", captions !== -1 && "text-brand")} onClick={() => actions.setCaptions(captions === -1 ? 0 : -1)} aria-label={captions === -1 ? "Subtitles on (C)" : "Subtitles off (C)"} aria-pressed={captions !== -1}>
               <Subtitles className={icon} aria-hidden="true" />
             </button>
           )}
@@ -60,7 +69,7 @@ export default function Controls({ state, actions, large, hasCaptions, settingsO
             <Settings className={cn(icon, "transition-transform duration-300", settingsOpen && "rotate-45")} aria-hidden="true" />
           </button>
           {"pictureInPictureEnabled" in document && (
-            <button type="button" className={ctl} onClick={actions.pip} aria-label="Picture in picture (P)"><PictureInPicture2 className={icon} aria-hidden="true" /></button>
+            <button type="button" className={cn(ctl, "hidden @md:grid")} onClick={actions.pip} aria-label="Picture in picture (P)"><PictureInPicture2 className={icon} aria-hidden="true" /></button>
           )}
           <button type="button" className={ctl} onClick={actions.fullscreen} aria-label={fullscreen ? "Exit full screen (F)" : "Full screen (F)"}>
             {fullscreen ? <Minimize className={icon} aria-hidden="true" /> : <Maximize className={icon} aria-hidden="true" />}

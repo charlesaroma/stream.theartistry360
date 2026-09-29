@@ -30,6 +30,9 @@ export default function Player({ title, ads, next, onNext, startAt = null }) {
   const frame = useRef(null);
   const video = useRef(null);
   const lastSaved = useRef(0);
+  // When a tap last revealed the controls; the same tap's click must not
+  // then land on the centre button that appeared under the finger.
+  const revealedAt = useRef(0);
   const [adDone, setAdDone] = useState(!ads);
   const [settings, setSettings] = useState(false);
   const [shortcuts, setShortcuts] = useState(false);
@@ -89,8 +92,11 @@ export default function Player({ title, ads, next, onNext, startAt = null }) {
   return (
     <div
       ref={frame}
-      onPointerMove={p.wake}
-      onPointerLeave={() => state.playing && !settings && p.setChrome(false)}
+      // A moving mouse wakes the controls; touch uses taps (below) instead.
+      onPointerMove={(e) => e.pointerType === "mouse" && p.wake()}
+      // Only a mouse leaving hides the controls: touch sends pointerleave after
+      // every tap, which used to hide them the moment they appeared.
+      onPointerLeave={(e) => e.pointerType === "mouse" && state.playing && !settings && p.setChrome(false)}
       onDoubleClick={(e) => e.target === video.current && actions.fullscreen()}
       className={cn(
         "group/player relative isolate w-full overflow-hidden bg-black",
@@ -107,7 +113,16 @@ export default function Player({ title, ads, next, onNext, startAt = null }) {
         playsInline
         autoPlay
         crossOrigin="anonymous"
-        onPointerUp={(e) => (e.pointerType === "mouse" ? actions.toggle() : p.wake())}
+        // Mouse: click plays or pauses. Touch: a tap shows the controls, and a
+        // second tap while playing hides them again, as on every phone player.
+        onPointerUp={(e) => {
+          if (e.pointerType === "mouse") actions.toggle();
+          else if (visible && state.playing && !settings) p.setChrome(false);
+          else {
+            if (!visible) revealedAt.current = e.timeStamp;
+            p.wake();
+          }
+        }}
         onLoadedMetadata={(e) => {
           // Read the element now: React clears currentTarget before the updater runs.
           const v = e.currentTarget;
@@ -145,13 +160,14 @@ export default function Player({ title, ads, next, onNext, startAt = null }) {
       <CenterFlash flash={p.flash} />
       <VolumeHud hud={p.volumeHud} />
 
-      {/* Touch: a big centre button, since a tap only reveals the controls */}
+      {/* Touch: a big centre button, since a tap only reveals the controls.
+          Above the controls' fade (z-30), which is tall on a small player. */}
       {visible && ready && !ended && (
         <button
           type="button"
-          onClick={actions.toggle}
+          onClick={(e) => e.timeStamp - revealedAt.current > 500 && actions.toggle()}
           aria-label={state.playing ? "Pause" : "Play"}
-          className="absolute left-1/2 top-1/2 z-10 grid h-20 w-20 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-black/50 backdrop-blur-md [@media(hover:hover)]:hidden"
+          className="absolute left-1/2 top-1/2 z-30 grid h-16 w-16 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-black/50 backdrop-blur-md sm:h-20 sm:w-20 [@media(hover:hover)]:hidden"
         >
           {state.playing ? <Pause className="h-9 w-9 fill-current" aria-hidden="true" /> : <Play className="h-9 w-9 fill-current" aria-hidden="true" />}
         </button>
@@ -180,12 +196,21 @@ export default function Player({ title, ads, next, onNext, startAt = null }) {
 
       {/* Controls */}
       {ready && (
-        <div className={cn("absolute inset-x-0 bottom-0 z-20 bg-linear-to-t from-black/85 via-black/40 to-transparent transition-opacity duration-500", fs ? "px-8 pb-8 pt-24" : "px-4 pb-3 pt-16 md:px-6", visible ? "opacity-100" : "pointer-events-none opacity-0")}>
+        <div
+          // Touching or dragging the controls keeps them up.
+          onPointerDown={p.wake}
+          onInput={p.wake}
+          // The fade itself never takes a tap (on a small player it covers most
+          // of the picture); only the controls in it do, and only while shown.
+          className={cn("pointer-events-none absolute inset-x-0 bottom-0 z-20 bg-linear-to-t from-black/85 via-black/40 to-transparent transition-opacity duration-500", fs ? "px-8 pb-8 pt-24" : "px-3 pb-2 pt-14 md:px-6 md:pb-3 md:pt-16", visible ? "opacity-100" : "opacity-0")}
+        >
+          <div className={visible ? "pointer-events-auto" : undefined}>
           <Controls state={state} actions={actions} large={fs} hasCaptions={captions.length > 0} settingsOpen={settings} onSettings={() => setSettings((s) => !s)}>
             {settings && (
               <SettingsMenu hls={hls} captions={captions} state={state} actions={actions} onShortcuts={() => { setSettings(false); setShortcuts(true); }} onClose={() => setSettings(false)} />
             )}
           </Controls>
+          </div>
         </div>
       )}
 

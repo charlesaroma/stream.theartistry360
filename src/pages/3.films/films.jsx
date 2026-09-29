@@ -70,7 +70,7 @@ export default function FilmsPage() {
         onAccess={(id) => update({ access: id })}
         query={query}
         onQuery={(q) => update({ q })}
-        count={isLoading ? 0 : filtering ? grid.length : tabTitles.length}
+        count={isLoading ? null : filtering ? grid.length : tabTitles.length}
         onClear={clear}
       />
 

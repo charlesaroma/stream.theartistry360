@@ -38,7 +38,7 @@ src/store/
 | Root | Holds | Persisted |
 |---|---|---|
 | `["site", …]` | catalogue, search, taxonomy, reels, the stream-site document, plans | yes (`a360s:query-cache`) |
-| `["member", memberId, …]` | watchlist, progress, episode progress, ratings | never |
+| `["member", memberId, …]` | watchlist, progress, episode progress, ratings, watched reels | never |
 
 - Signed-out visitors use the id `"guest"`.
 - **Whenever the account changes** (sign-in, sign-up, sign-out, or a cleared token), `MemberContext` removes every `["member", …]` entry. A guest's list never mixes with an account's, and nothing of one account is left for the next.
@@ -74,7 +74,7 @@ src/store/
 | Publish, edit or unpublish a title | `{ entity: ["site","titles"] }` | rows, films, the title page, search |
 | Save Stream Site (hero, rows, links) | `{ entity: ["site","stream-site"] }` | home, footer, title-page WhatsApp block |
 | Edit types or categories | `["site","types"]`, `["site","categories"]` | filters, chips |
-| Publish or edit a reel (once the Studio has a Reels module) | `["site","reels"]` | the reels page, the home strip, the feed |
+| Publish, edit or feature a reel (Studio › Streaming › Reels) | `["site","reels"]` | the reels page, the home strip, the feed |
 | Edit plans or ads | `["site","plans"]`, `["site","ads"]` | plans, the player's pre-roll |
 
 The member channel, authenticated with the member token, carries entitlement changes after a PesaPal IPN (`["member", id, …]`), so Play unlocks without a reload. A channel may only touch its own roots.

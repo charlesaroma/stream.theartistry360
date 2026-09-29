@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const HIDE_AFTER = 2600;
+const HIDE_AFTER_TOUCH = 4500; // a thumb needs longer to find the timeline than a mouse
+const hideAfter = () => (window.matchMedia?.("(pointer: coarse)").matches ? HIDE_AFTER_TOUCH : HIDE_AFTER);
 const VOLUME_HUD_FOR = 900;
 
 /**
@@ -21,7 +23,7 @@ export function usePlayer(videoRef, frameRef) {
   const wake = useCallback(() => {
     setChrome(true);
     clearTimeout(idle.current);
-    idle.current = setTimeout(() => setChrome(false), HIDE_AFTER);
+    idle.current = setTimeout(() => setChrome(false), hideAfter());
   }, []);
 
   const pulse = useCallback((kind) => {

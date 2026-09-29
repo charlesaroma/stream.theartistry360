@@ -16,7 +16,7 @@ import { canAutoplay, categoryOf, formatCount } from "@/utils/reels";
  * playing silently (only while on screen, and only when motion and data
  * allow), its details and the way into its film, and the next few reels.
  */
-export default function FeaturedReel({ reel, upNext, onOpen }) {
+export default function FeaturedReel({ reel, upNext, onOpen, paused = false }) {
   const frame = useRef(null);
   const [onScreen, setOnScreen] = useState(false);
   const filmFor = useReelFilm();
@@ -42,7 +42,8 @@ export default function FeaturedReel({ reel, upNext, onOpen }) {
         className="relative aspect-9/16 w-full max-w-72 cursor-pointer overflow-hidden rounded-2xl bg-surface-card shadow-[0_20px_50px_rgb(0_0_0/0.6)] outline-offset-4 focus-visible:ring-2 focus-visible:ring-brand md:max-w-none"
       >
         <img src={reel.poster} alt="" className="h-full w-full object-cover" />
-        {onScreen && <SilentScene reel={reel} />}
+        {/* Not behind the open feed: one stream at a time */}
+        {onScreen && !paused && <SilentScene reel={reel} />}
         <span className="absolute left-3 top-3 rounded-full bg-black/55 px-2.5 py-1 text-caption font-semibold text-text-primary backdrop-blur-xs">Featured</span>
       </button>
 

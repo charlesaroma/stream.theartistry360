@@ -44,7 +44,7 @@ export default function FilterBar({ tab, onTab, genres, genre, onGenre, access, 
       </div>
 
       <div className="flex flex-wrap items-center gap-2 text-small text-text-muted" aria-live="polite">
-        <span>{count} {count === 1 ? "title" : "titles"}</span>
+        {count !== null && <span>{count} {count === 1 ? "title" : "titles"}</span>}
         {chips.map((c) => (
           <button
             key={c.key}

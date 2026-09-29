@@ -157,7 +157,7 @@ export default function ReelSlide({
         />
       </div>
 
-      {/* Top: playback on the left, where you are and the exits on the right */}
+      {/* Top: playback on the left, the exits on the right */}
       <div className="absolute inset-x-0 top-3 z-30 flex items-center justify-between gap-2 px-3">
         <div className="molten-glass flex items-center gap-0.5 rounded-full p-1">
           <IconButton label={playing ? "Pause (Space)" : "Play (Space)"} onClick={toggle} className="h-10 w-10">
@@ -177,9 +177,6 @@ export default function ReelSlide({
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="hidden rounded-full bg-black/40 px-2.5 py-1 text-caption font-medium text-text-secondary backdrop-blur-xs sm:inline">
-            {index + 1} / {total}
-          </span>
           {onBrowseAll && (
             <IconButton label="Browse all reels" onClick={onBrowseAll} className="h-10 w-10 md:hidden">
               <LayoutGrid className="h-5 w-5" aria-hidden="true" />
