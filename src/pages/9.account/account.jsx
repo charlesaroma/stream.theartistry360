@@ -73,7 +73,7 @@ export default function AccountPage() {
           <div key={tab.id} className="min-w-0 animate-rise">
             <tab.Panel />
           </div>
-            </div>
+        </div>
       </div>
     </div>
   );
