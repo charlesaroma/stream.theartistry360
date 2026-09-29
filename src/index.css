@@ -467,3 +467,24 @@ body {
   }
 }
 @keyframes player-sting-out { to { opacity: 0; } }
+
+/* Pointer cursor on everything clickable. Tailwind's reset gives buttons the
+   default arrow; this base rule covers native controls so none is missed.
+   Utilities (cursor-*) still win. */
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [role="tab"],
+  a[href],
+  summary,
+  select:not(:disabled),
+  label:has(input[type="checkbox"], input[type="radio"]),
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled),
+  input[type="file"]:not(:disabled) {
+    cursor: pointer;
+  }
+  :disabled {
+    cursor: not-allowed;
+  }
+}
