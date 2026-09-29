@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 
 import { onTokenChange } from "@/store/tanstackStore/services/api/tokens";
 import * as auth from "@/store/tanstackStore/services/authApi";
+import * as account from "@/store/tanstackStore/services/accountApi";
 import { useMockApi } from "@/store/tanstackStore/services/api/config";
 import { realmRoot } from "@/store/tanstackStore/queries/keys";
 
@@ -60,10 +61,22 @@ export function MemberProvider({ children }) {
       /** Mocks on: pages may show demo shortcuts (e.g. the reset link). */
       demo: useMockApi,
       signOut: () => switchAccount(auth.signOut),
-      subscribe: (planId) => run(auth.subscribe, planId),
-      purchase: (titleId) => run(auth.purchase, titleId),
+      // A payment adds a receipt: refresh the member's payments.
+      subscribe: async (planId, method) => { const m = await run(auth.subscribe, planId, method); queryClient.invalidateQueries({ queryKey: realmRoot("member") }); return m; },
+      purchase: async (titleId, method) => { const m = await run(auth.purchase, titleId, method); queryClient.invalidateQueries({ queryKey: realmRoot("member") }); return m; },
+      // Account page: each returns the updated member.
+      updateProfile: (data) => run(account.updateProfile, member, data),
+      requestEmailChange: (email) => run(account.requestEmailChange, member, email),
+      changePassword: (data) => run(account.changePassword, member, data),
+      setCancelAtPeriodEnd: (cancel) => run(account.setCancelAtPeriodEnd, member, cancel),
+      // The API revokes every refresh token for the member; here, this device.
+      signOutEverywhere: () => switchAccount(auth.signOut),
+      deleteAccount: async (confirmText) => {
+        await account.deleteAccount(member, confirmText);
+        return switchAccount(auth.signOut);
+      },
     }),
-    [member, loading, run, switchAccount],
+    [member, loading, run, switchAccount, queryClient],
   );
 
   return <MemberContext.Provider value={value}>{children}</MemberContext.Provider>;

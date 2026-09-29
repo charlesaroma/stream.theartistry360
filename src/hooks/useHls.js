@@ -10,7 +10,8 @@ import { useEffect, useRef, useState } from "react";
  * Native playback is the fallback for iPhone, which has no MSE, and picks
  * its own quality. hls.js loads on demand, so it only ships on first play.
  */
-export function useHls(videoRef, src, enabled = true) {
+// `maxHeight`: data saver; Auto never picks a rendition taller than this.
+export function useHls(videoRef, src, enabled = true, maxHeight = 0) {
   const hlsRef = useRef(null);
   const [error, setError] = useState(null);
   const [levels, setLevels] = useState([]); // [{ index, height, bitrate }]
@@ -29,6 +30,11 @@ export function useHls(videoRef, src, enabled = true) {
         const hls = new Hls({ capLevelToPlayerSize: true, startLevel: -1, maxBufferLength: 30 });
         hlsRef.current = hls;
         hls.on(Hls.Events.MANIFEST_PARSED, (_, data) => {
+          if (maxHeight) {
+            // Highest rendition within the cap (levels are in the manifest's order).
+            const within = data.levels.map((l, i) => ({ i, h: l.height })).filter((l) => l.h && l.h <= maxHeight).sort((a, b) => b.h - a.h)[0];
+            if (within) hls.autoLevelCapping = within.i;
+          }
           setLevels(data.levels.map((l, index) => ({ index, height: l.height, bitrate: l.bitrate })).sort((a, b) => b.height - a.height));
         });
         hls.on(Hls.Events.LEVEL_SWITCHED, (_, data) => setPlayingHeight(hls.levels[data.level]?.height ?? 0));
@@ -55,7 +61,7 @@ export function useHls(videoRef, src, enabled = true) {
       setLevels([]);
       setLevelState(-1);
     };
-  }, [videoRef, src, enabled]);
+  }, [videoRef, src, enabled, maxHeight]);
 
   const setLevel = (index) => {
     if (hlsRef.current) hlsRef.current.currentLevel = index;

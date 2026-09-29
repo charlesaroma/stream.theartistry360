@@ -113,8 +113,38 @@ export interface Member {
   id: Id;
   name: string;
   email: string;
-  subscription: { planId: Id; status: "active" | "past_due" | "cancelled"; renewsAt: string } | null;
+  phone?: string;
+  /** How they sign in: a password, or Google only (no password set). */
+  provider?: "email" | "google";
+  /** A new email waiting for its confirmation link. */
+  pendingEmail?: string | null;
+  subscription: {
+    planId: Id;
+    status: "active" | "past_due" | "cancelled";
+    renewsAt: string;
+    /** Cancelled, but paid up: access continues until renewsAt. */
+    cancelAtPeriodEnd?: boolean;
+  } | null;
   purchases: Id[];
+}
+
+export interface Payment {
+  id: Id;
+  kind: "subscription" | "purchase";
+  planId?: Id;
+  titleId?: Id;
+  description: string;
+  amountUGX: number;
+  method: string;
+  /** PesaPal's reference, for support queries. */
+  reference: string;
+  status: "paid" | "refunded" | "failed";
+  paidAt: string;
+}
+
+export interface MemberSettings {
+  parental: { maxRating: string | null; pinHash: string | null };
+  notifications: { newReleases: boolean; newEpisodes: boolean; payments: boolean; channel: "email" | "whatsapp" | "both" };
 }
 
 /** Where a member stopped a title (the latest episode for a series). */

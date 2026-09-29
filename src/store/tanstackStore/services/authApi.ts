@@ -4,6 +4,9 @@ import { ApiError, mockApi } from "@/store/tanstackStore/services/api/mock";
 import { accessToken, clearAccessToken, setAccessToken } from "@/store/tanstackStore/services/api/tokens";
 import type { Id } from "@/store/tanstackStore/services/api/types";
 import type { Member } from "./types";
+import { recordPayment } from "./accountApi";
+import { streamingPlansSeed } from "@/data/streamingPlans";
+import { streamingTitlesSeed } from "@/data/streamingTitles";
 
 /**
  * Members only: this site has no admin realm, and it is the only place the
@@ -41,7 +44,7 @@ export function signIn({ email, password }: { email: string; password: string })
     const member: Member =
       existing?.email === email.trim().toLowerCase()
         ? existing
-        : { id: `m_${Date.now().toString(36)}`, name: email.split("@")[0], email: email.trim().toLowerCase(), subscription: null, purchases: [] };
+        : { id: `m_${Date.now().toString(36)}`, name: email.split("@")[0], email: email.trim().toLowerCase(), provider: "email", subscription: null, purchases: [] };
     setAccessToken("member", `mock.member.${member.id}`);
     return write(member);
   }, 400);
@@ -50,7 +53,7 @@ export function signIn({ email, password }: { email: string; password: string })
 export function signUp({ name, email, password }: { name: string; email: string; password: string }) {
   return mockApi(() => {
     if (!name?.trim() || !email?.trim() || !password) throw new ApiError("Please complete every field.", 422);
-    const member: Member = { id: `m_${Date.now().toString(36)}`, name: name.trim(), email: email.trim().toLowerCase(), subscription: null, purchases: [] };
+    const member: Member = { id: `m_${Date.now().toString(36)}`, name: name.trim(), email: email.trim().toLowerCase(), provider: "email", subscription: null, purchases: [] };
     setAccessToken("member", `mock.member.${member.id}`);
     return write(member);
   }, 500);
@@ -70,7 +73,7 @@ export function signInWithGoogle(next: string) {
   return mockApi(() => {
     const email = "google.member@gmail.com";
     const existing = read();
-    const member: Member = existing?.email === email ? existing : { id: `m_${Date.now().toString(36)}`, name: "Google Member", email, subscription: null, purchases: [] };
+    const member: Member = existing?.email === email ? existing : { id: `m_${Date.now().toString(36)}`, name: "Google Member", email, provider: "google", subscription: null, purchases: [] };
     setAccessToken("member", `mock.member.${member.id}`);
     return write(member);
   }, 700);
@@ -109,19 +112,25 @@ export function signOut() {
  * redirect; the member pays by MoMo, Airtel or card; the IPN webhook confirms;
  * only then does the API mark the plan or purchase. Never trusted from here.
  */
-export function subscribe(planId: Id) {
+const DAYS = { month: 30, quarter: 91, year: 365 } as const;
+
+export function subscribe(planId: Id, method = "Mobile money") {
   return mockApi(() => {
     const m = read();
     if (!m) throw new ApiError("Sign in first.", 401);
-    const renews = new Date(Date.now() + 30 * 86400_000).toISOString();
+    const plan = streamingPlansSeed.find((p) => p.id === planId);
+    const renews = new Date(Date.now() + DAYS[(plan?.interval ?? "month") as keyof typeof DAYS] * 86400_000).toISOString();
+    recordPayment(m.id, { kind: "subscription", planId, description: `${plan?.name ?? "Plan"} subscription`, amountUGX: plan?.priceUGX ?? 0, method });
     return write({ ...m, subscription: { planId, status: "active" as const, renewsAt: renews } });
   }, 1200);
 }
 
-export function purchase(titleId: Id) {
+export function purchase(titleId: Id, method = "Mobile money") {
   return mockApi(() => {
     const m = read();
     if (!m) throw new ApiError("Sign in first.", 401);
+    const title = streamingTitlesSeed.find((t) => t.id === titleId);
+    recordPayment(m.id, { kind: "purchase", titleId, description: `Watch: ${title?.title ?? "a title"} (48 hours)`, amountUGX: title?.access?.priceUGX ?? 0, method });
     return write({ ...m, purchases: [...new Set([...(m.purchases ?? []), titleId])] });
   }, 1200);
 }

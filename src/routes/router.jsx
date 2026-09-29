@@ -32,6 +32,7 @@ export const router = createBrowserRouter([
       { path: "title/:id", lazy: lazy(pages.title), loader: titleLoader },
       { path: "watch/:id", lazy: lazy(pages.watch), loader: titleLoader },
       { path: "search", lazy: lazy(pages.search) },
+      { path: "account", lazy: lazy(pages.account) },
       { path: "sign-in", lazy: lazy(pages.signIn) },
       { path: "sign-up", lazy: lazy(pages.signUp) },
       { path: "forgot-password", lazy: lazy(pages.forgotPassword) },

@@ -1,7 +1,7 @@
 /* Account Menu */
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ChevronDown, Crown, ListVideo, LogOut } from "lucide-react";
+import { ChevronDown, Crown, ListVideo, LogOut, Settings } from "lucide-react";
 
 import { useMember } from "@/store/context/MemberContext";
 import { cn } from "@/utils/cn";
@@ -53,8 +53,11 @@ export default function AccountMenu() {
             <Link role="menuitem" to="/my-list" viewTransition onClick={close} className={item}>
               <ListVideo className="h-4 w-4" aria-hidden="true" /> My List
             </Link>
-            <Link role="menuitem" to="/plans" viewTransition onClick={close} className={item}>
+            <Link role="menuitem" to={subscribed ? "/account?tab=subscription" : "/plans"} viewTransition onClick={close} className={item}>
               <Crown className="h-4 w-4" aria-hidden="true" /> {subscribed ? "Manage plan" : "Upgrade to watch everything"}
+            </Link>
+            <Link role="menuitem" to="/account" viewTransition onClick={close} className={item}>
+              <Settings className="h-4 w-4" aria-hidden="true" /> Account &amp; settings
             </Link>
           </div>
           <div className="mt-2 border-t border-white/10 pt-2">

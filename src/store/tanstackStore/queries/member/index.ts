@@ -3,3 +3,4 @@
 export { libraryQueries, useProgress, useRatings, useWatchlist } from "./library";
 
 export { COMMENT_MAX, commentQueries, useComments } from "./comments";
+export { accountQueries, useAccountSettings, usePayments } from "./account";

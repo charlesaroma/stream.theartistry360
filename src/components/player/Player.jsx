@@ -66,7 +66,7 @@ export default function Player({ title, media, ads, next, onNext, startAt = null
     setStingDone(true);
   }, [title.id]);
   const ready = adDone && stingDone;
-  const hls = useHls(video, media.playbackUrl, ready);
+  const hls = useHls(video, media.playbackUrl, ready, prefs.dataSaver ? 480 : 0);
   const { state, actions } = p;
   const fs = state.fullscreen;
   const captions = media.captions;
@@ -175,6 +175,8 @@ export default function Player({ title, media, ads, next, onNext, startAt = null
           if ((startAt !== null || resumeAt > 5) && resumeAt < duration - 10) v.currentTime = resumeAt;
           [...v.textTracks].forEach((t) => { t.mode = "disabled"; });
           p.setState((s) => ({ ...s, duration }));
+          // Account › Playback: subtitles on by default.
+          if (prefs.subtitles && captions.length) actions.setCaptions(0);
         }}
         onPlay={p.events.onPlay}
         onLoadStart={wait}

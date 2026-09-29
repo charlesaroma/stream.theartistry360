@@ -16,7 +16,7 @@ export default function RouteError() {
       <div className="max-w-md">
         <BrandLogo label="The Artistry360" className="mx-auto mb-10 h-9 w-auto" />
         <p className="eyebrow mb-4">{is404 ? "404" : "Something went wrong"}</p>
-        <h1 className="text-title">{is404 ? "This reel is missing" : "We lost the picture"}</h1>
+        <h1 className="text-title">{is404 ? "This page isn't showing" : "We lost the picture"}</h1>
         <p className="mt-4 text-lead text-text-secondary">
           {is404 ? "The page moved or never existed." : "Try again, or head back home while we look into it."}
         </p>

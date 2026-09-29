@@ -5,7 +5,8 @@ import { useSyncExternalStore } from "react";
 // this browser only: a convenience, never account data. Storage may be off
 // (private mode); then choices last until reload.
 const KEY = "a360s:watch-prefs";
-const DEFAULTS = { theater: false, autoNext: true, autoSkip: false };
+// subtitles: start with the first subtitle track on; dataSaver: cap at 480p.
+const DEFAULTS = { theater: false, autoNext: true, autoSkip: false, subtitles: false, dataSaver: false };
 const listeners = new Set();
 let memory = null;
 
@@ -34,7 +35,7 @@ const subscribe = (l) => {
   return () => listeners.delete(l);
 };
 
-/** { theater, autoNext, autoSkip } plus setWatchPref(name, value). */
+/** { theater, autoNext, autoSkip, subtitles, dataSaver }; change with setWatchPref(name, value). */
 export function useWatchPrefs() {
   return useSyncExternalStore(subscribe, read, () => DEFAULTS);
 }

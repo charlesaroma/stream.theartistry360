@@ -53,6 +53,14 @@ export default function MobileMenu({ open, onClose }) {
         {member ? (
           <>
             <p className="text-caption uppercase tracking-[0.15em] text-text-muted">Signed in as {member.name}</p>
+            <Link
+              to="/account"
+              viewTransition
+              onClick={onClose}
+              className="inline-flex min-h-11 items-center rounded-full bg-brand px-8 text-xs font-bold uppercase tracking-[0.15em] text-surface-primary transition-colors hover:bg-brand-light"
+            >
+              Account &amp; settings
+            </Link>
             <button
               type="button"
               onClick={() => { signOut(); onClose(); }}

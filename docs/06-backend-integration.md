@@ -23,3 +23,19 @@ Remove `playbackUrl` from the seed once `/play` exists. The demo stream is Mux's
 - Links from the Studio (WhatsApp channel and group, announcement) are shown only if they are `https://` or a page on this site (`utils/links.js`, `safeHref`). Anything else renders as "Soon" or nothing.
 - `?next=` after sign-in, sign-up and payment only goes to a page on this site (`safeNext`): no open redirects.
 - `public/_headers`: no framing, nosniff, strict referrer, sensors and payment off, HSTS, COOP that allows sign-in popups. A full Content-Security-Policy lands with the backend.
+
+## Account (`services/accountApi.ts`)
+
+| Service | Endpoint (member realm; member from the session only) |
+|---|---|
+| `listPayments` | `GET payments?mine` (rows written only by the PesaPal IPN webhook) |
+| `updateProfile` | `PATCH auth/me` (name, phone) |
+| `requestEmailChange` | `POST auth/me/email` (sends a confirmation link; the email changes when it is opened) |
+| `changePassword` | `POST auth/me/password` (current password unless Google-only; revokes other sessions) |
+| `setCancelAtPeriodEnd` | `PATCH payments/subscription` (cancel or keep; access to `renewsAt`) |
+| sign out everywhere | `POST auth/sessions/revoke-all` |
+| `getSettings` / `updateNotifications` / `updateParental` | `GET/PATCH account/settings` (PIN hashed server-side with a slow hash; PIN required to change controls) |
+| `exportData` | `GET account/export` (everything held about the member) |
+| `clearHistory` | `DELETE library/progress` |
+| `deleteAccount` | `DELETE auth/me` (erases personal data; payment records kept only as the law requires, without personal details) |
+

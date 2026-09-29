@@ -56,4 +56,4 @@ const urls = [
 ];
 const xml = urls.map((u) => `  <url><loc>${SITE}${u.replace(/&/g, "&amp;")}</loc></url>`).join("\n");
 writeFileSync("public/sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${xml}\n</urlset>\n`);
-writeFileSync("public/robots.txt", `User-agent: *\nAllow: /\nDisallow: /my-list\nDisallow: /sign-in\nDisallow: /sign-up\nDisallow: /forgot-password\nDisallow: /reset-password\n\nSitemap: ${SITE}/sitemap.xml\n`);
+writeFileSync("public/robots.txt", `User-agent: *\nAllow: /\nDisallow: /my-list\nDisallow: /sign-in\nDisallow: /sign-up\nDisallow: /account\nDisallow: /forgot-password\nDisallow: /reset-password\n\nSitemap: ${SITE}/sitemap.xml\n`);

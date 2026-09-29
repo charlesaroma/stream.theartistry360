@@ -24,10 +24,12 @@ export default function BuyDialog({ title, open, onClose, onDone }) {
 
   const pay = async () => {
     setBusy(true);
-    await purchase(title.id);
+    await purchase(title.id, METHODS.find((m) => m.id === method)?.label);
     setBusy(false);
-    onDone?.();
+    // Close first: closing tidies the title page's URL, and must not undo
+    // onDone's navigation to the player.
     onClose();
+    onDone?.();
   };
 
   return (
