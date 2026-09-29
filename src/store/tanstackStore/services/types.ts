@@ -143,7 +143,8 @@ export interface Payment {
 }
 
 export interface MemberSettings {
-  notifications: { newReleases: boolean; newEpisodes: boolean; payments: boolean; channel: "email" | "whatsapp" | "both" };
+  /** Email only. */
+  notifications: { newReleases: boolean; newEpisodes: boolean; payments: boolean };
 }
 
 /** Where a member stopped a title (the latest episode for a series). */

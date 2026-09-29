@@ -46,7 +46,7 @@ export function recordPayment(memberId: Id, payment: Omit<Payment, "id" | "refer
 /* Settings */
 
 export const DEFAULT_SETTINGS: MemberSettings = {
-  notifications: { newReleases: true, newEpisodes: true, payments: true, channel: "email" },
+  notifications: { newReleases: true, newEpisodes: true, payments: true },
 };
 
 export const getSettings = (memberId: Id, { signal }: RequestOptions = {}) =>

@@ -35,7 +35,7 @@ export default function ProfilePanel() {
 
   return (
     <div className="flex flex-col gap-6">
-      <Card title="Profile" description="Your name shows on your comments. Your phone is used for WhatsApp updates and payment help, never shown to others.">
+      <Card title="Profile" description="Your name shows on your comments. Your phone is only used if we need to reach you about a payment, and is never shown to others.">
         <form onSubmit={act("profile", () => updateProfile(profile), "Saved.")} className="grid max-w-2xl grid-cols-1 gap-4 sm:grid-cols-2">
           <label><span className={label}>Name</span><input className={input} value={profile.name} maxLength={60} autoComplete="name" onChange={(e) => setProfile({ ...profile, name: e.target.value })} /></label>
           <label><span className={label}>Phone</span><input className={input} type="tel" value={profile.phone} autoComplete="tel" placeholder="+256 772 000 000" onChange={(e) => setProfile({ ...profile, phone: e.target.value })} /></label>
