@@ -16,3 +16,9 @@ Same API as theartistry360.com (`api.theartistry360.com/api/v1`), proxied at `/a
 Share cards: once the API is live, set `SHARE_API_BASE` in Netlify so link previews read `streaming/titles/:id` and `streaming/reels/:id` from it (`08-sharing-and-seo.md`).
 
 Remove `playbackUrl` from the seed once `/play` exists. The demo stream is Mux's public test HLS.
+
+## Security already in place
+
+- Links from the Studio (WhatsApp channel and group, announcement) are shown only if they are `https://` or a page on this site (`utils/links.js`, `safeHref`). Anything else renders as "Soon" or nothing.
+- `?next=` after sign-in, sign-up and payment only goes to a page on this site (`safeNext`): no open redirects.
+- `public/_headers`: no framing, nosniff, strict referrer, sensors and payment off, HSTS, COOP that allows sign-in popups. A full Content-Security-Policy lands with the backend.

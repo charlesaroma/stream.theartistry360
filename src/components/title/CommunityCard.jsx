@@ -4,6 +4,7 @@ import { Megaphone, Users } from "lucide-react";
 import { WhatsApp } from "@/components/ui/BrandIcons";
 import { useSite } from "@/store/tanstackStore/queries/site";
 import { cn } from "@/utils/cn";
+import { safeHref } from "@/utils/links";
 
 /**
  * The Client's request: every film page invites viewers into the WhatsApp
@@ -48,8 +49,9 @@ export default function CommunityCard({ className }) {
         </div>
       </div>
       <div className="flex flex-col gap-3">
-        {action(c.channelUrl, "Follow the Channel", Megaphone, true)}
-        {action(c.groupUrl, "Join the Group", Users, false)}
+        {/* Studio-entered links: anything but https:// renders as "Soon" */}
+        {action(safeHref(c.channelUrl), "Follow the Channel", Megaphone, true)}
+        {action(safeHref(c.groupUrl), "Join the Group", Users, false)}
       </div>
     </aside>
   );

@@ -10,6 +10,7 @@ import { useMember } from "@/store/context/MemberContext";
 import AuthFrame from "./AuthFrame";
 import { signUpSchema } from "./schemas";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { safeNext } from "@/utils/links";
 
 export default function SignUpPage() {
   usePageMeta({ title: "Create your account" });
@@ -17,7 +18,8 @@ export default function SignUpPage() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const [serverError, setServerError] = useState("");
-  const next = params.get("next") || "/";
+  // Only ever a page on this site: a crafted ?next= must not redirect off it.
+  const next = safeNext(params.get("next"));
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({ resolver: zodResolver(signUpSchema) });
 
   const submit = handleSubmit(async (v) => {

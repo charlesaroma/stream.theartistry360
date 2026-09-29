@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, X } from "lucide-react";
 
 import { useSite } from "@/store/tanstackStore/queries/site";
+import { isSitePath, safeHref } from "@/utils/links";
 
 const DISMISS_KEY = "a360s:announcement";
 
@@ -20,7 +21,9 @@ export default function AnnouncementBar() {
   });
   if (!a?.enabled || !a.text || dismissed) return null;
 
-  const internal = a.linkUrl?.startsWith("/");
+  // Studio-entered: only an https:// link or a page on this site is shown.
+  const href = safeHref(a.linkUrl);
+  const internal = isSitePath(href);
   const dismiss = () => {
     setDismissed(true);
     try {
@@ -34,10 +37,10 @@ export default function AnnouncementBar() {
     <div className="relative z-50 bg-brand text-black">
       <div className="shell flex min-h-10 items-center justify-center gap-3 py-1.5 pr-12 text-small font-semibold">
         <span className="text-center">{a.text}</span>
-        {a.linkLabel && a.linkUrl && (internal ? (
-          <Link to={a.linkUrl} viewTransition className="inline-flex shrink-0 items-center gap-1 underline underline-offset-4">{a.linkLabel} <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" /></Link>
+        {a.linkLabel && href && (internal ? (
+          <Link to={href} viewTransition className="inline-flex shrink-0 items-center gap-1 underline underline-offset-4">{a.linkLabel} <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" /></Link>
         ) : (
-          <a href={a.linkUrl} target="_blank" rel="noreferrer" className="inline-flex shrink-0 items-center gap-1 underline underline-offset-4">{a.linkLabel} <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" /></a>
+          <a href={href} target="_blank" rel="noopener noreferrer" className="inline-flex shrink-0 items-center gap-1 underline underline-offset-4">{a.linkLabel} <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" /></a>
         ))}
       </div>
       <button type="button" onClick={dismiss} aria-label="Dismiss announcement" className="absolute right-1 top-1/2 grid h-11 w-11 -translate-y-1/2 cursor-pointer place-items-center rounded-full hover:bg-black/10">

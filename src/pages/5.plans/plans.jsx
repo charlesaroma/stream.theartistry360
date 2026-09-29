@@ -10,6 +10,7 @@ import { useMember } from "@/store/context/MemberContext";
 import { formatUGX } from "@/utils/formatCurrency";
 import { PlanCards } from "@/pages/2.home/sections/PlansBand";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { safeNext } from "@/utils/links";
 
 export default function PlansPage() {
   const { member, subscribe } = useMember();
@@ -18,7 +19,7 @@ export default function PlansPage() {
   const navigate = useNavigate();
   const [chosen, setChosen] = useState(null);
   const [busy, setBusy] = useState(false);
-  const next = params.get("next");
+  const next = safeNext(params.get("next"), "");
 
   const choose = (plan) => {
     if (!member) return navigate(`/sign-up?next=${encodeURIComponent(`/plans?plan=${plan.id}${next ? `&next=${next}` : ""}`)}`, { viewTransition: true });

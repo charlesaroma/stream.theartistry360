@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import BrandLogo from "@/components/ui/brand/BrandLogo";
 import { Instagram, TikTok, WhatsApp, YouTube } from "@/components/ui/BrandIcons";
 import { useSite } from "@/store/tanstackStore/queries/site";
+import { safeHref } from "@/utils/links";
 
 const COLUMNS = [
   { title: "Watch", links: [["Home", "/"], ["Films", "/films"], ["My List", "/my-list"]] },
@@ -13,7 +14,7 @@ const COLUMNS = [
 
 export default function Footer() {
   const { data: site } = useSite();
-  const wa = site?.community?.channelUrl || site?.community?.groupUrl;
+  const wa = safeHref(site?.community?.channelUrl) || safeHref(site?.community?.groupUrl);
 
   return (
     <footer className="mt-auto border-t border-border-default bg-surface-secondary">
