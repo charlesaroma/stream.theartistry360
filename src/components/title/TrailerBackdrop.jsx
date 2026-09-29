@@ -22,7 +22,7 @@ function allowedToAutoplay() {
  * over it, Netflix-style. Controlled from the Studio: per title (trailer
  * uploaded, autoplay on) and site-wide (Stream Site › Hero).
  */
-export default function TrailerBackdrop({ title, onPlayingChange, controlsClassName, imageClassName }) {
+export default function TrailerBackdrop({ title, onPlayingChange, controlsClassName, imageClassName, startAfter = START_AFTER }) {
   const { data: site } = useSite();
   const box = useRef(null);
   const video = useRef(null);
@@ -40,9 +40,9 @@ export default function TrailerBackdrop({ title, onPlayingChange, controlsClassN
 
   useEffect(() => {
     if (!eligible || done) return undefined;
-    const t = setTimeout(() => !document.hidden && setStart(true), START_AFTER);
+    const t = setTimeout(() => !document.hidden && setStart(true), startAfter);
     return () => clearTimeout(t);
-  }, [eligible, done]);
+  }, [eligible, done, startAfter]);
 
   // Pause off screen or in a hidden tab; resume when back.
   useEffect(() => {

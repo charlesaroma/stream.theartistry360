@@ -18,3 +18,23 @@ export function likedPercent(ratings) {
   const total = (ratings.love ?? 0) + (ratings.like ?? 0) + (ratings.meh ?? 0);
   return total >= 20 ? Math.round((((ratings.love ?? 0) + (ratings.like ?? 0)) / total) * 100) : null;
 }
+
+/**
+ * The label on a card, depending on who is looking:
+ * - signed out, or not entitled: Free, Subscribers, or the price;
+ * - a subscriber: "Included" on subscription titles, nothing on free ones;
+ * - someone who bought it: "Owned".
+ * `kind` picks the icon; null means show nothing.
+ */
+export function accessLabel(title, member) {
+  const tier = title?.access?.tier;
+  const subscribed = member?.subscription?.status === "active";
+  if (tier === "ppv") {
+    return member?.purchases?.includes(title.id)
+      ? { kind: "owned", text: "Owned" }
+      : { kind: "price", text: `UGX ${Number(title.access.priceUGX ?? 0).toLocaleString("en-UG")}` };
+  }
+  if (tier === "subscription") return subscribed ? { kind: "included", text: "Included" } : { kind: "subscribers", text: "Subscribers" };
+  if (tier === "free") return subscribed ? null : { kind: "free", text: "Free" };
+  return null;
+}

@@ -5,14 +5,16 @@ import { Check, ChevronRight, Play, Plus } from "lucide-react";
 
 import IconButton from "@/components/ui/IconButton";
 import { useProgress, useWatchlist } from "@/store/tanstackStore/queries/member";
-import AccessChip from "./AccessChip";
+import AccessLabel from "./AccessLabel";
 import MetaLine from "./MetaLine";
+import TrailerBackdrop from "./TrailerBackdrop";
 
 const WIDTH = 360;
 
 /**
  * The hover-intent preview. Rendered in a portal so a row's horizontal
  * scroller cannot clip it; placed over the card and kept inside the viewport.
+ * The title's trailer plays in it (muted) when it has one.
  */
 export default function PreviewCard({ title, rect, onEnter, onLeave }) {
   const navigate = useNavigate();
@@ -30,8 +32,8 @@ export default function PreviewCard({ title, rect, onEnter, onLeave }) {
       style={{ left, top, width: w }}
       className="fixed z-60 animate-rise overflow-hidden rounded-3xl border border-white/10 bg-surface-elevated shadow-[0_30px_80px_rgb(0_0_0/0.7)]"
     >
-      <Link to={`/title/${title.id}`} viewTransition className="relative block aspect-video overflow-hidden" tabIndex={-1}>
-        <img src={title.backdrop || title.poster} alt="" className="h-full w-full animate-kenburns object-cover" />
+      <Link to={`/title/${title.id}`} viewTransition className="relative isolate block aspect-video overflow-hidden" tabIndex={-1}>
+        <TrailerBackdrop title={title} startAfter={400} controlsClassName="bottom-3 right-3" imageClassName="animate-kenburns" />
         <div className="absolute inset-0 bg-linear-to-t from-surface-elevated via-transparent to-transparent" />
         {p && (
           <div className="absolute inset-x-4 bottom-3 h-1 overflow-hidden rounded-full bg-white/20">
@@ -56,7 +58,7 @@ export default function PreviewCard({ title, rect, onEnter, onLeave }) {
           <MetaLine title={title} className="mt-1" />
         </div>
         <p className="line-clamp-2 text-small text-text-secondary">{title.synopsis}</p>
-        <AccessChip access={title.access} className="self-start" />
+        <AccessLabel title={title} className="self-start" />
       </div>
     </div>,
     document.body,

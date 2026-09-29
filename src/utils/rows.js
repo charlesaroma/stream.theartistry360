@@ -1,5 +1,6 @@
 /* Home Row Resolution */
 // Turns the Studio's row settings (`source`) into the titles to show.
+import { FILM_TABS } from "./catalog";
 
 export function resolveRow(source, { titles, progress }) {
   if (source === "trending") return [...titles].sort((a, b) => (b.views ?? 0) - (a.views ?? 0)).slice(0, 10);
@@ -12,10 +13,14 @@ export function resolveRow(source, { titles, progress }) {
   return [];
 }
 
+/** Where a row's "See all" leads on /films (tabs by type, genre by category). */
 export function seeAllFor(source) {
   const [kind, value] = source.split(":");
-  if (kind === "type") return `/films?type=${value}`;
-  if (kind === "category") return `/films?category=${value}`;
+  if (kind === "type") {
+    const tab = FILM_TABS.find((t) => t.types?.includes(value));
+    return tab ? `/films?tab=${tab.id}` : "/films";
+  }
+  if (kind === "category") return `/films?genre=${value}`;
   if (kind === "tier") return `/films?access=${value}`;
   if (source === "continue") return "/my-list";
   return "/films";
