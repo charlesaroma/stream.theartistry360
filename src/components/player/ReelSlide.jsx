@@ -34,6 +34,10 @@ export default function ReelSlide({
   const { error } = useHls(videoRef, reel.playbackUrl, active);
   const { start, end } = reel.clip;
   const length = end - start;
+  // While dragging the timeline only the handle and time move (see below).
+  const [scrub, setScrub] = useState(null);
+  const dragging = useRef(false);
+  const shown = scrub ?? elapsed;
 
   const pulse = (kind) => {
     setFlash({ kind, id: Date.now() });
@@ -52,6 +56,20 @@ export default function ReelSlide({
     const v = videoRef.current;
     if (!v) return;
     if (v.paused) { play(v); pulse("play"); } else { v.pause(); pulse("pause"); }
+  };
+  const startScrub = () => {
+    dragging.current = true;
+    const end = () => {
+      window.removeEventListener("pointerup", end);
+      window.removeEventListener("pointercancel", end);
+      dragging.current = false;
+      setScrub((value) => {
+        if (value !== null) seekTo(value);
+        return null;
+      });
+    };
+    window.addEventListener("pointerup", end);
+    window.addEventListener("pointercancel", end);
   };
   // Seeking stays inside the scene; the full film is one tap away for more.
   const seekTo = (seconds) => {
@@ -141,24 +159,6 @@ export default function ReelSlide({
         <p role="alert" className="absolute inset-x-6 top-1/2 -translate-y-1/2 rounded-2xl bg-black/70 p-4 text-center text-small text-text-secondary">{error}</p>
       )}
 
-      {/* Scrubber: the scene's own timeline; a range input keeps it keyboard-usable */}
-      <div className="absolute inset-x-0 top-0 z-30 h-4">
-        <div className="absolute inset-x-0 top-0 h-1 bg-white/20" aria-hidden="true">
-          <div className="h-full bg-brand" style={{ width: `${(elapsed / length) * 100}%` }} />
-        </div>
-        <input
-          type="range"
-          min={0}
-          max={length}
-          step={0.5}
-          value={elapsed}
-          onChange={(e) => seekTo(Number(e.target.value))}
-          aria-label="Seek within the scene"
-          aria-valuetext={`${formatDuration(elapsed)} of ${formatDuration(length)}`}
-          className="absolute inset-0 h-4 w-full cursor-pointer opacity-0"
-        />
-      </div>
-
       {/* Top: playback on the left, the exits on the right */}
       <div className="absolute inset-x-0 top-3 z-30 flex items-center justify-between gap-2 px-3">
         <div className="molten-glass flex items-center gap-0.5 rounded-full p-1">
@@ -174,9 +174,6 @@ export default function ReelSlide({
           <IconButton label={muted ? "Unmute (M)" : "Mute (M)"} onClick={onToggleMute} pressed={!muted} className="h-10 w-10">
             {muted ? <VolumeX className="h-5 w-5 text-text-muted" aria-hidden="true" /> : <Volume2 className="h-5 w-5" aria-hidden="true" />}
           </IconButton>
-          <span className="hidden px-2 text-caption font-semibold tabular-nums text-text-secondary sm:inline">
-            {elapsed < 1 ? "0:00" : formatDuration(elapsed)} / {formatDuration(length)}
-          </span>
         </div>
         <div className="flex items-center gap-2">
           {onBrowseAll && (
@@ -188,6 +185,32 @@ export default function ReelSlide({
             <X className="h-5 w-5" aria-hidden="true" />
           </IconButton>
         </div>
+      </div>
+
+      {/* Timeline along the bottom with the time beside it, as in the film
+          player. Dragging moves the handle and time; the video seeks once, on
+          release. Keys seek at once. */}
+      <div className="absolute inset-x-0 bottom-0 z-30 flex items-center gap-3 px-4 pb-3">
+        <div className="group/seek relative flex h-6 min-w-0 flex-1 items-center pointer-coarse:h-9">
+          <div className="absolute inset-x-0 h-1 overflow-hidden rounded-full bg-white/25 pointer-coarse:h-1.5" aria-hidden="true">
+            <div className="h-full bg-brand" style={{ width: `${(shown / length) * 100}%` }} />
+          </div>
+          <input
+            type="range"
+            min={0}
+            max={length}
+            step={0.25}
+            value={shown}
+            onPointerDown={startScrub}
+            onChange={(e) => (dragging.current ? setScrub(Number(e.target.value)) : seekTo(Number(e.target.value)))}
+            aria-label="Seek within the scene"
+            aria-valuetext={`${formatDuration(shown)} of ${formatDuration(length)}`}
+            className="relative h-full w-full cursor-pointer appearance-none bg-transparent [&::-moz-range-thumb]:h-3.5 [&::-moz-range-thumb]:w-3.5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-brand [&::-moz-range-thumb]:opacity-0 [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-brand [&::-webkit-slider-thumb]:opacity-0 group-hover/seek:[&::-moz-range-thumb]:opacity-100 group-hover/seek:[&::-webkit-slider-thumb]:opacity-100 pointer-coarse:[&::-moz-range-thumb]:opacity-100 pointer-coarse:[&::-webkit-slider-thumb]:h-4 pointer-coarse:[&::-webkit-slider-thumb]:w-4 pointer-coarse:[&::-webkit-slider-thumb]:opacity-100"
+          />
+        </div>
+        <span className="shrink-0 whitespace-nowrap text-caption font-semibold tabular-nums text-text-secondary">
+          {shown < 1 ? "0:00" : formatDuration(shown)} / {formatDuration(length)}
+        </span>
       </div>
 
       <ReelRail reel={reel} liked={liked} onToggleLike={onToggleLike} film={film} inList={inList} onToggleList={onToggleList} />

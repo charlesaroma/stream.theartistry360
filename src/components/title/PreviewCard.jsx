@@ -33,7 +33,7 @@ export default function PreviewCard({ title, rect, onEnter, onLeave }) {
       className="fixed z-60 animate-rise overflow-hidden rounded-3xl border border-white/10 bg-surface-elevated shadow-[0_30px_80px_rgb(0_0_0/0.7)]"
     >
       <Link to={`/title/${title.id}`} viewTransition className="relative isolate block aspect-video overflow-hidden" tabIndex={-1}>
-        <TrailerBackdrop title={title} startAfter={400} controlsClassName="bottom-3 right-3" imageClassName="animate-kenburns" />
+        <TrailerBackdrop title={title} startAfter={400} autoSound={false} controlsClassName="bottom-3 right-3" imageClassName="animate-kenburns" />
         <div className="absolute inset-0 bg-linear-to-t from-surface-elevated via-transparent to-transparent" />
         {p && (
           <div className="absolute inset-x-4 bottom-3 h-1 overflow-hidden rounded-full bg-white/20">

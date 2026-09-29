@@ -67,7 +67,6 @@ export default function ReelCard({ reel, onOpen, watched = false, className }) {
         <span className="line-clamp-2 text-small font-semibold leading-snug text-text-primary">{reel.title}</span>
         {reel.talent && (
           <span className="flex min-w-0 items-center gap-1.5">
-            {reel.talent.avatar && <img src={reel.talent.avatar} alt="" loading="lazy" className="h-5 w-5 shrink-0 rounded-full object-cover" />}
             <span className="truncate text-caption text-text-secondary">{reel.talent.name}</span>
           </span>
         )}

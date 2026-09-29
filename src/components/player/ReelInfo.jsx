@@ -12,7 +12,7 @@ import { formatDuration } from "@/utils/format";
  */
 export default function ReelInfo({ reel, film }) {
   return (
-    <div className="absolute inset-x-0 bottom-0 z-20 flex flex-col gap-2.5 bg-linear-to-t from-black/90 via-black/60 to-transparent p-4 pr-18 pt-16">
+    <div className="absolute inset-x-0 bottom-0 z-20 flex flex-col gap-2.5 bg-linear-to-t from-black/90 via-black/60 to-transparent px-4 pb-16 pr-18 pt-16">
       {reel.talent && (
         <p className="text-small leading-tight">
           <span className="font-bold text-text-primary">{reel.talent.name}</span>

@@ -57,7 +57,6 @@ export default function FeaturedReel({ reel, upNext, onOpen, paused = false }) {
         <h2 id="featured-reel" className="text-title text-balance">{reel.title}</h2>
         {reel.talent && (
           <p className="flex items-center gap-2.5 text-small">
-            {reel.talent.avatar && <img src={reel.talent.avatar} alt="" className="h-8 w-8 rounded-full object-cover" />}
             <span className="font-semibold text-text-primary">{reel.talent.name}</span>
             <span className="text-text-muted">· {reel.talent.role}</span>
           </p>

@@ -8,6 +8,21 @@ import { useHls } from "@/hooks/useHls";
 import { cn } from "@/utils/cn";
 
 const START_AFTER = 1800;
+const SOUND_KEY = "a360s:trailer-sound"; // "on" | "off": the visitor's last choice, this session
+
+/**
+ * Sound for trailers. Browsers allow a page to start video with sound only
+ * after the visitor has interacted with the site, so a trailer starts muted
+ * and turns sound on as soon as that is allowed, unless the visitor chose
+ * mute. The choice carries across the hero's titles for the session.
+ */
+const soundChoice = () => {
+  try { return sessionStorage.getItem(SOUND_KEY); } catch { return null; }
+};
+const rememberSound = (on) => {
+  try { sessionStorage.setItem(SOUND_KEY, on ? "on" : "off"); } catch { /* storage off: ask again next time */ }
+};
+const mayPlaySound = () => Boolean(navigator.userActivation?.hasBeenActive) && soundChoice() !== "off";
 const MAX_SECONDS = 60; // trailers are short; never let a long file run on
 
 function allowedToAutoplay() {
@@ -22,7 +37,9 @@ function allowedToAutoplay() {
  * over it, Netflix-style. Controlled from the Studio: per title (trailer
  * uploaded, autoplay on) and site-wide (Stream Site › Hero).
  */
-export default function TrailerBackdrop({ title, onPlayingChange, controlsClassName, imageClassName, startAfter = START_AFTER }) {
+// `autoSound`: turn sound on by itself when allowed (the hero, the Films banner).
+// Hover previews pass false: sound there only when the visitor asks.
+export default function TrailerBackdrop({ title, onPlayingChange, controlsClassName, imageClassName, startAfter = START_AFTER, autoSound = true }) {
   const { data: site } = useSite();
   const box = useRef(null);
   const video = useRef(null);
@@ -66,6 +83,16 @@ export default function TrailerBackdrop({ title, onPlayingChange, controlsClassN
     onPlayingChange?.(showing);
   }, [showing, onPlayingChange]);
 
+  // Set the element directly: React applies `muted` reliably only on mount.
+  const toggleSound = (on) => {
+    rememberSound(on);
+    setMuted(!on);
+    const v = video.current;
+    if (!v) return;
+    v.muted = !on;
+    if (on && v.paused && !done) v.play().catch(() => {});
+  };
+
   const finish = () => {
     setShowing(false);
     setDone(true);
@@ -90,7 +117,22 @@ export default function TrailerBackdrop({ title, onPlayingChange, controlsClassN
           autoPlay
           crossOrigin="anonymous"
           aria-hidden="true"
-          onPlaying={() => setShowing(true)}
+          onPlaying={(e) => {
+            setShowing(true);
+            // Started muted (always allowed); now ask for sound if the visitor
+            // may have it. A browser that refuses pauses the video, so fall
+            // back to muted and keep playing.
+            const v = e.currentTarget;
+            if (!autoSound || !v.muted || !mayPlaySound()) return;
+            v.muted = false;
+            setMuted(false);
+            setTimeout(() => {
+              if (!v.paused) return;
+              v.muted = true;
+              setMuted(true);
+              v.play().catch(() => {});
+            }, 60);
+          }}
           onEnded={finish}
           onTimeUpdate={(e) => e.currentTarget.currentTime > MAX_SECONDS && finish()}
           className={cn("absolute inset-0 h-full w-full object-cover transition-opacity duration-1000", showing ? "opacity-100" : "opacity-0")}
@@ -103,9 +145,21 @@ export default function TrailerBackdrop({ title, onPlayingChange, controlsClassN
               <RotateCcw className="h-5 w-5" aria-hidden="true" />
             </IconButton>
           ) : (
-            <IconButton label={muted ? "Unmute trailer" : "Mute trailer"} pressed={!muted} onClick={() => setMuted((m) => !m)} className="h-11 w-11">
-              {muted ? <VolumeX className="h-5 w-5" aria-hidden="true" /> : <Volume2 className="h-5 w-5" aria-hidden="true" />}
-            </IconButton>
+            muted ? (
+              // Muted: say so, in words, where it is easy to find.
+              <button
+                type="button"
+                onClick={() => toggleSound(true)}
+                data-glass=""
+                className="molten-glass ember inline-flex min-h-11 items-center gap-2 rounded-full px-4 text-small font-semibold text-text-primary"
+              >
+                <VolumeX className="h-5 w-5" aria-hidden="true" /> Turn sound on
+              </button>
+            ) : (
+              <IconButton label="Mute trailer" pressed onClick={() => toggleSound(false)} className="h-11 w-11">
+                <Volume2 className="h-5 w-5" aria-hidden="true" />
+              </IconButton>
+            )
           )}
         </div>
       )}
