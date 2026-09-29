@@ -62,7 +62,26 @@ export function usePlayer(videoRef, frameRef) {
       showVolume(v().volume, muted);
     },
     setRate: (rate) => { if (!v()) return; v().playbackRate = rate; setState((s) => ({ ...s, rate })); },
-    fullscreen: () => (document.fullscreenElement ? document.exitFullscreen() : frameRef.current?.requestFullscreen?.()),
+    // Standard full screen where the browser has it (Android, desktop), with
+    // the phone turned sideways; iPhone has no element full screen, only the
+    // video's own native player, so fall back to that.
+    fullscreen: () => {
+      const doc = document;
+      if (doc.fullscreenElement || doc.webkitFullscreenElement) {
+        (doc.exitFullscreen ?? doc.webkitExitFullscreen)?.call(doc);
+        return;
+      }
+      const frame = frameRef.current;
+      const video = v();
+      const request = frame?.requestFullscreen ?? frame?.webkitRequestFullscreen;
+      if (request) {
+        Promise.resolve(request.call(frame))
+          .then(() => screen.orientation?.lock?.("landscape").catch(() => {}))
+          .catch(() => video?.webkitEnterFullscreen?.());
+      } else {
+        video?.webkitEnterFullscreen?.();
+      }
+    },
     pip: async () => {
       try {
         if (document.pictureInPictureElement) await document.exitPictureInPicture();
@@ -105,10 +124,16 @@ export function usePlayer(videoRef, frameRef) {
   }, [videoRef]);
 
   useEffect(() => {
-    const onFs = () => setState((s) => ({ ...s, fullscreen: Boolean(document.fullscreenElement) }));
+    const onFs = () => {
+      const on = Boolean(document.fullscreenElement || document.webkitFullscreenElement);
+      if (!on) screen.orientation?.unlock?.();
+      setState((s) => ({ ...s, fullscreen: on }));
+    };
     document.addEventListener("fullscreenchange", onFs);
+    document.addEventListener("webkitfullscreenchange", onFs);
     return () => {
       document.removeEventListener("fullscreenchange", onFs);
+      document.removeEventListener("webkitfullscreenchange", onFs);
       clearTimeout(idle.current);
       clearTimeout(flashTimer.current);
       clearTimeout(hudTimer.current);

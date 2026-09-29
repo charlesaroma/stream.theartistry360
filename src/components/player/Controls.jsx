@@ -48,14 +48,16 @@ export default function Controls({ state, actions, large, hasCaptions, settingsO
         <button type="button" className={ctl} onClick={() => actions.skip(-10)} aria-label="Back 10 seconds (J)"><RotateCcw className={icon} aria-hidden="true" /></button>
         <button type="button" className={ctl} onClick={() => actions.skip(10)} aria-label="Forward 10 seconds (L)"><RotateCw className={icon} aria-hidden="true" /></button>
 
-        {/* Volume: slider opens on hover or focus */}
+        {/* Volume: slider opens on hover or focus. Not on touch screens: phones
+            set volume with their buttons (iPhones ignore it from a page), so
+            there the button just mutes. */}
         <div className="group/vol flex items-center">
           <button type="button" className={ctl} onClick={actions.mute} aria-label={muted ? "Unmute (M)" : "Mute (M)"}><VolIcon className={icon} aria-hidden="true" /></button>
           <input
             type="range" min={0} max={1} step={0.05} value={muted ? 0 : volume}
             onChange={(e) => actions.setVolume(Number(e.target.value))}
             aria-label="Volume"
-            className="w-0 cursor-pointer accent-(--color-brand) opacity-0 transition-all duration-300 group-focus-within/vol:w-24 group-focus-within/vol:opacity-100 group-hover/vol:w-24 group-hover/vol:opacity-100"
+            className="w-0 cursor-pointer accent-(--color-brand) opacity-0 transition-all duration-300 group-focus-within/vol:w-24 group-focus-within/vol:opacity-100 group-hover/vol:w-24 group-hover/vol:opacity-100 pointer-coarse:hidden"
           />
         </div>
 

@@ -1,5 +1,6 @@
 /* Player Settings Menu */
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { Check, ChevronLeft, ChevronRight, Gauge, Keyboard, Subtitles, Tv } from "lucide-react";
 
 import { cn } from "@/utils/cn";
@@ -28,9 +29,14 @@ function Choice({ selected, onClick, children }) {
 
 /**
  * Quality, subtitles, speed and the shortcut sheet, one level deep so every
- * setting is two presses away.
+ * setting is two presses away. A dropdown above the gear on a roomy player;
+ * on a narrow one (`compact`: a phone, where the picture is ~220px tall and
+ * the menu cannot fit over it) a bottom sheet from the screen's edge over a
+ * dimmed page that closes it on tap. The sheet is portalled to the page (or
+ * into the player when it is full screen): inside the player it would sit
+ * under the site header.
  */
-export default function SettingsMenu({ hls, captions, state, actions, onShortcuts, onClose }) {
+export default function SettingsMenu({ hls, captions, state, actions, onShortcuts, onClose, compact = false }) {
   const [panel, setPanel] = useState("main");
   const qualityLabel = hls.level === -1 ? `Auto${hls.playingHeight ? ` (${hls.playingHeight}p)` : ""}` : `${hls.levels.find((l) => l.index === hls.level)?.height}p`;
   const captionLabel = state.captions === -1 ? "Off" : captions[state.captions]?.label;
@@ -41,14 +47,26 @@ export default function SettingsMenu({ hls, captions, state, actions, onShortcut
     </button>
   );
 
-  return (
-    <div role="menu" data-glass="" onKeyDown={(e) => e.key === "Escape" && onClose()} className="molten-glass absolute bottom-full right-0 z-30 mb-3 w-72 animate-rise rounded-2xl bg-black/70 p-2 text-text-primary">
+  const menu = (
+    <div
+      role="menu"
+      data-glass=""
+      onKeyDown={(e) => e.key === "Escape" && onClose()}
+      className={cn(
+        "molten-glass animate-rise text-text-primary",
+        compact
+          ? "fixed inset-x-0 bottom-0 z-[81] max-h-[70dvh] overflow-y-auto rounded-t-3xl bg-surface-elevated px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2"
+          : "absolute bottom-full right-0 z-30 mb-3 w-72 rounded-2xl bg-black/70 p-2",
+      )}
+    >
+      {compact && <span className="mx-auto mb-2 block h-1 w-10 rounded-full bg-white/25" aria-hidden="true" />}
       {panel === "main" && (
         <>
           <Row icon={Tv} label="Quality" value={qualityLabel} onClick={() => setPanel("quality")} />
           <Row icon={Subtitles} label="Subtitles" value={captionLabel} onClick={() => setPanel("captions")} />
           <Row icon={Gauge} label="Speed" value={state.rate === 1 ? "Normal" : `${state.rate}×`} onClick={() => setPanel("speed")} />
-          <button type="button" onClick={onShortcuts} className="flex min-h-11 w-full cursor-pointer items-center gap-3 rounded-xl px-3 text-small hover:bg-white/10">
+          {/* No keyboard on a touch-only phone */}
+          <button type="button" onClick={onShortcuts} className="flex min-h-11 w-full cursor-pointer items-center gap-3 rounded-xl px-3 text-small hover:bg-white/10 pointer-coarse:hidden">
             <Keyboard className="h-4 w-4 text-text-secondary" aria-hidden="true" />
             <span className="flex-1 text-left font-semibold">Keyboard shortcuts</span>
             <kbd className="text-caption text-text-muted">?</kbd>
@@ -88,5 +106,14 @@ export default function SettingsMenu({ hls, captions, state, actions, onShortcut
         </>
       )}
     </div>
+  );
+
+  if (!compact) return menu;
+  return createPortal(
+    <>
+      <div className="fixed inset-0 z-[80] bg-black/60" onClick={onClose} aria-hidden="true" />
+      {menu}
+    </>,
+    document.fullscreenElement ?? document.webkitFullscreenElement ?? document.body,
   );
 }
