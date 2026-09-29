@@ -8,6 +8,7 @@ import IconButton from "@/components/ui/IconButton";
 import { useMember } from "@/store/context/MemberContext";
 import { cn } from "@/utils/cn";
 import AccountMenu from "./AccountMenu";
+import MobileMenu from "./MobileMenu";
 import { NAV_ITEMS } from "./navMenu";
 
 // Loaded on first open, so search costs nothing until someone uses it.
@@ -18,7 +19,7 @@ const SearchDialog = lazy(() => import("@/components/search/SearchDialog"));
  * artwork breathes at the top and links stay legible below it.
  */
 export default function Navbar() {
-  const { member, signOut } = useMember();
+  const { member } = useMember();
   const [solid, setSolid] = useState(false);
   const [open, setOpen] = useState(false);
   const [searching, setSearching] = useState(false);
@@ -58,7 +59,7 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-40">
-      <div className={cn("transition-[background-color,backdrop-filter,box-shadow] duration-500", solid ? "bg-surface-primary/80 shadow-[0_1px_0_rgb(255_255_255/0.06)] backdrop-blur-xl" : "bg-linear-to-b from-black/70 to-transparent")}>
+      <div className={cn("relative z-40 transition-[background-color,backdrop-filter,box-shadow] duration-500", open ? "bg-transparent" : solid ? "bg-surface-primary/80 shadow-[0_1px_0_rgb(255_255_255/0.06)] backdrop-blur-xl" : "bg-linear-to-b from-black/70 to-transparent")}>
         <nav aria-label="Main" className="shell flex h-18 items-center gap-6">
           <Link to="/" viewTransition className="flex min-h-11 shrink-0 items-center gap-3" aria-label="Artistry360 Stream home">
             <BrandLogo intro label="" className="h-8 w-auto" />
@@ -90,7 +91,7 @@ export default function Navbar() {
               <Link to="/sign-in" viewTransition className="btn btn-primary ember hidden min-h-11 px-5 sm:inline-flex">Sign in</Link>
             )}
             <IconButton label={open ? "Close menu" : "Open menu"} onClick={() => setOpen((o) => !o)} className="h-11 w-11 lg:hidden" aria-expanded={open} aria-controls="mobile-nav">
-              {open ? <X className="h-5 w-5" aria-hidden="true" /> : <Menu className="h-5 w-5" aria-hidden="true" />}
+              {open ? <X className="h-5 w-5 text-brand" aria-hidden="true" /> : <Menu className="h-5 w-5" aria-hidden="true" />}
             </IconButton>
           </div>
         </nav>
@@ -102,29 +103,7 @@ export default function Navbar() {
         </Suspense>
       )}
 
-      {/* Mobile Sheet */}
-      <div
-        id="mobile-nav"
-        inert={!open}
-        className={cn("fixed inset-x-0 top-18 bottom-0 z-40 bg-surface-primary/95 backdrop-blur-xl transition-opacity duration-300 lg:hidden", open ? "opacity-100" : "pointer-events-none opacity-0")}
-      >
-        <ul className="shell flex flex-col gap-1 py-6">
-          {NAV_ITEMS.map((i, n) => (
-            <li key={i.to} className={cn("transition-all duration-500", open ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0")} style={{ transitionDelay: open ? `${n * 50}ms` : "0ms" }}>
-              <NavLink to={i.to} end={i.end} viewTransition onClick={() => setOpen(false)} className={({ isActive }) => cn("flex min-h-14 items-center text-heading", isActive ? "text-brand" : "text-text-primary")}>
-                {i.label}
-              </NavLink>
-            </li>
-          ))}
-          <li className="mt-6">
-            {member ? (
-              <button type="button" onClick={() => { signOut(); setOpen(false); }} className="btn btn-glass molten-glass relative w-full" data-glass="">Sign out</button>
-            ) : (
-              <Link to="/sign-in" viewTransition onClick={() => setOpen(false)} className="btn btn-primary ember w-full">Sign in</Link>
-            )}
-          </li>
-        </ul>
-      </div>
+      <MobileMenu open={open} onClose={() => setOpen(false)} />
     </header>
   );
 }
