@@ -1,6 +1,6 @@
 /* Hero */
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Check, Info, Play, Plus } from "lucide-react";
+import { Check, Info, Play, Plus, RotateCcw, Volume2, VolumeX } from "lucide-react";
 
 import Button from "@/components/ui/Button";
 import IconButton from "@/components/ui/IconButton";
@@ -12,12 +12,17 @@ import TrailerBackdrop from "./TrailerBackdrop";
 const ROTATE_MS = 9000;
 
 /**
- * Full-bleed featured titles (order set in the Studio). Slow Ken Burns push,
- * film grain, crossfade between titles, and a glass progress rail that
- * doubles as the picker. Pauses on hover or focus; still under reduced motion.
+ * Full-bleed featured titles (order set in the Studio). Slow Ken Burns push
+ * and film grain. A swap is a focus pull: the new film sharpens out of a blur
+ * while the old one drifts away, a light sweeps across, and the copy follows
+ * in step (title wiping up first). A glass pill holds the picker and the
+ * trailer's sound button. Pauses on hover or focus; a plain cut under
+ * reduced motion.
  */
 export default function Hero({ titles }) {
   const [index, setIndex] = useState(0);
+  const [prev, setPrev] = useState(null); // the slide on its way out
+  const [sound, setSound] = useState(null); // the trailer's sound control, once it plays
   const [paused, setPaused] = useState(false);
   const [trailer, setTrailer] = useState(false);
   const onTrailer = useCallback((playing) => setTrailer(playing), []);
@@ -27,7 +32,14 @@ export default function Hero({ titles }) {
   // Swipe left or right to change title (touch and pen); vertical drags still
   // scroll the page (touch-action: pan-y on the section).
   const swipe = useRef(null);
-  const step = (dir) => setIndex((i) => (i + dir + titles.length) % titles.length);
+  const show = useCallback((next) => {
+    setIndex((i) => {
+      if (next === i) return i;
+      setPrev(i);
+      return next;
+    });
+  }, []);
+  const step = (dir) => show((index + dir + titles.length) % titles.length);
   const onSwipeStart = (e) => {
     if (e.pointerType !== "mouse") swipe.current = { x: e.clientX, y: e.clientY };
   };
@@ -42,9 +54,9 @@ export default function Hero({ titles }) {
 
   useEffect(() => {
     if (paused || trailer || still || titles.length < 2) return undefined;
-    const t = setTimeout(() => setIndex((i) => (i + 1) % titles.length), ROTATE_MS);
+    const t = setTimeout(() => show((index + 1) % titles.length), ROTATE_MS);
     return () => clearTimeout(t);
-  }, [index, paused, trailer, still, titles.length]);
+  }, [index, paused, trailer, still, titles.length, show]);
 
   if (!current) return <div className="skeleton h-[min(92svh,56rem)] w-full" />;
 
@@ -61,20 +73,32 @@ export default function Hero({ titles }) {
       onPointerCancel={() => { swipe.current = null; }}
       className="film-grain relative isolate flex min-h-[min(92svh,56rem)] touch-pan-y items-end overflow-hidden"
     >
-      {/* Backdrops, crossfaded */}
-      {titles.map((t, i) => (
-        // A faded-out slide still sits in the stack; it must not take the clicks
-        // meant for the showing title's sound button.
-        <div key={t.id} aria-hidden={i !== index} className={cn("absolute inset-0 -z-10 transition-opacity duration-1000", i === index ? "opacity-100" : "pointer-events-none opacity-0")}>
-          {i === index ? (
-            <TrailerBackdrop key={t.id} title={t} onPlayingChange={onTrailer} imageClassName="animate-kenburns" // Sound control: top-right on phones and tablets, clear of the title's
-            // buttons; beside the progress rail on desktop.
-            controlsClassName="right-4 top-24 lg:top-auto lg:bottom-[clamp(5rem,10vw,8rem)] lg:right-[calc(clamp(1rem,4vw,3.5rem)+11rem)]" />
-          ) : (
-            <img src={t.backdrop || t.poster} alt="" fetchPriority="low" className="h-full w-full object-cover" />
-          )}
-        </div>
-      ))}
+      {/* Backdrops: the showing one pulls into focus over the one leaving;
+          the rest wait unseen, already loaded, for their turn. */}
+      {titles.map((t, i) => {
+        const role = i === index ? "in" : i === prev ? "out" : "idle";
+        return (
+          <div
+            key={t.id}
+            aria-hidden={i !== index}
+            onAnimationEnd={role === "out" ? () => setPrev(null) : undefined}
+            className={cn(
+              "absolute inset-0 overflow-hidden",
+              role === "in" && "hero-in -z-10",
+              role === "out" && "hero-out pointer-events-none -z-20",
+              role === "idle" && "pointer-events-none -z-30 opacity-0",
+            )}
+          >
+            {role === "in" ? (
+              <TrailerBackdrop key={t.id} title={t} onPlayingChange={onTrailer} onSound={setSound} imageClassName="animate-kenburns" />
+            ) : (
+              <img src={t.backdrop || t.poster} alt="" fetchPriority="low" className="h-full w-full object-cover" />
+            )}
+          </div>
+        );
+      })}
+      {/* A soft light passes across the frame on each swap */}
+      {prev !== null && <span key={`sweep-${index}`} className="hero-sweep pointer-events-none absolute inset-0 -z-10 bg-linear-to-r from-transparent via-white/12 to-transparent" aria-hidden="true" />}
       {/* Shading only: never takes a click (it sits over the trailer's sound button) */}
       <div className="pointer-events-none absolute inset-0 -z-10 bg-linear-to-r from-black via-black/60 to-transparent" />
       <div className="pointer-events-none absolute inset-0 -z-10 bg-linear-to-t from-surface-primary via-surface-primary/20 to-black/40" />
@@ -82,12 +106,12 @@ export default function Hero({ titles }) {
       {/* Content: taps pass through its empty space to the trailer's sound
           control underneath; only its own links and buttons take them. */}
       <div className="shell pointer-events-none pb-[clamp(5rem,10vw,8rem)] pt-40 [&_a]:pointer-events-auto [&_button]:pointer-events-auto">
-        <div key={current.id} className="max-w-2xl animate-rise">
-          <p className="eyebrow mb-4">Featured</p>
-          <h1 className="text-display text-balance">{current.title}</h1>
-          <MetaLine title={current} className="mt-5" />
-          <p className="mt-5 line-clamp-3 max-w-xl text-lead text-text-secondary">{current.synopsis}</p>
-          <div className="mt-8 flex flex-wrap items-center gap-3">
+        <div key={current.id} className="hero-copy max-w-2xl">
+          <p className="eyebrow mb-4" style={{ "--i": 0 }}>Featured</p>
+          <h1 className="hero-title text-display text-balance" style={{ "--i": 1 }}>{current.title}</h1>
+          <MetaLine title={current} className="mt-5" style={{ "--i": 2 }} />
+          <p className="mt-5 line-clamp-3 max-w-xl text-lead text-text-secondary" style={{ "--i": 3 }}>{current.synopsis}</p>
+          <div className="mt-8 flex flex-wrap items-center gap-3" style={{ "--i": 4 }}>
             <Button variant="light" to={`/watch/${current.id}`}>
               <Play className="h-5 w-5 fill-current" aria-hidden="true" /> Play
             </Button>
@@ -105,21 +129,25 @@ export default function Hero({ titles }) {
       {titles.length > 1 && (
         <div className="absolute inset-x-0 bottom-6 flex justify-center md:hidden">
           {titles.map((t, i) => (
-            <button key={t.id} type="button" onClick={() => setIndex(i)} aria-label={`Show ${t.title}`} aria-current={i === index} className="grid h-11 w-7 place-items-center">
+            <button key={t.id} type="button" onClick={() => show(i)} aria-label={`Show ${t.title}`} aria-current={i === index} className="grid h-11 w-7 place-items-center">
               <span className={cn("block h-1.5 rounded-full transition-all", i === index ? "w-5 bg-text-primary" : "w-1.5 bg-white/40")} />
             </button>
           ))}
         </div>
       )}
 
-      {/* Progress rail: each segment fills while its title is up */}
-      {titles.length > 1 && (
-        <div data-glass="" className="molten-glass absolute bottom-[clamp(5rem,10vw,8rem)] right-[clamp(1rem,4vw,3.5rem)] hidden gap-2 rounded-full p-2.5 md:flex">
-          {titles.map((t, i) => (
+      {/* Phones: the sound button bottom-right, level with the dots */}
+      <SoundButton sound={sound} className="absolute bottom-6 right-4 md:hidden" />
+
+      {/* Picker and sound in one glass pill: each segment fills while its
+          title is up; the speaker controls that title's trailer. */}
+      {(titles.length > 1 || sound?.ready) && (
+        <div data-glass="" className="molten-glass absolute bottom-[clamp(5rem,10vw,8rem)] right-[clamp(1rem,4vw,3.5rem)] hidden items-center gap-2 rounded-full p-2.5 md:flex">
+          {titles.length > 1 && titles.map((t, i) => (
             <button
               key={t.id}
               type="button"
-              onClick={() => setIndex(i)}
+              onClick={() => show(i)}
               aria-label={`Show ${t.title}`}
               aria-current={i === index}
               className="relative grid h-11 w-11 cursor-pointer place-items-center"
@@ -137,8 +165,48 @@ export default function Hero({ titles }) {
               </span>
             </button>
           ))}
+          {titles.length > 1 && sound?.ready && <span className="mx-1 h-6 w-px bg-white/20" aria-hidden="true" />}
+          <SoundButton sound={sound} bare />
         </div>
       )}
     </section>
   );
+}
+
+/**
+ * The trailer's sound: speaker on, speaker crossed out, or replay once it has
+ * ended. Required while trailers play with sound by default (a visitor must
+ * be able to stop audio that starts by itself).
+ */
+function SoundButton({ sound, bare = false, className }) {
+  if (!sound?.ready) return null;
+  const { muted, done, toggle, replay } = sound;
+  const label = done ? "Replay trailer" : muted ? "Turn sound on" : "Mute trailer";
+  const Icon = done ? RotateCcw : muted ? VolumeX : Volume2;
+  const button = (
+    <button
+      type="button"
+      onClick={() => (done ? replay() : toggle(muted))}
+      aria-label={label}
+      title={label}
+      aria-pressed={done ? undefined : !muted}
+      data-sound-toggle=""
+      className={cn(
+        "relative grid h-11 w-11 cursor-pointer place-items-center rounded-full text-text-primary transition-colors hover:bg-white/15",
+        muted && !done && "text-brand",
+      )}
+    >
+      <Icon className="h-5 w-5" aria-hidden="true" />
+      {/* Sound on: three small bars dance under the speaker */}
+      {!muted && !done && (
+        <span className="absolute bottom-1.5 flex h-1.5 items-end gap-0.5" aria-hidden="true">
+          {[0, 1, 2].map((b) => (
+            <span key={b} className="w-0.5 animate-[eq_900ms_ease-in-out_infinite] rounded-full bg-brand" style={{ animationDelay: `${b * 150}ms` }} />
+          ))}
+        </span>
+      )}
+    </button>
+  );
+  if (bare) return button;
+  return <div data-glass="" className={cn("molten-glass rounded-full p-0.5", className)}>{button}</div>;
 }

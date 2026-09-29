@@ -3,7 +3,7 @@
 | Folder | Route | What |
 |---|---|---|
 | `1.auth` | `/sign-in`, `/sign-up`, `/forgot-password`, `/reset-password?token=` | Glass card over a cinema still; **Continue with Google** first, then email and password; "Forgot password?" under the password; `?next=` redirect (site paths only) |
-| `2.home` | `/` | Hero (Studio featured order), rows (Studio row settings), then for signed-out visitors: plans, why, FAQ. Community card for everyone |
+| `2.home` | `/` | Hero (Studio featured order; swaps as a focus pull with the copy wiping in; one glass pill holds the picker and the trailer's sound button, which must stay while trailers play with sound by default, WCAG 1.4.2), rows (Studio row settings), then for signed-out visitors: plans, why, FAQ. Community card for everyone |
 | `3.films` | `/films` | One-line header (Films, search, sort), one filter row: type tabs, Genre and Access menus (bottom sheets on phones), removable chips with Clear all. No filters: the tab's featured film and rows; a filter or search: a sorted grid. `?tab=&genre=&access=&q=&sort=` |
 | `4.plans` | `/plans` | Plan cards (Studio › Subscriptions) → PesaPal stand-in; `?next=` returns to the title |
 | `5.my-list` | `/my-list` | Continue watching and saved titles (per member, local until the API) |

@@ -115,6 +115,34 @@
     25% { opacity: 1; transform: scale(1); }
     100% { opacity: 0; transform: scale(1.25); }
   }
+  /* Hero swap: the new film pulls into focus as the old one drifts out */
+  @keyframes hero-focus-in {
+    from { opacity: 0; transform: scale(1.12); filter: blur(18px) brightness(0.55); }
+    60% { filter: blur(2px) brightness(0.9); }
+    to { opacity: 1; transform: none; filter: none; }
+  }
+  @keyframes hero-focus-out {
+    from { opacity: 1; transform: none; filter: none; }
+    to { opacity: 0; transform: scale(1.04); filter: blur(10px) brightness(0.6); }
+  }
+  /* Hero copy: the title wipes up out of a mask; the rest follows in step */
+  @keyframes hero-wipe {
+    from { clip-path: inset(0 0 100% 0); transform: translate3d(0, 40%, 0); }
+    to { clip-path: inset(0 0 -20% 0); transform: none; }
+  }
+  @keyframes hero-copy {
+    from { opacity: 0; transform: translate3d(0, 14px, 0); filter: blur(6px); }
+    to { opacity: 1; transform: none; filter: none; }
+  }
+  @keyframes hero-sweep {
+    from { transform: translateX(-100%); opacity: 0; }
+    30% { opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
+  }
+  @keyframes eq {
+    0%, 100% { height: 2px; }
+    50% { height: 6px; }
+  }
   @keyframes hero-fill {
     from { width: 0; }
     to { width: 100%; }
@@ -488,3 +516,11 @@ body {
     cursor: not-allowed;
   }
 }
+
+/* Hero swap (see Hero.jsx). Reduced motion: the global rule above cuts
+   these to an instant cut. */
+.hero-in { animation: hero-focus-in 1400ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.hero-out { animation: hero-focus-out 900ms ease-in both; }
+.hero-copy > * { animation: hero-copy 800ms cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: calc(var(--i, 0) * 90ms + 250ms); }
+.hero-copy > .hero-title { animation-name: hero-wipe; animation-duration: 1000ms; }
+.hero-sweep { animation: hero-sweep 1300ms cubic-bezier(0.4, 0, 0.2, 1) both; }

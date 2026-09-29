@@ -39,7 +39,9 @@ function allowedToAutoplay() {
  */
 // `autoSound`: turn sound on by itself when allowed (the hero, the Films banner).
 // Hover previews pass false: sound there only when the visitor asks.
-export default function TrailerBackdrop({ title, onPlayingChange, controlsClassName, imageClassName, startAfter = START_AFTER, autoSound = true }) {
+// `onSound`: the parent draws the sound button itself (the hero puts it in its
+// picker) and gets { ready, muted, done, toggle, replay }; none is drawn here.
+export default function TrailerBackdrop({ title, onPlayingChange, onSound, controlsClassName, imageClassName, startAfter = START_AFTER, autoSound = true }) {
   const { data: site } = useSite();
   const box = useRef(null);
   const video = useRef(null);
@@ -124,6 +126,17 @@ export default function TrailerBackdrop({ title, onPlayingChange, controlsClassN
     }
   };
 
+  // Hand the sound control to a parent that draws it. The handlers go through
+  // a ref, so the parent's copy never goes stale and never re-renders it.
+  const api = useRef({});
+  useEffect(() => {
+    api.current = { toggle: toggleSound, replay };
+  });
+  useEffect(() => {
+    onSound?.({ ready: start, muted, done, toggle: (on) => api.current.toggle(on), replay: () => api.current.replay() });
+  }, [onSound, start, muted, done]);
+  useEffect(() => () => onSound?.(null), [onSound]);
+
   return (
     <div ref={box} className="absolute inset-0 -z-10">
       <img src={title.backdrop || title.poster} alt="" className={cn("h-full w-full object-cover", imageClassName)} />
@@ -156,7 +169,7 @@ export default function TrailerBackdrop({ title, onPlayingChange, controlsClassN
           className={cn("absolute inset-0 h-full w-full object-cover transition-opacity duration-1000", showing ? "opacity-100" : "opacity-0")}
         />
       )}
-      {start && (
+      {start && !onSound && (
         <div className={cn("absolute z-10 flex gap-2", controlsClassName ?? "bottom-[clamp(5rem,10vw,8rem)] right-[clamp(1rem,4vw,3.5rem)]")}>
           {done ? (
             <IconButton label="Replay trailer" onClick={replay} className="h-11 w-11">

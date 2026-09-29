@@ -6,12 +6,12 @@ import { isSeries, seasonCount } from "@/utils/episodes";
 import { formatDuration } from "@/utils/format";
 
 /** "Film · 2026 · 16+ · 1:42:00", one dot-separated line everywhere. */
-export default function MetaLine({ title, className }) {
+export default function MetaLine({ title, className, style }) {
   const { typeName } = useTaxonomy();
   const parts = [typeName(title.type), title.releaseYear, title.ageRating, isSeries(title) ? `${seasonCount(title)} ${seasonCount(title) === 1 ? "season" : "seasons"}` : formatDuration(title.video?.duration)].filter((p) => p && p !== "—");
   const liked = likedPercent(title.ratings);
   return (
-    <p className={cn("flex flex-wrap items-center gap-x-2 text-small text-text-secondary", className)}>
+    <p className={cn("flex flex-wrap items-center gap-x-2 text-small text-text-secondary", className)} style={style}>
       {liked !== null && <span className="font-bold text-success">{liked}% liked it</span>}
       {parts.map((p, i) => (
         <span key={p} className="flex items-center gap-2">
