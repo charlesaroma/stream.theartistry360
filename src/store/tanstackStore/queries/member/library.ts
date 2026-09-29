@@ -78,8 +78,9 @@ export function useProgress() {
     mutationFn: ({ titleId, seconds, duration, episodeId }: { titleId: Id; seconds: number; duration: number; episodeId?: Id | null }) =>
       library.saveProgress(memberId, titleId, seconds, duration, episodeId ?? null),
     scope: { id: `progress:${memberId ?? "guest"}` },
+    // A background save every few seconds; a failure is retried by the next one.
+    meta: { handlesErrors: true, invalidates: [episodesOptions.queryKey] },
     onSuccess: (next) => qc.setQueryData(progressOptions.queryKey, next),
-    meta: { invalidates: [episodesOptions.queryKey] },
   });
   const clear = useMutation({
     mutationFn: (titleId: Id) => library.clearProgress(memberId, titleId),
@@ -121,6 +122,7 @@ export function useWatchedReels() {
   const { data: watched = [] } = useQuery(options);
   const mark = useMutation({
     mutationFn: (reelId: Id) => library.markReelWatched(memberId, reelId),
+    meta: { handlesErrors: true }, // quiet bookkeeping
     onSuccess: (next) => qc.setQueryData(options.queryKey, next),
   });
   return { has: (id: Id) => watched.includes(id), mark: mark.mutate };

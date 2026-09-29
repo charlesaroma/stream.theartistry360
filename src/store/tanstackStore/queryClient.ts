@@ -14,6 +14,11 @@ declare module "@tanstack/react-query" {
     mutationMeta: {
       /** Keys to refresh once the mutation succeeds; see MutationCache below. */
       invalidates?: readonly QueryKey[];
+      /**
+       * The caller shows its own error (a form's inline message), or the write
+       * is a quiet background save; skip the app-wide notice.
+       */
+      handlesErrors?: boolean;
     };
   }
 }
@@ -30,6 +35,14 @@ export const queryClient: QueryClient = new QueryClient({
     },
   }),
   mutationCache: new MutationCache({
+    // One place for write failures: unless the caller shows its own message,
+    // say what went wrong (ApiError messages are written for people). A form
+    // stays open with its values, so trying again costs nothing.
+    onError: (error, _variables, _context, mutation) => {
+      if (mutation.meta?.handlesErrors) return;
+      notify(error instanceof ApiError && error.message ? error.message : "That didn't save. Check your connection and try again.");
+      if (import.meta.env.DEV) console.warn(error);
+    },
     onSuccess: (_data, _variables, _context, mutation) => {
       const keys = mutation.meta?.invalidates ?? [];
       return Promise.all(keys.map((queryKey) => queryClient.invalidateQueries({ queryKey })));
