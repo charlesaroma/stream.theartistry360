@@ -4,6 +4,7 @@ import { Navigate, useParams, useSearchParams } from "react-router-dom";
 import { Check, Plus, Share2 } from "lucide-react";
 
 import CommunityCard from "@/components/title/CommunityCard";
+import Episodes from "@/components/title/Episodes";
 import MetaLine from "@/components/title/MetaLine";
 import PosterCard from "@/components/title/PosterCard";
 import RateButtons from "@/components/title/RateButtons";
@@ -16,6 +17,7 @@ import { usePlayback } from "@/store/context/playbackContext";
 import { useTitle, useTitles } from "@/store/tanstackStore/queries/site";
 import { useWatchlist } from "@/store/tanstackStore/queries/member";
 import { accessFor } from "@/utils/access";
+import { isSeries, mediaFor } from "@/utils/episodes";
 import { moreLikeThis } from "@/utils/similar";
 import { usePageMeta } from "@/hooks/usePageMeta";
 
@@ -55,6 +57,9 @@ export default function WatchPage() {
   if (!canWatch) return <Navigate to={`/title/${id}?play=1`} replace />;
 
   const similar = moreLikeThis(title, titles);
+  const media = mediaFor(title, episodeId);
+  const current = isSeries(title) && media.episodeId;
+  const playing = current ? media.sub : null;
 
   const share = async () => {
     const url = `${window.location.origin}/title/${title.id}`;
@@ -76,6 +81,7 @@ export default function WatchPage() {
         <div>
           <BackButton className="mb-6" />
           <h1 className="text-title text-balance">{title.title}</h1>
+          {playing && <p className="mt-2 text-lead font-semibold text-text-secondary">{playing}</p>}
           <MetaLine title={title} className="mt-3" />
           <p className="mt-4 max-w-3xl text-body text-text-secondary">{title.description || title.synopsis}</p>
           <div className="mt-6 flex flex-wrap items-center gap-3">
@@ -88,6 +94,7 @@ export default function WatchPage() {
               {copied ? <Check className="h-5 w-5" aria-hidden="true" /> : <Share2 className="h-5 w-5" aria-hidden="true" />}
             </IconButton>
           </div>
+          {current && <Episodes key={media.episodeId} title={title} currentId={media.episodeId} className="mt-12" />}
         </div>
         <div className="lg:self-start">
           <CommunityCard />

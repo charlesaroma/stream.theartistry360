@@ -1,6 +1,6 @@
 /* Player */
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Minimize, Pause, Play } from "lucide-react";
+import { ChevronsRight, Minimize, Pause, Play } from "lucide-react";
 
 import BrandMark from "@/components/ui/brand/BrandMark";
 import { useHls } from "@/hooks/useHls";
@@ -30,7 +30,8 @@ const typing = (el) => el instanceof HTMLElement && (el.isContentEditable || ["I
 
 const TAP_WAIT = 260; // ms before a tap counts as single
 const DOUBLE_TAP = 300; // ms between the taps of a double tap
-export default function Player({ title, ads, next, onNext, startAt = null }) {
+// `media` (utils/episodes mediaFor) is what plays: the film, or one episode.
+export default function Player({ title, media, ads, next, onNext, startAt = null }) {
   const frame = useRef(null);
   const video = useRef(null);
   const lastSaved = useRef(0);
@@ -49,11 +50,12 @@ export default function Player({ title, ads, next, onNext, startAt = null }) {
   const [shortcuts, setShortcuts] = useState(false);
   const [ended, setEnded] = useState(false);
   const [showNext, setShowNext] = useState(true);
-  const { progress, save } = useProgress();
+  const { progress, episodes, save } = useProgress();
   const { buffering, wait, done } = useBuffering();
   const p = usePlayer(video, frame);
   // A requested start (?t= in a shared link) wins over where the member stopped.
-  const resumeAt = startAt ?? progress[title.id]?.seconds ?? 0;
+  // An episode resumes from its own place, a film from the title's.
+  const resumeAt = startAt ?? (media.episodeId ? episodes[media.episodeId]?.seconds : progress[title.id]?.seconds) ?? 0;
   // Brand sting before a first play (rules in sting.js); the stream starts after it.
   const [stingDone, setStingDone] = useState(() => !stingDue(title.id, { ads, resumeAt }));
   const endSting = useCallback(() => {
@@ -61,10 +63,13 @@ export default function Player({ title, ads, next, onNext, startAt = null }) {
     setStingDone(true);
   }, [title.id]);
   const ready = adDone && stingDone;
-  const hls = useHls(video, title.playbackUrl, ready);
+  const hls = useHls(video, media.playbackUrl, ready);
   const { state, actions } = p;
   const fs = state.fullscreen;
-  const captions = title.captions ?? [];
+  const captions = media.captions;
+  const saveAt = (seconds, duration) => save({ titleId: title.id, episodeId: media.episodeId, seconds, duration });
+  // Skip intro: offered while the episode's intro is running.
+  const inIntro = Boolean(media.intro) && state.time >= media.intro.start && state.time < media.intro.end - 1;
   const visible = p.chrome || !state.playing || settings || ended;
   const pct = state.duration ? (state.time / state.duration) * 100 : 0;
 
@@ -166,13 +171,13 @@ export default function Player({ title, ads, next, onNext, startAt = null }) {
         onPlaying={done}
         onCanPlay={done}
         onPause={p.events.onPause}
-        onEnded={() => { setEnded(true); setShowNext(true); save({ titleId: title.id, seconds: state.duration, duration: state.duration }); }}
+        onEnded={() => { setEnded(true); setShowNext(true); saveAt(state.duration, state.duration); }}
         onTimeUpdate={(e) => {
           p.events.onTimeUpdate(e);
           const v = e.currentTarget;
           if (Math.abs(v.currentTime - lastSaved.current) >= 5) {
             lastSaved.current = v.currentTime;
-            save({ titleId: title.id, seconds: v.currentTime, duration: v.duration });
+            saveAt(v.currentTime, v.duration);
           }
         }}
       >
@@ -202,6 +207,16 @@ export default function Player({ title, ads, next, onNext, startAt = null }) {
         </button>
       )}
 
+      {ready && inIntro && !ended && (
+        <button
+          type="button"
+          onClick={() => actions.seek(media.intro.end)}
+          className="absolute bottom-24 right-4 z-30 inline-flex min-h-11 items-center gap-2 rounded-full border border-white/30 bg-black/60 px-5 text-small font-bold text-text-primary backdrop-blur-md transition-colors hover:border-white hover:bg-black/80 md:right-6"
+        >
+          Skip intro <ChevronsRight className="h-4 w-4" aria-hidden="true" />
+        </button>
+      )}
+
       {hls.error && (
         <div role="alert" className="absolute inset-0 z-20 grid place-items-center p-6 text-center text-heading">{hls.error}</div>
       )}
@@ -219,6 +234,7 @@ export default function Player({ title, ads, next, onNext, startAt = null }) {
           <div>
             <p className="text-caption uppercase tracking-[0.18em] text-text-muted">Now playing</p>
             <p className="text-heading">{title.title}</p>
+            {media.sub && <p className="text-body text-text-secondary">{media.sub}</p>}
           </div>
         </div>
       )}

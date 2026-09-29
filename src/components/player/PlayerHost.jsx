@@ -55,7 +55,6 @@ export default function PlayerHost() {
           onNext={() => nextPath && go(nextPath)}
           variant={mode}
           onExpand={() => go(`/watch/${title.id}${media.episodeId ? `?ep=${media.episodeId}` : ""}`)}
-          onPickEpisode={(e) => go(`/watch/${title.id}?ep=${e.id}`)}
         />,
         container,
       )}

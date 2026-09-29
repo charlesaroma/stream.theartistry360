@@ -15,6 +15,8 @@ import PageLoader from "@/components/ui/PageLoader";
 import { useTaxonomy, useTitle, useTitles } from "@/store/tanstackStore/queries/site";
 import { useWatchlist } from "@/store/tanstackStore/queries/member";
 import { moreLikeThis } from "@/utils/similar";
+import Episodes from "@/components/title/Episodes";
+import { isSeries } from "@/utils/episodes";
 import Credits from "./sections/Credits";
 import PrimaryAction from "./sections/PrimaryAction";
 import { usePageMeta } from "@/hooks/usePageMeta";
@@ -83,6 +85,7 @@ export default function TitlePage() {
       {/* Details */}
       <div className="shell grid grid-cols-1 gap-[clamp(2.5rem,5vw,4rem)] pb-[clamp(3rem,6vw,6rem)] lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
         <div className="flex flex-col gap-[clamp(2.5rem,5vw,4rem)]">
+          {isSeries(title) && <Episodes title={title} />}
           {title.description && (
             <section aria-labelledby="about-heading">
               <h2 id="about-heading" className="text-heading mb-4">The story</h2>

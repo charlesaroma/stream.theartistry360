@@ -7,6 +7,7 @@ import Button from "@/components/ui/Button";
 import { useMember } from "@/store/context/MemberContext";
 import { useProgress } from "@/store/tanstackStore/queries/member";
 import { accessFor } from "@/utils/access";
+import { epLabel, isSeries, resumeEpisode } from "@/utils/episodes";
 import PlayGate from "./PlayGate";
 
 /**
@@ -16,14 +17,18 @@ import PlayGate from "./PlayGate";
  */
 export default function PrimaryAction({ title }) {
   const { member } = useMember();
-  const { progress } = useProgress();
+  const { progress, episodes } = useProgress();
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const [gate, setGate] = useState(params.get("play") === "1");
-  const resume = progress[title.id];
+  // A series plays the episode you'd continue (or S1:E1); a film resumes.
+  const next = isSeries(title) ? resumeEpisode(title, progress, episodes) : null;
+  const resume = next ? next.resume : Boolean(progress[title.id]);
+  const target = next ? `/watch/${title.id}?ep=${next.episode.id}` : `/watch/${title.id}`;
+  const label = next ? `${resume ? "Continue" : "Play"} ${epLabel(next.episode)}` : resume ? "Resume" : "Play";
 
   const play = () => {
-    if (accessFor(title, member).ok) navigate(`/watch/${title.id}`, { viewTransition: true });
+    if (accessFor(title, member).ok) navigate(target, { viewTransition: true });
     else setGate(true);
   };
   const closeGate = () => {
@@ -34,7 +39,7 @@ export default function PrimaryAction({ title }) {
   return (
     <>
       <Button variant="light" onClick={play}>
-        <Play className="h-5 w-5 fill-current" aria-hidden="true" /> {resume ? "Resume" : "Play"}
+        <Play className="h-5 w-5 fill-current" aria-hidden="true" /> {label}
       </Button>
       <PlayGate title={title} open={gate} onClose={closeGate} />
     </>
