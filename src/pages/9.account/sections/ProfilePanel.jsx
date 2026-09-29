@@ -4,13 +4,12 @@ import { LogOut, MailCheck } from "lucide-react";
 
 import Button from "@/components/ui/Button";
 import { useMember } from "@/store/context/MemberContext";
-import DeleteAccount from "./DeleteAccount";
 import { Card, Status } from "./ui";
 
 const input = "w-full rounded-2xl border border-white/10 bg-surface-primary px-4 py-3 text-body text-text-primary focus:border-brand focus:outline-none";
 const label = "mb-2 block text-caption font-bold uppercase tracking-[0.12em] text-text-secondary";
 
-/** Security: name and phone, email (changed through a confirmation link), password, signing out everywhere, and deleting the account. */
+/** Security: name and phone, email (changed through a confirmation link), password, and signing out everywhere. */
 export default function ProfilePanel() {
   const { member, updateProfile, requestEmailChange, changePassword, signOutEverywhere } = useMember();
   const google = member.provider === "google";
@@ -72,7 +71,6 @@ export default function ProfilePanel() {
       <Card title="Devices" description="Lost a phone, or signed in on a shared computer? Sign out everywhere; you'll sign in again on this device.">
         <Button variant="glass" onClick={() => signOutEverywhere()}><LogOut className="h-4 w-4" aria-hidden="true" /> Sign out of all devices</Button>
       </Card>
-      <DeleteAccount />
     </div>
   );
 }

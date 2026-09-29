@@ -132,7 +132,7 @@ export default {
           list: [
             "See the data we hold about you, and get a copy (email us and we'll send it).",
             "Correct anything that's wrong (Account › Security, or email us).",
-            "Have your data deleted (Account › Security › Delete account).",
+            "Have your data deleted (Account › Privacy & data › Delete account).",
             "Object to, or stop, processing we do on the basis of legitimate interest, and stop marketing at any time.",
             "Withdraw any consent you've given.",
             "Complain to the Personal Data Protection Office (PDPO) if you're unhappy with how we handle your data.",

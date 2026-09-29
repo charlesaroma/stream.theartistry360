@@ -1,12 +1,13 @@
 /* Account And Settings */
 import { Navigate, useSearchParams } from "react-router-dom";
-import { Crown, History, MonitorPlay, ShieldCheck } from "lucide-react";
+import { Crown, History, Lock, MonitorPlay, ShieldCheck } from "lucide-react";
 
 import PageLoader from "@/components/ui/PageLoader";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { useMember } from "@/store/context/MemberContext";
 import { cn } from "@/utils/cn";
 import ActivityPanel from "./sections/ActivityPanel";
+import DeleteAccount from "./sections/DeleteAccount";
 import MembershipPanel from "./sections/MembershipPanel";
 import PlaybackPanel from "./sections/PlaybackPanel";
 import ProfilePanel from "./sections/ProfilePanel";
@@ -16,13 +17,14 @@ const TABS = [
   { id: "security", label: "Security", icon: ShieldCheck, Panel: ProfilePanel },
   { id: "playback", label: "Playback", icon: MonitorPlay, Panel: PlaybackPanel },
   { id: "activity", label: "Viewing activity", icon: History, Panel: ActivityPanel },
+  { id: "privacy", label: "Privacy & data", icon: Lock, Panel: DeleteAccount },
 ];
 // Older links (from before the tabs were merged) still land in the right place.
-const MOVED = { subscription: "membership", purchases: "membership", profile: "security", privacy: "security" };
+const MOVED = { subscription: "membership", purchases: "membership", profile: "security" };
 
 /**
- * /account?tab=…: Membership, Security, Playback and Viewing activity, the
- * same set most streaming services offer. Tabs sit
+ * /account?tab=…: Membership, Security, Playback, Viewing activity, and
+ * Privacy & data (delete account), the set most streaming services offer. Tabs sit
  * in a column on desktop and scroll sideways on phones. Signed out, it asks
  * you to sign in and comes back here.
  */
