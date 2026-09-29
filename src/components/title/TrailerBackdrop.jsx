@@ -49,6 +49,7 @@ export default function TrailerBackdrop({ title, onPlayingChange, onSound, contr
   const [showing, setShowing] = useState(false);
   const [done, setDone] = useState(false);
   const [muted, setMuted] = useState(true);
+  const [progress, setProgress] = useState(0); // 0–1 through the trailer (capped at MAX_SECONDS)
   const eligible =
     title?.trailer?.status === "ready" &&
     title.trailer.autoplay !== false &&
@@ -128,13 +129,15 @@ export default function TrailerBackdrop({ title, onPlayingChange, onSound, contr
 
   // Hand the sound control to a parent that draws it. The handlers go through
   // a ref, so the parent's copy never goes stale and never re-renders it.
+  // `toggle` reads the element itself, so the button can never act on a
+  // stale idea of whether sound is on.
   const api = useRef({});
   useEffect(() => {
-    api.current = { toggle: toggleSound, replay };
+    api.current = { toggle: () => toggleSound(Boolean(video.current?.muted)), replay };
   });
   useEffect(() => {
-    onSound?.({ ready: start, muted, done, toggle: (on) => api.current.toggle(on), replay: () => api.current.replay() });
-  }, [onSound, start, muted, done]);
+    onSound?.({ ready: start && (showing || done), muted, done, progress, toggle: () => api.current.toggle(), replay: () => api.current.replay() });
+  }, [onSound, start, showing, muted, done, progress]);
   useEffect(() => () => onSound?.(null), [onSound]);
 
   return (
@@ -165,7 +168,15 @@ export default function TrailerBackdrop({ title, onPlayingChange, onSound, contr
             }, 60);
           }}
           onEnded={finish}
-          onTimeUpdate={(e) => e.currentTarget.currentTime > MAX_SECONDS && finish()}
+          // The element is the truth for sound: whatever changed it (our
+          // button, a media key, the browser refusing sound), the icon follows.
+          onVolumeChange={(e) => setMuted(e.currentTarget.muted)}
+          onTimeUpdate={(e) => {
+            const v = e.currentTarget;
+            const length = Math.min(v.duration || MAX_SECONDS, MAX_SECONDS);
+            setProgress(Math.min(1, v.currentTime / length));
+            if (v.currentTime > MAX_SECONDS) finish();
+          }}
           className={cn("absolute inset-0 h-full w-full object-cover transition-opacity duration-1000", showing ? "opacity-100" : "opacity-0")}
         />
       )}

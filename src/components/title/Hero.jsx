@@ -60,6 +60,15 @@ export default function Hero({ titles }) {
 
   if (!current) return <div className="skeleton h-[min(92svh,56rem)] w-full" />;
 
+  // Only the showing title's bar moves: through the trailer while it plays,
+  // otherwise the countdown to the next title. The others sit empty.
+  const barStyle = (i) => {
+    if (i !== index) return { width: "0%" };
+    if (trailer && sound) return { width: `${sound.progress * 100}%`, transition: "width 300ms linear" };
+    if (paused || trailer || still) return { width: "100%" };
+    return { animation: `hero-fill ${ROTATE_MS}ms linear forwards` };
+  };
+
   return (
     <section
       aria-roledescription="carousel"
@@ -150,17 +159,13 @@ export default function Hero({ titles }) {
               onClick={() => show(i)}
               aria-label={`Show ${t.title}`}
               aria-current={i === index}
-              className="relative grid h-11 w-11 cursor-pointer place-items-center"
+              className={cn("relative grid h-11 cursor-pointer place-items-center transition-[width] duration-500", i === index ? "w-14" : "w-6")}
             >
               <span className="relative block h-1 w-full overflow-hidden rounded-full bg-white/25">
                 <span
                   key={`${t.id}-${index}-${paused}-${trailer}`}
                   className="absolute inset-y-0 left-0 rounded-full bg-text-primary"
-                  style={{
-                    width: i < index ? "100%" : i === index ? undefined : "0%",
-                    animation: i === index && !paused && !trailer && !still ? `hero-fill ${ROTATE_MS}ms linear forwards` : undefined,
-                    ...(i === index && (paused || trailer || still) ? { width: "100%" } : {}),
-                  }}
+                  style={barStyle(i)}
                 />
               </span>
             </button>
@@ -186,15 +191,12 @@ function SoundButton({ sound, bare = false, className }) {
   const button = (
     <button
       type="button"
-      onClick={() => (done ? replay() : toggle(muted))}
+      onClick={() => (done ? replay() : toggle())}
       aria-label={label}
       title={label}
       aria-pressed={done ? undefined : !muted}
       data-sound-toggle=""
-      className={cn(
-        "relative grid h-11 w-11 cursor-pointer place-items-center rounded-full text-text-primary transition-colors hover:bg-white/15",
-        muted && !done && "text-brand",
-      )}
+      className="relative grid h-11 w-11 cursor-pointer place-items-center rounded-full text-text-primary transition-colors hover:bg-white/15"
     >
       <Icon className="h-5 w-5" aria-hidden="true" />
       {/* Sound on: three small bars dance under the speaker */}
