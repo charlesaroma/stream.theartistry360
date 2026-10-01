@@ -33,11 +33,13 @@ export default {
       blocks: [
         {
           list: [
-            "Prices are in Uganda shillings (UGX) and include any taxes that apply. You pay through PesaPal with MTN MoMo, Airtel Money or a card.",
-            "Your card details and mobile money PIN go straight to PesaPal and never reach our servers. We never ask for your PIN by phone, SMS, email or WhatsApp; anyone who does isn't us.",
+            "Prices are in Uganda shillings (UGX) and include any taxes that apply. On the website you pay through PesaPal with MTN MoMo, Airtel Money or a card.",
+            "In our iPhone and Android apps you pay through the App Store or Google Play, at the price the app shows, which can differ slightly from the website's (the stores set their own price points and currency). Those payments also follow Apple's or Google's terms.",
+            "Your card details and mobile money PIN go straight to PesaPal, Apple or Google and never reach our servers. We never ask for your PIN by phone, SMS, email or WhatsApp; anyone who does isn't us.",
+            "Whichever way you pay, it's the same account: a plan or film bought on the website works in the apps, and the other way round.",
             "A plan gives you the whole library, without adverts, for the period you pay for (a month, 3 months or a year).",
             "We remind you 3 days before a plan renews. If a renewal isn't paid, your account goes back to the free tier; nothing is lost.",
-            "You can cancel any time in Account › Membership. You keep access until the end of the period you've paid for.",
+            "You can cancel any time. A plan bought on the website cancels in Account › Membership; a plan bought in an app is cancelled in your App Store or Google Play subscriptions (Account › Membership opens them). You keep access until the end of the period you've paid for.",
             "We'll give you at least 30 days' notice before a price change affects your plan.",
           ],
         },

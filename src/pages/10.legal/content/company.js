@@ -12,4 +12,4 @@ export const COMPANY = {
 
 /** Shown on every legal page until a lawyer has reviewed the text. */
 export const LEGAL_DRAFT = true;
-export const UPDATED = "30 September 2026";
+export const UPDATED = "1 October 2026";
