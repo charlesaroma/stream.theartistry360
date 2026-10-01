@@ -25,7 +25,8 @@ const MOVED = { subscription: "membership", purchases: "membership", profile: "s
 /**
  * /account?tab=…: Membership, Security, Playback, Viewing activity, and
  * Privacy & data (delete account), the set most streaming services offer. Tabs sit
- * in a column on desktop and scroll sideways on phones. Signed out, it asks
+ * in a column on desktop and scroll sideways on phones, and stay pinned in
+ * view while scrolling, past the footer too. Signed out, it asks
  * you to sign in and comes back here.
  */
 export default function AccountPage() {
@@ -51,8 +52,15 @@ export default function AccountPage() {
         </header>
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[15rem_minmax(0,1fr)]">
-          <nav aria-label="Account sections" className="-mx-[clamp(1rem,4vw,3.5rem)] overflow-x-auto px-[clamp(1rem,4vw,3.5rem)] lg:mx-0 lg:overflow-visible lg:px-0">
-            <ul className="flex gap-2 lg:sticky lg:top-24 lg:flex-col lg:gap-1">
+          {/* The tabs stay in view all the way down, footer included: pinned
+              under the top bar on phones, beside the settings on desktop. A
+              placeholder keeps the space they leave on phones. */}
+          <div aria-hidden="true" className="h-14 lg:hidden" />
+          <nav
+            aria-label="Account sections"
+            className="fixed inset-x-0 top-18 z-30 overflow-x-auto border-b border-white/8 bg-surface-primary/85 px-[clamp(1rem,4vw,3.5rem)] py-1.5 backdrop-blur-xl lg:static lg:overflow-visible lg:border-0 lg:bg-transparent lg:p-0 lg:backdrop-blur-none"
+          >
+            <ul className="flex gap-2 lg:fixed lg:z-30 lg:w-60 lg:flex-col lg:gap-1 lg:rounded-2xl lg:bg-surface-primary/85 lg:p-2 lg:ring-1 lg:ring-white/8 lg:backdrop-blur-xl">
               {TABS.map(({ id, label, icon: Icon }) => (
                 <li key={id} className="shrink-0">
                   <button
