@@ -1,4 +1,4 @@
-# Artistry360 Stream — Build Breakdown & Status Tracker
+# The Artistry360 Stream — Build Breakdown & Status Tracker
 
 **stream.theartistry360.com**: where members watch The Artistry360's films, shorts and replays. It is **strictly streaming**: no class timetable, no academy pages, no voting. Those live on theartistry360.com. The **Studio** (in the `the_artistry360_2024` repo, Streaming group) controls everything shown here.
 

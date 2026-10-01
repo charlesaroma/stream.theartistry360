@@ -25,7 +25,7 @@ WhatsApp, Facebook, X, iMessage, Slack and LinkedIn build link previews with cra
 
 ## In the app
 
-`hooks/usePageMeta.js` sets the tab title ("Kings & Queens · Artistry360 Stream") and description per page. Google reads these because it renders the app, and they also make browser history readable.
+`hooks/usePageMeta.js` sets the tab title ("Kings & Queens · The Artistry360 Stream") and description per page. Google reads these because it renders the app, and they also make browser history readable.
 
 ## Search engines
 

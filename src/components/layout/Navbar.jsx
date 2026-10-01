@@ -61,7 +61,7 @@ export default function Navbar() {
     <header className="sticky top-0 z-40">
       <div className={cn("relative z-40 transition-[background-color,backdrop-filter,box-shadow] duration-500", open ? "bg-transparent" : solid ? "bg-surface-primary/80 shadow-[0_1px_0_rgb(255_255_255/0.06)] backdrop-blur-xl" : "bg-linear-to-b from-black/70 to-transparent")}>
         <nav aria-label="Main" className="shell flex h-18 items-center gap-6">
-          <Link to="/" viewTransition className="flex min-h-11 shrink-0 items-center gap-3" aria-label="Artistry360 Stream home">
+          <Link to="/" viewTransition className="flex min-h-11 shrink-0 items-center gap-3" aria-label="The Artistry360 Stream home">
             <BrandLogo intro label="" className="h-8 w-auto" />
             <span className="hidden text-caption font-bold uppercase tracking-[0.25em] text-text-secondary sm:inline">Stream</span>
           </Link>

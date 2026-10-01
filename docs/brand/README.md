@@ -116,4 +116,4 @@ Both repos use the same file set in `public/`:
 | `maskable-icon-512x512.png` | 512 | Android adaptive icons (safe zone respected) |
 | `site.webmanifest` | | App name, colours and icon list |
 
-Both sites use the same icons; only the manifest name differs (The Artistry360, Artistry360 Stream). `index.html` links all of them. To regenerate, use the logo scripts kept by Raijin Tech Hub; do not edit the PNGs by hand.
+Both sites use the same icons; only the manifest name differs (The Artistry360, The Artistry360 Stream). `index.html` links all of them. To regenerate, use the logo scripts kept by Raijin Tech Hub; do not edit the PNGs by hand.

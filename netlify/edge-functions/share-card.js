@@ -13,7 +13,7 @@
  * written at build time from the seed (scripts/share-catalog.mjs).
  */
 
-const SITE = "Artistry360 Stream";
+const SITE = "The Artistry360 Stream";
 const DEFAULT_DESCRIPTION = "Films from The Artistry360, Kampala.";
 const TTL = 5 * 60 * 1000;
 let cached = null; // { at, catalog }

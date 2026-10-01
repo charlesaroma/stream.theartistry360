@@ -1,4 +1,4 @@
-/* Why Artistry360 */
+/* Why The Artistry360 */
 import { Clapperboard, Smartphone, Sparkles, Wallet } from "lucide-react";
 
 const POINTS = [

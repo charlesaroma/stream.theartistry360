@@ -24,11 +24,11 @@ export const streamSiteSeed = {
     { id: "shorts", label: "Shorts", source: "type:short", enabled: true },
     { id: "drama", label: "Drama", source: "category:cat_drama", enabled: true },
   ],
-  // Off for now (the "New Artistry360 films every month" bar). The text is
+  // Off for now (the "New films from The Artistry360 every month" bar). The text is
   // kept; turn it back on in Studio › Streaming › Stream Site › Announcement.
   announcement: {
     enabled: false,
-    text: "New Artistry360 films every month.",
+    text: "New films from The Artistry360 every month.",
     linkLabel: "Browse the latest",
     linkUrl: "/films",
   },

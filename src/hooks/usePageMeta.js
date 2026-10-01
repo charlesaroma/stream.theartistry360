@@ -1,7 +1,7 @@
 /* Page Meta Hook */
 import { useEffect } from "react";
 
-const SITE = "Artistry360 Stream";
+const SITE = "The Artistry360 Stream";
 
 /**
  * The tab title and description for the page in view, for people and for
