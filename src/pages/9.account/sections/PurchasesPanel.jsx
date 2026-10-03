@@ -21,7 +21,7 @@ export default function PurchasesPanel() {
 
   return (
     <div className="flex flex-col gap-6">
-      <Card title="Films you bought" description="Pay-per-view films are yours to watch for 48 hours from when you first press Play.">
+      <Card title="Films you bought" description="Pay-per-view films are yours to watch for 24 hours from when you first press Play.">
         {owned.length ? (
           <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {owned.map((t) => (

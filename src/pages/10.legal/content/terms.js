@@ -8,7 +8,7 @@ export default {
   summary: [
     "You need to be 18 or older to have an account. Keep your password to yourself.",
     "Plans give you the whole library for the period you pay for. Cancel any time; you keep access until the period ends.",
-    "A film you buy is yours to watch for 48 hours from when you first press Play.",
+    "A film you buy is yours to watch for 24 hours from when you first press Play.",
     "Watch for yourself and your household. Don't record, copy or share the films.",
   ],
   sections: [
@@ -49,7 +49,7 @@ export default {
     {
       id: "pay-per-view",
       title: "Films you buy (pay-per-view)",
-      blocks: ["Some films are sold one at a time. Once bought, you have 48 hours to watch from the moment you first press Play, as many times as you like. Buying a film doesn't transfer any ownership of it to you."],
+      blocks: ["Some films are sold one at a time. Once bought, you have 24 hours to watch from the moment you first press Play, as many times as you like. Buying a film doesn't transfer any ownership of it to you."],
     },
     {
       id: "free-tier",

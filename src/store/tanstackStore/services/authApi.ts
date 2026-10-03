@@ -130,7 +130,7 @@ export function purchase(titleId: Id, method = "Mobile money") {
     const m = read();
     if (!m) throw new ApiError("Sign in first.", 401);
     const title = streamingTitlesSeed.find((t) => t.id === titleId);
-    recordPayment(m.id, { kind: "purchase", titleId, description: `Watch: ${title?.title ?? "a title"} (48 hours)`, amountUGX: title?.access?.priceUGX ?? 0, method });
+    recordPayment(m.id, { kind: "purchase", titleId, description: `Watch: ${title?.title ?? "a title"} (24 hours)`, amountUGX: title?.access?.priceUGX ?? 0, method });
     return write({ ...m, purchases: [...new Set([...(m.purchases ?? []), titleId])] });
   }, 1200);
 }

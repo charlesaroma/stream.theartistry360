@@ -29,7 +29,7 @@ export default {
           list: [
             "You were charged twice for the same thing.",
             "Your payment went through but your plan or film didn't start, and we can't fix it within 48 hours.",
-            "A film you bought won't play because of a fault on our side, and we can't fix it within your 48-hour window.",
+            "A film you bought won't play because of a fault on our side, and we can't fix it within your 24-hour window.",
             "We close the Service or remove your plan before the period you paid for ends (refunded for the unused part).",
           ],
         },

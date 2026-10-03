@@ -35,7 +35,7 @@ export default function BuyDialog({ title, open, onClose, onDone }) {
 
   return (
     <Modal open={open} onClose={busy ? undefined : onClose} title={`Watch ${title.title}`}>
-      <p className="text-body text-text-secondary">Pay once and it's yours to watch for 48 hours from first play.</p>
+      <p className="text-body text-text-secondary">Pay once and it's yours to watch for 24 hours from first play.</p>
       <p className="mt-4 text-title tabular-nums">{formatUGX(title.access.priceUGX)}</p>
       <fieldset className="mt-6">
         <legend className="mb-3 text-small font-semibold text-text-secondary">Pay with</legend>
