@@ -1,6 +1,6 @@
 /* Hero */
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Check, Info, Play, Plus, RotateCcw, Volume2, VolumeX } from "lucide-react";
+import { Check, Info, Plus, RotateCcw, Volume2, VolumeX } from "lucide-react";
 
 import Button from "@/components/ui/Button";
 import IconButton from "@/components/ui/IconButton";
@@ -121,9 +121,6 @@ export default function Hero({ titles }) {
           <MetaLine title={current} className="mt-5" style={{ "--i": 2 }} />
           <p className="mt-5 line-clamp-3 max-w-xl text-lead text-text-secondary" style={{ "--i": 3 }}>{current.synopsis}</p>
           <div className="mt-8 flex flex-wrap items-center gap-3" style={{ "--i": 4 }}>
-            <Button variant="light" to={`/watch/${current.id}`}>
-              <Play className="h-5 w-5 fill-current" aria-hidden="true" /> Play
-            </Button>
             <Button variant="glass" to={`/title/${current.id}`}>
               <Info className="h-5 w-5" aria-hidden="true" /> More info
             </Button>
