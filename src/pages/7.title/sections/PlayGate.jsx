@@ -35,7 +35,7 @@ export default function PlayGate({ title, open, onClose }) {
   const lines = {
     free: ["Free to watch", "Create a free account or sign in, and it plays straight away."],
     subscription: ["Watch with a subscription", subscription],
-    ppv: [`Watch for ${formatUGX(title.access?.priceUGX)}`, "Pay once, then watch for 48 hours from first play. Sign in first so it's saved to your account."],
+    ppv: [`Watch for ${formatUGX(title.access?.priceUGX)}`, "Pay once, then watch for 24 hours from first play. Sign in first so it's saved to your account."],
   };
   const [heading, body] = lines[tier] ?? lines.free;
 
