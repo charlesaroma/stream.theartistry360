@@ -9,6 +9,8 @@ const VARIANTS = {
   primary: "btn btn-primary ember",
   light: "btn btn-light ember [--ember-color:var(--color-brand)]",
   glass: "btn btn-glass molten-glass ember",
+  danger: "btn btn-danger ember",
+  ghost: "btn btn-ghost ember",
 };
 
 /**

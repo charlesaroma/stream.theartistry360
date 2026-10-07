@@ -403,6 +403,12 @@ body {
   .btn-glass {
     @apply text-text-primary;
   }
+  .btn-danger {
+    @apply bg-danger text-white hover:brightness-110;
+  }
+  .btn-ghost {
+    @apply text-text-muted hover:text-text-primary hover:bg-surface-elevated;
+  }
   .btn-icon {
     @apply inline-grid h-12 w-12 cursor-pointer place-items-center rounded-full text-text-primary transition-colors;
   }

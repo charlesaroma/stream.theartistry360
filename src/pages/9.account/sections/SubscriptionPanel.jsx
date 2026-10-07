@@ -61,13 +61,15 @@ export default function SubscriptionPanel() {
         {sub.cancelAtPeriodEnd ? (
           <Button onClick={() => setCancel(false)} loading={busy}>Keep my plan</Button>
         ) : confirming ? (
-          <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-danger/30 bg-danger/5 px-4 py-2">
-            <span className="text-small text-text-secondary">Cancel? You keep access until {longDate(sub.renewsAt)}, then nothing more is charged.</span>
-            <Button variant="glass" onClick={() => setConfirming(false)}>Keep it</Button>
-            <button type="button" onClick={() => setCancel(true)} disabled={busy} className="btn min-h-11 bg-danger px-5 text-white hover:brightness-110">Cancel plan</button>
+          <div className="w-full rounded-2xl border border-danger/30 bg-danger/5 px-5 py-4 flex flex-col gap-4">
+            <p className="text-small text-text-secondary">Cancel? You keep access until {longDate(sub.renewsAt)}, then nothing more is charged.</p>
+            <div className="flex flex-wrap gap-3">
+              <Button variant="glass" onClick={() => setConfirming(false)}>Keep it</Button>
+              <Button variant="danger" onClick={() => setCancel(true)} loading={busy}>Cancel plan</Button>
+            </div>
           </div>
         ) : (
-          <button type="button" onClick={() => setConfirming(true)} className="btn min-h-11 px-5 text-text-secondary hover:text-danger">Cancel plan</button>
+          <Button variant="ghost" onClick={() => setConfirming(true)}>Cancel plan</Button>
         )}
       </div>
       <Status {...msg} />
