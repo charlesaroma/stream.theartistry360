@@ -66,7 +66,11 @@ src/store/
 
 ## 6. Realtime
 
-`App.jsx` mounts `useLiveInvalidation("public")` and `useLiveInvalidation("member")`. Both are off until `VITE_REALTIME_URL` is set. The public channel carries Studio changes as keys, and this site invalidates them:
+`App.jsx` mounts `useLiveInvalidation("public")` and `useLiveInvalidation("member")`. Both are off until `VITE_REALTIME_URL` (the API origin) is set, and `socket.io-client` only loads then.
+
+The transport is **Socket.IO**, with the namespaces `/public` and `/member`. The member token goes in the handshake (`auth: { token }`) and is re-read on each reconnect. The server sends one event, `invalidate`: `{ entity, id? }`. This site invalidates `entity` as a prefix and ignores `id`, so `["site","titles"]` refreshes lists, detail pages and search alike. Full contract: the main repo's `docs/17-api-server.md` §8.
+
+The public channel carries Studio changes as keys, and this site invalidates them:
 
 | Studio action | Event | Refetches here |
 |---|---|---|
@@ -74,8 +78,9 @@ src/store/
 | Save Stream Site (hero, rows, links) | `{ entity: ["site","stream-site"] }` | home, footer, title-page WhatsApp block |
 | Edit types or categories | `["site","types"]`, `["site","categories"]` | filters, chips |
 | Edit plans or ads | `["site","plans"]`, `["site","ads"]` | plans, the player's pre-roll |
+| A scheduled title or episode reaches its release time | `["site","titles"]` (the API's release job) | rows, films, the title page |
 
-The member channel, authenticated with the member token, carries entitlement changes after a PesaPal IPN (`["member", id, …]`), so Play unlocks without a reload. A channel may only touch its own roots.
+The member channel carries `["member", <memberId>]` to that member only: entitlements after a PesaPal IPN, and library or progress changed on another device. So Play unlocks without a reload. A channel may only touch its own roots. After a reconnect, every root the channel allows is refetched.
 
 **Until the backend exists, a Studio edit does not reach this site**: the Studio and this site each read their own mock copy.
 

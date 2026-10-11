@@ -1,6 +1,7 @@
 /* Live Invalidation */
 import { useEffect } from "react";
-import { useQueryClient, type QueryKey } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
+import type { Socket } from "socket.io-client";
 
 import { accessToken, onTokenChange } from "../services/api/tokens";
 import type { Realm } from "../services/api/types";
@@ -9,16 +10,17 @@ import type { Realm } from "../services/api/types";
  * Keeps the cache in step with changes made elsewhere, e.g. a title published
  * in the Studio showing up here (docs/07-state-management.md, section 6).
  *
- * The server sends *what* changed, never the data:
- *   { "entity": ["site", "titles"], "id": "ttl_001" }
- * and we invalidate that key. Only queries on screen refetch; the rest are
- * marked stale and refetch when next used.
+ * Socket.IO, one namespace per channel. The server sends *what* changed,
+ * never the data:
+ *   socket.on("invalidate", { entity: ["site", "titles"], id?: "ttl_001" })
+ * and we invalidate `entity` as a prefix, so list, detail and search keys all
+ * refresh. `id` is for logs only: detail keys are ["site","titles","detail",id],
+ * so appending the id would match nothing. Only queries on screen refetch.
  *
- * Off until VITE_REALTIME_URL is set (the backend's WebSocket endpoint).
- * Channels: "public" carries ["site", …] keys (the Studio's edits) to anyone;
- * "member" carries ["member", …] keys (e.g. entitlements after a PesaPal IPN)
- * and requires the member token, sent as the first message because browsers
- * cannot set headers on a WebSocket.
+ * Off until VITE_REALTIME_URL (the API origin) is set, and socket.io-client
+ * only loads then. "public" carries the Studio's edits to anyone; "member"
+ * carries ["member", …] keys (e.g. entitlements after a PesaPal IPN), sends
+ * the member token in the handshake and reconnects when it changes.
  */
 
 type Channel = "public" | Realm;
@@ -40,73 +42,66 @@ export function useLiveInvalidation(channel: Channel) {
 
   useEffect(() => {
     const base = import.meta.env.VITE_REALTIME_URL as string | undefined;
-    if (!base || typeof WebSocket === "undefined") return;
+    if (!base) return;
 
-    let socket: WebSocket | null = null;
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    let attempts = 0;
+    let socket: Socket | null = null;
     let stopped = false;
+    const invalidateRoots = () => ALLOWED_ROOTS[channel].forEach((root) => queryClient.invalidateQueries({ queryKey: [root] }));
 
-    const invalidate = (queryKey: QueryKey) => queryClient.invalidateQueries({ queryKey });
+    import("socket.io-client").then(({ io }) => {
+      if (stopped) return;
+      socket = io(`${base.replace(/\/$/, "")}/${channel}`, {
+        // Re-read on every (re)connect, so a refreshed token is always the one sent.
+        auth: (cb) => cb(channel === "public" ? {} : { token: accessToken(channel) }),
+        reconnectionDelayMax: MAX_BACKOFF,
+        autoConnect: false,
+      });
 
-    const connect = () => {
-      const token = channel === "public" ? null : accessToken(channel);
-      if (channel !== "public" && !token) return; // Signed out: nothing to listen for.
-
-      const url = new URL(base);
-      url.searchParams.set("channel", channel);
-      const current = new WebSocket(url);
-      socket = current;
-
-      current.onopen = () => {
-        if (token) current.send(JSON.stringify({ type: "auth", token }));
+      let connectedBefore = false;
+      socket.on("connect", () => {
         // Anything missed while disconnected: refresh the channel's roots.
-        if (attempts > 0) ALLOWED_ROOTS[channel].forEach((root) => invalidate([root]));
-        attempts = 0;
-      };
+        if (connectedBefore) invalidateRoots();
+        connectedBefore = true;
+      });
 
-      current.onmessage = (message) => {
-        const event = parse(message.data);
-        // A channel may only touch its own roots; a public event can never
-        // reach Studio data.
+      socket.on("invalidate", (data: unknown) => {
+        const event = parse(data);
+        // A channel may only touch its own roots.
         if (!event || !ALLOWED_ROOTS[channel].includes(event.entity[0])) return;
-        invalidate(event.id ? [...event.entity, event.id] : event.entity);
-      };
+        queryClient.invalidateQueries({ queryKey: event.entity });
+      });
 
-      current.onclose = () => {
-        if (stopped || socket !== current) return;
-        const delay = Math.min(MAX_BACKOFF, 1000 * 2 ** attempts++);
-        timer = setTimeout(connect, delay);
-      };
-    };
+      // Signed out: nothing to listen for on a private channel.
+      if (channel === "public" || accessToken(channel)) socket.connect();
+    });
 
-    const restart = () => {
-      const old = socket;
-      socket = null;
-      old?.close();
-      clearTimeout(timer);
-      connect();
-    };
-
-    connect();
-    // A new sign-in opens the channel; a sign-out closes it.
-    const off = channel === "public" ? () => {} : onTokenChange((realm) => realm === channel && restart());
+    // A new sign-in opens the channel (with the new token); a sign-out closes it.
+    const off =
+      channel === "public"
+        ? () => {}
+        : onTokenChange((realm, token) => {
+            if (realm !== channel || !socket) return;
+            socket.disconnect();
+            if (token) socket.connect();
+          });
 
     return () => {
       stopped = true;
-      clearTimeout(timer);
       off();
-      socket?.close();
+      socket?.disconnect();
     };
   }, [channel, queryClient]);
 }
 
 function parse(data: unknown): LiveEvent | null {
-  if (typeof data !== "string") return null;
+  const event = (typeof data === "string" ? safeJson(data) : data) as Partial<LiveEvent> | null;
+  if (!event || !Array.isArray(event.entity) || !event.entity.length || !event.entity.every((p) => typeof p === "string")) return null;
+  return { entity: event.entity, id: typeof event.id === "string" ? event.id : undefined };
+}
+
+function safeJson(s: string) {
   try {
-    const event = JSON.parse(data) as Partial<LiveEvent>;
-    if (!Array.isArray(event.entity) || !event.entity.every((part) => typeof part === "string")) return null;
-    return { entity: event.entity, id: typeof event.id === "string" ? event.id : undefined };
+    return JSON.parse(s);
   } catch {
     return null;
   }
