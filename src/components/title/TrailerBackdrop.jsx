@@ -24,13 +24,19 @@ const rememberSound = (on) => {
 };
 const mayPlaySound = () => Boolean(navigator.userActivation?.hasBeenActive) && soundChoice() !== "off";
 const MAX_SECONDS = 60; // trailers are short; never let a long file run on
+const GIVE_UP_AFTER = 8000; // started but nothing playing by then: keep the backdrop
 
+// Product decision: trailers autoplay even with Reduce motion on (they are
+// muted and the hero's controls can stop them). Only Data Saver opts out.
 function allowedToAutoplay() {
   if (typeof window === "undefined") return false;
-  if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return false;
   if (navigator.connection?.saveData) return false;
   return true;
 }
+
+const warn = (reason, detail) => {
+  if (import.meta.env.DEV) console.warn(`[trailer] ${reason}`, detail ?? "");
+};
 
 /**
  * The backdrop image, and after a moment the title's trailer playing muted
@@ -48,6 +54,7 @@ export default function TrailerBackdrop({ title, onPlayingChange, onSound, contr
   const [start, setStart] = useState(false);
   const [showing, setShowing] = useState(false);
   const [done, setDone] = useState(false);
+  const [gaveUp, setGaveUp] = useState(false);
   const [muted, setMuted] = useState(true);
   const [progress, setProgress] = useState(0); // 0–1 through the trailer (capped at MAX_SECONDS)
   const eligible =
@@ -56,21 +63,60 @@ export default function TrailerBackdrop({ title, onPlayingChange, onSound, contr
     site?.hero?.autoplayTrailers !== false &&
     allowedToAutoplay();
 
-  useHls(video, title?.trailer?.playbackUrl, start);
+  const { error: hlsError } = useHls(video, title?.trailer?.playbackUrl, start && !gaveUp);
+  // Any failure keeps the backdrop and lets the hero move on.
+  const failed = gaveUp || Boolean(hlsError);
+
+  const fail = (reason, detail) => {
+    warn(reason, detail);
+    setGaveUp(true);
+    setShowing(false);
+  };
+
+  // An interrupted play() (pause, a new source) rejects with AbortError: not a failure.
+  const tryPlay = (v) =>
+    v.play().catch((e) => {
+      if (e?.name !== "AbortError") fail("play() was refused", e);
+    });
+
+  // Start after a moment. In a hidden tab, wait until it's visible again
+  // rather than giving up.
+  useEffect(() => {
+    if (!eligible || done || start) return undefined;
+    let onVisible;
+    const t = setTimeout(() => {
+      if (!document.hidden) return setStart(true);
+      onVisible = () => {
+        if (document.hidden) return;
+        document.removeEventListener("visibilitychange", onVisible);
+        setStart(true);
+      };
+      document.addEventListener("visibilitychange", onVisible);
+    }, startAfter);
+    return () => {
+      clearTimeout(t);
+      if (onVisible) document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [eligible, done, start, startAfter]);
 
   useEffect(() => {
-    if (!eligible || done) return undefined;
-    const t = setTimeout(() => !document.hidden && setStart(true), startAfter);
+    if (hlsError) warn("the stream failed to load", hlsError);
+  }, [hlsError]);
+
+  // Started but still nothing on screen: keep the backdrop.
+  useEffect(() => {
+    if (!start || showing || done || failed) return undefined;
+    const t = setTimeout(() => fail(`nothing playing after ${GIVE_UP_AFTER / 1000}s`, title?.trailer?.playbackUrl), GIVE_UP_AFTER);
     return () => clearTimeout(t);
-  }, [eligible, done, startAfter]);
+  }, [start, showing, done, failed]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Pause off screen or in a hidden tab; resume when back.
   useEffect(() => {
-    if (!start) return undefined;
+    if (!start || failed) return undefined;
     const v = video.current;
     const io = new IntersectionObserver(([entry]) => {
       if (!v || done) return;
-      if (entry.intersectionRatio > 0.35 && !document.hidden) v.play().catch(() => {});
+      if (entry.intersectionRatio > 0.35 && !document.hidden) tryPlay(v);
       else v.pause();
     }, { threshold: [0, 0.35] });
     if (box.current) io.observe(box.current);
@@ -80,11 +126,14 @@ export default function TrailerBackdrop({ title, onPlayingChange, onSound, contr
       io.disconnect();
       document.removeEventListener("visibilitychange", onVis);
     };
-  }, [start, done]);
+  }, [start, done, failed]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Busy from the moment loading starts, so the hero doesn't rotate away from
+  // a trailer that is still fetching its first segment.
+  const busy = start && !done && !failed;
   useEffect(() => {
-    onPlayingChange?.(showing);
-  }, [showing, onPlayingChange]);
+    onPlayingChange?.(busy);
+  }, [busy, onPlayingChange]);
 
   // Set the element directly: React applies `muted` reliably only on mount.
   const toggleSound = (on) => {
@@ -136,14 +185,14 @@ export default function TrailerBackdrop({ title, onPlayingChange, onSound, contr
     api.current = { toggle: () => toggleSound(Boolean(video.current?.muted)), replay };
   });
   useEffect(() => {
-    onSound?.({ ready: start && (showing || done), muted, done, progress, toggle: () => api.current.toggle(), replay: () => api.current.replay() });
-  }, [onSound, start, showing, muted, done, progress]);
+    onSound?.({ ready: start && !failed && (showing || done), muted, done, progress, toggle: () => api.current.toggle(), replay: () => api.current.replay() });
+  }, [onSound, start, failed, showing, muted, done, progress]);
   useEffect(() => () => onSound?.(null), [onSound]);
 
   return (
     <div ref={box} className="absolute inset-0 -z-10">
       <img src={title.backdrop || title.poster} alt="" className={cn("h-full w-full object-cover", imageClassName)} />
-      {start && (
+      {start && !failed && (
         <video
           ref={video}
           muted={muted}
@@ -180,7 +229,7 @@ export default function TrailerBackdrop({ title, onPlayingChange, onSound, contr
           className={cn("absolute inset-0 h-full w-full object-cover transition-opacity duration-1000", showing ? "opacity-100" : "opacity-0")}
         />
       )}
-      {start && !onSound && (
+      {start && !failed && !onSound && (
         <div className={cn("absolute z-10 flex gap-2", controlsClassName ?? "bottom-[clamp(5rem,10vw,8rem)] right-[clamp(1rem,4vw,3.5rem)]")}>
           {done ? (
             <IconButton label="Replay trailer" onClick={replay} className="h-11 w-11">
