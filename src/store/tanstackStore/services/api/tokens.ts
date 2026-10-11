@@ -16,7 +16,7 @@ export const REALMS: readonly Realm[] = ["member"];
 
 type TokenListener = (realm: Realm, token: string | null) => void;
 
-const KEY = (realm: Realm) => `a360:token:${realm}`;
+const KEY = (realm: Realm) => `a360s:token:${realm}`;
 const listeners = new Set<TokenListener>();
 
 export function accessToken(realm: Realm) {

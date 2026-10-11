@@ -14,7 +14,7 @@ export const AGE_RATINGS = {
 export const ratingOf = (value) => AGE_RATINGS[value] ?? null;
 
 /** Content warnings, in the order they're listed. */
-export const ADVISORIES = ["Violence", "Language", "Sexual content", "Nudity", "Drug use", "Alcohol", "Smoking", "Frightening scenes", "Discrimination", "Self-harm"];
+export const ADVISORIES = ["Violence", "Language", "Sexual content", "Drug use", "Alcohol", "Smoking", "Frightening scenes", "Discrimination", "Self-harm"];
 
 /** "Violence, language and alcohol". */
 export function advisoryLine(list = []) {
