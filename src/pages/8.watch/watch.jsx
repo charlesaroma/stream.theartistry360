@@ -36,8 +36,10 @@ export default function WatchPage() {
   const { id } = useParams();
   const [params] = useSearchParams();
   const episodeId = params.get("ep");
-  // ?t=<seconds>: start there (a shared timestamp link).
-  const startAt = Number(params.get("t")) > 0 ? Number(params.get("t")) : null;
+  // ?t=<seconds>: start there (a shared timestamp link). ?t=0 is "Start over":
+  // an explicit 0:00 that beats the saved place.
+  const t = params.get("t");
+  const startAt = t !== null && t !== "" && Number(t) >= 0 ? Number(t) : null;
   const { member, loading } = useMember();
   const { data: title, isLoading } = useTitle(id);
   usePageMeta({ title: title ? `Watching ${title.title}` : undefined, description: title?.synopsis });
