@@ -62,7 +62,6 @@ export interface Title {
   crew: Credit[];
   poster: string;
   backdrop: string;
-  trailerUrl: string;
   trailer?: { status: VideoStatus; playbackUrl: string; autoplay?: boolean };
   video: { status: VideoStatus; duration?: number };
   playbackUrl?: string;

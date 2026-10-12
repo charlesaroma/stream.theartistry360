@@ -11,7 +11,6 @@ const base = {
   language: "English",
   cast: [],
   crew: [],
-  trailerUrl: "",
   publishStatus: "published",
   featured: false,
   playbackUrl: DEMO_HLS,
