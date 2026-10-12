@@ -5,6 +5,7 @@ import BrandLogo from "@/components/ui/brand/BrandLogo";
 import { Instagram, TikTok, WhatsApp, YouTube } from "@/components/ui/BrandIcons";
 import { useSite } from "@/store/tanstackStore/queries/site";
 import { safeHref } from "@/utils/links";
+import { PaymentLogos } from "@/components/ui/PaymentLogo";
 
 const COLUMNS = [
   { title: "Watch", links: [["Home", "/"], ["Films", "/films"], ["My List", "/my-list"]] },
@@ -55,7 +56,7 @@ export default function Footer() {
       </div>
       <div className="shell flex flex-col gap-2 border-t border-border-default py-6 text-caption text-text-muted sm:flex-row sm:justify-between">
         <p>© {new Date().getFullYear()} Thee Artistry360 (U) SMC Ltd. All rights reserved.</p>
-        <p>Payments by PesaPal · MTN MoMo · Airtel Money · Visa · Mastercard</p>
+        <p className="flex flex-wrap items-center gap-3">Payments by PesaPal <PaymentLogos /></p>
       </div>
     </footer>
   );
