@@ -6,7 +6,7 @@ export const streamingPlansSeed = [
     name: "Monthly",
     priceUGX: 20000,
     interval: "month",
-    benefits: ["Every film and replay", "No ads", "HD streaming", "Watch on web and the app"],
+    benefits: ["Every film, series and documentary", "No ads", "HD streaming", "Watch on web and the app"],
     active: true,
     highlight: true,
   },

@@ -2,7 +2,8 @@
 
 /**
  * The Films tabs. Each covers one or more video types (the Studio's Types &
- * Categories); "Classes" covers class replays and masterclasses together.
+ * Categories). Strictly screen content: films, series, shorts, documentaries
+ * and behind the scenes; academy classes live on theartistry360.com only.
  * A type the Studio adds later shows under All until it gets a tab.
  */
 export const FILM_TABS = [
@@ -10,7 +11,6 @@ export const FILM_TABS = [
   { id: "films", label: "Films", types: ["film"] },
   { id: "series", label: "Series", types: ["series"] },
   { id: "shorts", label: "Shorts", types: ["short"] },
-  { id: "classes", label: "Classes", types: ["class"] },
   { id: "documentaries", label: "Documentaries", types: ["documentary"] },
   { id: "bts", label: "Behind the Scenes", types: ["bts"] },
 ];
@@ -32,8 +32,8 @@ export const SORTS = [
 
 /**
  * Genres that make sense for a tab: the categories its titles actually use,
- * so Films offers Drama, Comedy and Thriller, and Classes offers Masterclass
- * and Screen Acting. Nothing is hard-coded; the Studio's categories decide.
+ * so Films offers Drama, Comedy and Thriller, and Behind the Scenes offers
+ * Making Of. Nothing is hard-coded; the Studio's categories decide.
  */
 export function genresFor(titles, categories) {
   const used = new Set(titles.flatMap((t) => t.categoryIds ?? []));

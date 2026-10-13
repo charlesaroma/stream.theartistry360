@@ -4,7 +4,7 @@ export const streamSiteSeed = {
   community: {
     enabled: true,
     heading: "Join the Artistry360 community",
-    body: "Get new releases, class times and behind-the-scenes first.",
+    body: "Get new releases and behind-the-scenes first.",
     // Sample links for the demo; set the real ones in Studio › Streaming › Stream Site.
     channelUrl: "https://whatsapp.com/channel/0029VaA360StreamSample",
     groupUrl: "https://chat.whatsapp.com/A360StreamCommunitySample",
@@ -19,7 +19,7 @@ export const streamSiteSeed = {
     { id: "continue", label: "Continue Watching", source: "continue", enabled: true },
     { id: "new", label: "New Releases", source: "new", enabled: true },
     { id: "free", label: "Free to Watch", source: "tier:free", enabled: true },
-    { id: "classes", label: "Class Replays", source: "type:class", enabled: true },
+    { id: "bts", label: "Behind the Scenes", source: "type:bts", enabled: true },
     { id: "films", label: "Films", source: "type:film", enabled: true },
     { id: "shorts", label: "Shorts", source: "type:short", enabled: true },
     { id: "drama", label: "Drama", source: "category:cat_drama", enabled: true },

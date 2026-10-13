@@ -14,7 +14,7 @@ import { safeNext } from "@/utils/links";
 
 export default function PlansPage() {
   const { member, subscribe } = useMember();
-  usePageMeta({ title: "Plans", description: "Watch every film, series and class from The Artistry360. Pay by MTN MoMo, Airtel Money or card." });
+  usePageMeta({ title: "Plans", description: "Watch every film, series and documentary from The Artistry360. Pay by MTN MoMo, Airtel Money or card." });
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const [chosen, setChosen] = useState(null);

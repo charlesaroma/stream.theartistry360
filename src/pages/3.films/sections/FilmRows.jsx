@@ -8,7 +8,7 @@ const byNewest = (a, b) => new Date(b.releaseAt) - new Date(a.releaseAt);
 
 /**
  * Browsing without filters: rows like the home page, for the chosen tab.
- * Continue watching, New releases, Free to watch, Classes (on All), then one
+ * Continue watching, New releases, Free to watch, Behind the Scenes (on All), then one
  * row per genre. "See all" switches to the grid with that filter.
  */
 export default function FilmRows({ tab, titles, genres }) {
@@ -19,7 +19,7 @@ export default function FilmRows({ tab, titles, genres }) {
     { id: "continue", title: "Continue watching", items: continueItems(titles, progress).map((c) => c.title), seeAll: "/my-list" },
     { id: "new", title: "New releases", items: [...titles].sort(byNewest).slice(0, 12) },
     { id: "free", title: "Free to watch", items: titles.filter((t) => t.access?.tier === "free"), seeAll: link({ access: "free" }) },
-    !tab.id && { id: "classes", title: "Classes", items: titles.filter((t) => t.type === "class"), seeAll: "/films?tab=classes" },
+    !tab.id && { id: "bts", title: "Behind the Scenes", items: titles.filter((t) => t.type === "bts"), seeAll: "/films?tab=bts" },
     ...genres.map((g) => ({ id: g.id, title: g.name, items: titles.filter((t) => t.categoryIds?.includes(g.id)), seeAll: link({ genre: g.id }) })),
   ].filter((r) => r && r.items.length > 0);
 

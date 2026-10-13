@@ -1,6 +1,6 @@
 # The Artistry360 Stream — Build Breakdown & Status Tracker
 
-**stream.theartistry360.com**: where members watch The Artistry360's films, shorts and replays. It is **strictly streaming**: no class timetable, no academy pages, no voting. Those live on theartistry360.com. The **Studio** (in the `the_artistry360_2024` repo, Streaming group) controls everything shown here.
+**stream.theartistry360.com**: where members watch The Artistry360's films, series, documentaries and behind the scenes. It is **strictly streaming**: no classes (live or recorded), no class timetable, no academy pages, no voting. Those live on theartistry360.com. The **Studio** (in the `the_artistry360_2024` repo, Streaming group) controls everything shown here.
 
 Vite 8 · React 19 · React Router 7 (data router) · TanStack Query (TypeScript store layer) · Tailwind 4 · react-hook-form + zod · Lucide · Motion · hls.js. It still runs on mock data in `src/data/`, reached only through `src/store/tanstackStore/services/`.
 

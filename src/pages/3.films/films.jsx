@@ -22,7 +22,7 @@ export default function FilmsPage() {
   const [params, setParams] = useSearchParams();
   const { data: titles = [], isLoading } = useTitles();
   const { categories } = useTaxonomy();
-  usePageMeta({ title: "Films", description: "Every film, series, short, class and documentary from The Artistry360." });
+  usePageMeta({ title: "Films", description: "Every film, series, short, documentary and behind-the-scenes from The Artistry360." });
 
   const tab = tabOf(params.get("tab") ?? "");
   const genre = params.get("genre") ?? "";
