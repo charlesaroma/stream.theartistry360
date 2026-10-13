@@ -6,6 +6,7 @@ import IconButton from "@/components/ui/IconButton";
 import { useSite } from "@/store/tanstackStore/queries/site";
 import { useHls } from "@/hooks/useHls";
 import { cn } from "@/utils/cn";
+import PosterStill from "./PosterStill";
 
 const START_AFTER = 1800;
 const SOUND_KEY = "a360s:trailer-sound"; // "on" | "off": the visitor's last choice, this session
@@ -45,9 +46,10 @@ const warn = (reason, detail) => {
  */
 // `autoSound`: turn sound on by itself when allowed (the hero, the Films banner).
 // Hover previews pass false: sound there only when the visitor asks.
-// `onSound`: the parent draws the sound button itself (the hero puts it in its
+// `still="poster"`: show the poster whole instead of the backdrop (hover
+// previews, so they match the card). `onSound`: the parent draws the sound button itself (the hero puts it in its
 // picker) and gets { ready, muted, done, toggle, replay }; none is drawn here.
-export default function TrailerBackdrop({ title, onPlayingChange, onSound, controlsClassName, imageClassName, startAfter = START_AFTER, autoSound = true }) {
+export default function TrailerBackdrop({ title, onPlayingChange, onSound, controlsClassName, imageClassName, startAfter = START_AFTER, autoSound = true, still = "backdrop" }) {
   const { data: site } = useSite();
   const box = useRef(null);
   const video = useRef(null);
@@ -191,7 +193,7 @@ export default function TrailerBackdrop({ title, onPlayingChange, onSound, contr
 
   return (
     <div ref={box} className="absolute inset-0 -z-10">
-      <img src={title.backdrop || title.poster} alt="" className={cn("h-full w-full object-cover", imageClassName)} />
+      {still === "poster" && title.poster ? <PosterStill src={title.poster} className={imageClassName} /> : <img src={title.backdrop || title.poster} alt="" className={cn("h-full w-full object-cover", imageClassName)} />}
       {start && !failed && (
         <video
           ref={video}
