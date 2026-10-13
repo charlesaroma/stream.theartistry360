@@ -42,7 +42,7 @@ export default function WatchPage() {
   const startAt = t !== null && t !== "" && Number(t) >= 0 ? Number(t) : null;
   const { member, loading } = useMember();
   const { data: title, isLoading } = useTitle(id);
-  usePageMeta({ title: title ? `Watching ${title.title}` : undefined, description: title?.synopsis });
+  usePageMeta({ title: title ? `Watching ${title.title}` : undefined, description: title?.synopsis, noindex: true });
   const { data: titles = [] } = useTitles();
   const { has, toggle } = useWatchlist();
   const { open, close, attach } = usePlayback();

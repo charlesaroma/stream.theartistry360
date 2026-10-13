@@ -14,7 +14,7 @@ import { usePageMeta } from "@/hooks/usePageMeta";
 import { safeNext } from "@/utils/links";
 
 export default function SignUpPage() {
-  usePageMeta({ title: "Create your account" });
+  usePageMeta({ title: "Create your account", noindex: true });
   const { signUp } = useMember();
   const navigate = useNavigate();
   const [params] = useSearchParams();

@@ -4,19 +4,15 @@
  * Link previews (WhatsApp, Facebook, X, iMessage, Slack, LinkedIn) come from
  * crawlers that read the first HTML and never run JavaScript, so a
  * single-page app shows the same generic card for every link. This runs on
- * Netlify's edge before the page is sent: for a film, a series or a class
- * it writes that item's title, one line, image and link into <head>.
+ * Netlify's edge before the page is sent and writes the page's own title,
+ * description, canonical, image and structured data into <head>. A film or
+ * series gets its generated card (/share/title/<id>.jpg: the whole poster,
+ * the title, the logo); other pages get their own title and description
+ * from src/seo/seo.js, the same file the app reads.
  * Everyone gets the same HTML (crawler or not); the app itself is unchanged.
- *
- * Data: the API when SHARE_API_BASE is set (GET streaming/titles/:id,
- * public fields only), otherwise /share/catalog.json,
- * written at build time from the seed (scripts/share-catalog.mjs).
  */
-
-const SITE = "The Artistry360 Stream";
-const DEFAULT_DESCRIPTION = "Films from The Artistry360, Kampala.";
-const TTL = 5 * 60 * 1000;
-let cached = null; // { at, catalog }
+import { DEFAULT_DESCRIPTION, SITE, homeJsonLd, pageMeta, pageTitle, titleJsonLd } from "../../src/seo/seo.js";
+import { lookupTitle } from "../shared/lookup.js";
 
 export default async function shareCard(request, context) {
   const url = new URL(request.url);
@@ -35,6 +31,7 @@ export default async function shareCard(request, context) {
   const headers = new Headers(response.headers);
   headers.delete("content-length");
   headers.set("cache-control", "public, max-age=0, must-revalidate");
+  if (card.noindex) headers.set("x-robots-tag", "noindex");
   return new Response(withCard(html, card), { status: response.status, headers });
 }
 
@@ -42,82 +39,76 @@ export default async function shareCard(request, context) {
 // actually shared (the Netlify URL today, the real domain later). Files skip it.
 export const config = {
   path: "/*",
-  excludedPath: ["/assets/*", "/share/*", "/captions/*", "/brand/*", "/*.png", "/*.ico", "/*.svg", "/*.webmanifest", "/*.xml", "/*.txt", "/*.json", "/*.js", "/*.css"],
+  excludedPath: ["/assets/*", "/share/*", "/captions/*", "/brand/*", "/*.png", "/*.ico", "/*.svg", "/*.webmanifest", "/*.xml", "/*.txt", "/*.json", "/*.js", "/*.css", "/*.wasm"],
 };
 
-// Named pages get their own card title; everything else uses the site's.
-const PAGE_TITLES = { films: "Films", plans: "Plans", "my-list": "My List", search: "Search", "sign-in": "Sign in", "sign-up": "Create your account", legal: "Legal" };
-
-/** What the URL points at, as { title, description, image, url, type }. */
+/** What the URL points at, as { title, description, image, url, type, noindex?, jsonLd? }. */
 export async function cardFor(url) {
   const [, section, id] = url.pathname.split("/");
   const origin = url.origin;
-  const image = (src) => src || `${origin}/share/default.png`;
 
   if ((section === "title" || section === "watch") && id) {
-    const t = await lookup(url, "titles", id);
-    if (t) return {
-      title: `${t.title} · ${SITE}`,
-      description: [t.kind, t.description].filter(Boolean).join(" — "),
-      image: image(t.image),
-      url: `${origin}/title/${encodeURIComponent(id)}`,
-      type: "video.movie",
-    };
+    const t = await lookupTitle(origin, id);
+    if (t) {
+      const canonical = `${origin}/title/${encodeURIComponent(id)}`;
+      return {
+        title: pageTitle(t.title),
+        description: [t.kind, t.description].filter(Boolean).join(" — "),
+        image: `${origin}/share/title/${encodeURIComponent(id)}.jpg?v=${t.version}`,
+        url: canonical,
+        type: t.type === "series" ? "video.tv_show" : "video.movie",
+        // A watch link previews like its title page but isn't indexed itself.
+        noindex: section === "watch",
+        jsonLd: [titleJsonLd({ ...t, image: t.poster || t.backdrop }, canonical)],
+      };
+    }
   }
-  // The home page, other pages, and unknown titles: the branded card, with
-  // the image and link on this origin.
-  const page = PAGE_TITLES[section];
+  // Fixed pages, legal pages, and everything else (unknown titles too):
+  // the branded card, with that page's own title and description.
+  const page = pageMeta(url.pathname, url.search);
   return {
-    title: page ? `${page} · ${SITE}` : SITE,
-    description: DEFAULT_DESCRIPTION,
-    image: image(null),
+    title: pageTitle(page?.title),
+    description: page?.description || DEFAULT_DESCRIPTION,
+    image: `${origin}/share/default.png`,
     url: `${origin}${url.pathname === "/" ? "/" : url.pathname}`,
     type: "website",
+    noindex: Boolean(page?.noindex),
+    jsonLd: url.pathname === "/" ? homeJsonLd(origin) : [],
   };
-}
-
-async function lookup(url, kind, id) {
-  const api = globalThis.Netlify?.env?.get?.("SHARE_API_BASE");
-  if (api) {
-    const res = await fetch(`${api.replace(/\/+$/, "")}/api/v1/streaming/${kind}/${encodeURIComponent(id)}`, { headers: { accept: "application/json" } });
-    if (!res.ok) return null;
-    const { data } = await res.json();
-    return data
-      ? { title: data.title, description: data.synopsis ?? "", image: data.backdrop ?? data.poster ?? null, kind: "" }
-      : null;
-  }
-  if (!cached || Date.now() - cached.at > TTL) {
-    const res = await fetch(new URL("/share/catalog.json", url.origin));
-    cached = { at: Date.now(), catalog: res.ok ? await res.json() : { titles: {} } };
-  }
-  return cached.catalog[kind]?.[id] ?? null;
 }
 
 const esc = (s = "") => String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
 /** Swaps the default <title>, description, canonical and social tags for the card's. */
 export function withCard(html, card) {
+  const description = card.description || DEFAULT_DESCRIPTION;
   const tags = [
     `<title>${esc(card.title)}</title>`,
-    `<meta name="description" content="${esc(card.description || DEFAULT_DESCRIPTION)}" />`,
+    `<meta name="description" content="${esc(description)}" />`,
+    card.noindex ? `<meta name="robots" content="noindex" />` : "",
     `<link rel="canonical" href="${esc(card.url)}" />`,
     `<meta property="og:site_name" content="${SITE}" />`,
     `<meta property="og:type" content="${esc(card.type)}" />`,
     `<meta property="og:title" content="${esc(card.title)}" />`,
-    `<meta property="og:description" content="${esc(card.description || DEFAULT_DESCRIPTION)}" />`,
+    `<meta property="og:description" content="${esc(description)}" />`,
     `<meta property="og:url" content="${esc(card.url)}" />`,
     `<meta property="og:image" content="${esc(card.image)}" />`,
+    `<meta property="og:image:type" content="${card.image.includes(".jpg") ? "image/jpeg" : "image/png"}" />`,
     `<meta property="og:image:width" content="1200" />`,
     `<meta property="og:image:height" content="630" />`,
     `<meta property="og:image:alt" content="${esc(card.title)}" />`,
     `<meta name="twitter:card" content="summary_large_image" />`,
     `<meta name="twitter:title" content="${esc(card.title)}" />`,
-    `<meta name="twitter:description" content="${esc(card.description || DEFAULT_DESCRIPTION)}" />`,
+    `<meta name="twitter:description" content="${esc(description)}" />`,
     `<meta name="twitter:image" content="${esc(card.image)}" />`,
-  ].join("\n    ");
+    ...(card.jsonLd ?? []).map((d) => `<script type="application/ld+json">${JSON.stringify(d).replace(/</g, "\\u003c")}</script>`),
+  ]
+    .filter(Boolean)
+    .join("\n    ");
   const stripped = html
     .replace(/<title>[\s\S]*?<\/title>\s*/i, "")
-    .replace(/<meta\s+(?:name|property)="(?:description|og:[^"]+|twitter:[^"]+)"[^>]*>\s*/gi, "")
-    .replace(/<link\s+rel="canonical"[^>]*>\s*/gi, "");
+    .replace(/<meta\s+(?:name|property)="(?:description|robots|og:[^"]+|twitter:[^"]+)"[^>]*>\s*/gi, "")
+    .replace(/<link\s+rel="canonical"[^>]*>\s*/gi, "")
+    .replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>\s*/gi, "");
   return stripped.replace(/<\/head>/i, `    ${tags}\n  </head>`);
 }

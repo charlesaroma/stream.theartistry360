@@ -6,7 +6,7 @@ import { useProgress, useWatchlist } from "@/store/tanstackStore/queries/member"
 import { usePageMeta } from "@/hooks/usePageMeta";
 
 export default function MyListPage() {
-  usePageMeta({ title: "My List" });
+  usePageMeta({ title: "My List", noindex: true });
   const { data: titles = [] } = useTitles();
   const { list } = useWatchlist();
   const { progress } = useProgress();

@@ -10,7 +10,7 @@ import { usePageMeta } from "@/hooks/usePageMeta";
 
 export default function SearchPage() {
   const [params, setParams] = useSearchParams();
-  usePageMeta({ title: params.get("q") ? `Search: ${params.get("q")}` : "Search" });
+  usePageMeta({ title: params.get("q") ? `Search: ${params.get("q")}` : "Search", noindex: true });
   const q = params.get("q") ?? "";
   const deferred = useDeferredValue(q);
   const { data: results = [], isFetching } = useSearch(deferred);

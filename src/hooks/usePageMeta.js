@@ -1,21 +1,30 @@
 /* Page Meta Hook */
 import { useEffect } from "react";
 
-const SITE = "The Artistry360 Stream";
+import { DEFAULT_DESCRIPTION, pageTitle } from "@/seo/seo";
+
+function setMeta(name, content) {
+  let el = document.head.querySelector(`meta[name="${name}"]`);
+  if (!content) return el?.remove();
+  if (!el) {
+    el = document.createElement("meta");
+    el.setAttribute("name", name);
+    document.head.appendChild(el);
+  }
+  el.setAttribute("content", content);
+}
 
 /**
- * The tab title and description for the page in view, for people and for
- * Google (which runs the app). Link previews on WhatsApp, Facebook and the
- * like do not run it; they get their card from the share-card edge function.
+ * The tab title, description and robots rule for the page in view, for
+ * people and for Google (which runs the app). Titles and descriptions come
+ * from src/seo/seo.js, as the share-card edge function's do; link previews
+ * get their card from that function, since they never run the app.
+ * `noindex` for private pages (My List, account, sign-in, search, watch).
  */
-export function usePageMeta({ title, description } = {}) {
+export function usePageMeta({ title, description, noindex = false } = {}) {
   useEffect(() => {
-    document.title = title ? `${title} · ${SITE}` : SITE;
-    const meta = document.querySelector('meta[name="description"]');
-    const previous = meta?.getAttribute("content");
-    if (meta && description) meta.setAttribute("content", description);
-    return () => {
-      if (meta && previous) meta.setAttribute("content", previous);
-    };
-  }, [title, description]);
+    document.title = pageTitle(title);
+    setMeta("description", description || DEFAULT_DESCRIPTION);
+    setMeta("robots", noindex ? "noindex" : null);
+  }, [title, description, noindex]);
 }

@@ -17,7 +17,7 @@ import { forgotSchema } from "./schemas";
  * an account, so nobody can use this page to check who is a member.
  */
 export default function ForgotPasswordPage() {
-  usePageMeta({ title: "Reset your password" });
+  usePageMeta({ title: "Reset your password", noindex: true });
   const { requestPasswordReset, demo } = useMember();
   const [sentTo, setSentTo] = useState("");
   const [serverError, setServerError] = useState("");

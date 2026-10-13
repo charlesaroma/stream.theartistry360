@@ -26,7 +26,7 @@ function takeToken() {
 
 /** /reset-password?token=…: the page the emailed link opens. */
 export default function ResetPasswordPage() {
-  usePageMeta({ title: "Set a new password" });
+  usePageMeta({ title: "Set a new password", noindex: true });
   const { resetPassword } = useMember();
   const [token] = useState(takeToken);
   const [done, setDone] = useState(false);

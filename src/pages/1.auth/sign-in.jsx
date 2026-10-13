@@ -14,7 +14,7 @@ import { usePageMeta } from "@/hooks/usePageMeta";
 import { safeNext } from "@/utils/links";
 
 export default function SignInPage() {
-  usePageMeta({ title: "Sign in" });
+  usePageMeta({ title: "Sign in", noindex: true });
   const { signIn } = useMember();
   const navigate = useNavigate();
   const [params] = useSearchParams();

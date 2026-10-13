@@ -5,6 +5,7 @@ import { useSearchParams } from "react-router-dom";
 import TitleGrid from "@/components/title/TitleGrid";
 import { useTaxonomy, useTitles } from "@/store/tanstackStore/queries/site";
 import { SORTS, featuredIn, genresFor, inTab, matchesQuery, tabOf } from "@/utils/catalog";
+import { TAB_DESCRIPTIONS, pageMeta } from "@/seo/seo";
 import FeaturedFilm from "./sections/FeaturedFilm";
 import FilmRows from "./sections/FilmRows";
 import FilmsHeader from "./sections/FilmsHeader";
@@ -22,9 +23,9 @@ export default function FilmsPage() {
   const [params, setParams] = useSearchParams();
   const { data: titles = [], isLoading } = useTitles();
   const { categories } = useTaxonomy();
-  usePageMeta({ title: "Films", description: "Every film, series, short, documentary and behind-the-scenes from The Artistry360." });
 
   const tab = tabOf(params.get("tab") ?? "");
+  usePageMeta({ title: tab.id ? tab.label : "Films", description: TAB_DESCRIPTIONS[tab.id] || pageMeta("/films").description });
   const genre = params.get("genre") ?? "";
   const access = params.get("access") ?? "";
   const query = params.get("q") ?? "";

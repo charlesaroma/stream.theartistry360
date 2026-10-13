@@ -11,10 +11,11 @@ import { formatUGX } from "@/utils/formatCurrency";
 import { PlanCards } from "@/pages/2.home/sections/PlansBand";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { safeNext } from "@/utils/links";
+import { pageMeta } from "@/seo/seo";
 
 export default function PlansPage() {
   const { member, subscribe } = useMember();
-  usePageMeta({ title: "Plans", description: "Watch every film, series and documentary from The Artistry360. Pay by MTN MoMo, Airtel Money or card." });
+  usePageMeta({ title: "Plans", description: pageMeta("/plans").description });
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const [chosen, setChosen] = useState(null);

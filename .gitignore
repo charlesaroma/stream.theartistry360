@@ -33,5 +33,6 @@ dist-ssr
 
 # Written at build time by scripts/share-catalog.mjs
 public/share/catalog.json
+public/share/resvg.wasm
 public/sitemap.xml
 public/robots.txt

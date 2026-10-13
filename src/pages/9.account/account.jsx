@@ -30,7 +30,7 @@ const MOVED = { subscription: "membership", purchases: "membership", profile: "s
  * you to sign in and comes back here.
  */
 export default function AccountPage() {
-  usePageMeta({ title: "Account & settings" });
+  usePageMeta({ title: "Account & settings", noindex: true });
   const { member, loading } = useMember();
   const [params, setParams] = useSearchParams();
   const asked = params.get("tab");
