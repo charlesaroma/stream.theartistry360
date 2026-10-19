@@ -34,9 +34,12 @@ export default function SignInPage() {
   });
 
   return (
+    // The footer link carries ?next= across, so switching to sign up keeps the destination.
     <AuthFrame title="Welcome back" lead="Sign in to watch and save titles to your list." footer={<>New here? <Link to={`/sign-up?next=${encodeURIComponent(next)}`} viewTransition className="font-bold text-brand">Create a free account</Link></>}>
+      {/* Google first: one tap, and no password to remember. */}
       <GoogleButton next={next} />
       <OrDivider />
+      {/* Email Form: zod validates on submit, and server errors show above the button. */}
       <form onSubmit={submit} noValidate className="flex flex-col gap-5">
         <Field label="Email" type="email" autoComplete="email" input={register("email")} error={errors.email?.message} />
         <div className="flex flex-col gap-2">

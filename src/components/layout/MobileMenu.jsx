@@ -19,6 +19,7 @@ export default function MobileMenu({ open, onClose }) {
   return (
     <div
       id="mobile-nav"
+      // Always mounted so it can fade; hidden and inert while closed so nothing inside takes focus.
       aria-hidden={!open}
       inert={!open}
       className={cn(
@@ -26,6 +27,7 @@ export default function MobileMenu({ open, onClose }) {
         open ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0",
       )}
     >
+      {/* Soft brand glow behind the links. */}
       <div className="pointer-events-none absolute left-1/2 top-1/4 h-[300px] w-[300px] -translate-x-1/2 rounded-full bg-brand/8 blur-[100px]" />
 
       <ul className="flex flex-col items-center gap-4">
@@ -49,6 +51,7 @@ export default function MobileMenu({ open, onClose }) {
         ))}
       </ul>
 
+      {/* Account Actions: arrive just after the last link. */}
       <div className="mt-10 flex flex-col items-center gap-4 transition-all duration-500 ease-out" style={stagger(open, NAV_ITEMS.length + 1)}>
         {member ? (
           <>

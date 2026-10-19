@@ -11,6 +11,7 @@ import { cn } from "@/utils/cn";
 export default function BackButton({ className, label = "Back" }) {
   const navigate = useNavigate();
   const location = useLocation();
+  // React Router gives the first entry of a visit the key "default".
   const hasHistory = location.key !== "default";
 
   return (

@@ -11,6 +11,7 @@ import { cn } from "@/utils/cn";
  * show as removable chips with "Clear all", beside the count.
  */
 export default function FilterBar({ tab, onTab, genres, genre, onGenre, access, onAccess, query, onQuery, count, onClear }) {
+  // One removable chip per active filter; unset filters fall out as false.
   const chips = [
     genre && { key: "genre", label: genres.find((g) => g.id === genre)?.name ?? genre, clear: () => onGenre("") },
     access && { key: "access", label: ACCESS_OPTIONS.find((a) => a.id === access)?.label, clear: () => onAccess("") },
@@ -20,6 +21,7 @@ export default function FilterBar({ tab, onTab, genres, genre, onGenre, access, 
   return (
     <div className="shell flex flex-col gap-3 pb-8">
       <div className="flex flex-wrap items-center gap-3">
+        {/* Type Tabs */}
         <div role="tablist" aria-label="Type" className="no-scrollbar -mx-1 flex min-w-0 max-w-full gap-1 overflow-x-auto px-1">
           {FILM_TABS.map((t) => (
             <button
@@ -37,12 +39,14 @@ export default function FilterBar({ tab, onTab, genres, genre, onGenre, access, 
             </button>
           ))}
         </div>
+        {/* Genre is hidden when the tab has no genres to offer. */}
         <div className="flex items-center gap-2">
           {genres.length > 0 && <FilterMenu label="Genre" value={genre} options={genres.map((g) => ({ id: g.id, label: g.name }))} onChange={onGenre} />}
           <FilterMenu label="Access" value={access} options={ACCESS_OPTIONS} onChange={onAccess} />
         </div>
       </div>
 
+      {/* Count and Chips: announced as filters change. */}
       <div className="flex flex-wrap items-center gap-2 text-small text-text-muted" aria-live="polite">
         {count !== null && <span>{count} {count === 1 ? "title" : "titles"}</span>}
         {chips.map((c) => (
@@ -57,6 +61,7 @@ export default function FilterBar({ tab, onTab, genres, genre, onGenre, access, 
             <X className="h-3.5 w-3.5" aria-hidden="true" />
           </button>
         ))}
+        {/* Clear all appears only when there is more than one thing to clear. */}
         {chips.length > 1 && (
           <button type="button" onClick={onClear} className="min-h-9 px-1 font-semibold text-brand hover:underline">
             Clear all

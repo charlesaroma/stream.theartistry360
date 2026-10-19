@@ -1,3 +1,4 @@
+/* Auth Schemas */
 import { z } from "zod";
 
 const email = z.string().trim().min(1, "Enter your email.").email("Enter a valid email.");

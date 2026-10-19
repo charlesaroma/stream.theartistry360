@@ -11,6 +11,7 @@ export default function AgeBadge({ value, size = "sm", className }) {
   if (!r) return null;
   const meaning = `Rated ${r.label}: ${r.name}. ${r.meaning}`;
   return (
+    // abbr gives the hover title; aria-label reads the full meaning instead of the short code.
     <abbr
       title={meaning}
       aria-label={meaning}

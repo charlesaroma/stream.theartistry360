@@ -21,11 +21,14 @@ export default function RouteError() {
           {is404 ? "The page moved or never existed." : "Try again, or head back home while we look into it."}
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
+          {/* A reload can fix a crash, but not a missing page. */}
           {!is404 && (
             <button type="button" onClick={() => window.location.reload()} className="btn btn-primary ember">Try again</button>
           )}
+          {/* The error screen replaces the whole layout, so this is the only way out. */}
           <Link to="/" className="btn border border-border-subtle text-text-primary hover:border-brand">Back to home</Link>
         </div>
+        {/* The raw message, for development builds only. */}
         {import.meta.env.DEV && error?.message && (
           <pre className="mt-10 overflow-x-auto rounded-2xl bg-surface-card p-4 text-left text-caption text-text-muted">{error.message}</pre>
         )}

@@ -1,3 +1,4 @@
+/* Streaming Titles Seed */
 // Stream catalogue seed. Same shape the Studio writes (Streaming › Library);
 // when the API is live this comes from GET streaming/titles?published=true.
 // `playbackUrl` stands in for the signed HLS URL the API will hand out per play.

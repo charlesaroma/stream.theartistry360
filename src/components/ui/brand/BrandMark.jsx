@@ -18,6 +18,7 @@ export default function BrandMark({ motion, label, className }) {
       height="512"
       className={cn("brand-logo brand-mark", className)}
       data-motion={motion}
+      // Named when a label is given; otherwise decorative and hidden from screen readers.
       role={label ? "img" : undefined}
       aria-label={label || undefined}
       aria-hidden={label ? undefined : true}

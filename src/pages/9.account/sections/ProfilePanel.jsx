@@ -7,6 +7,7 @@ import { useMember } from "@/store/context/MemberContext";
 import PasswordCard from "./PasswordCard";
 import { Card, Status } from "./ui";
 
+// Shared class strings for the plain inputs on this panel.
 const input = "w-full rounded-2xl border border-white/10 bg-surface-primary px-4 py-3 text-body text-text-primary focus:border-brand focus:outline-none";
 const label = "mb-2 block text-caption font-bold uppercase tracking-[0.12em] text-text-secondary";
 
@@ -18,6 +19,7 @@ export default function ProfilePanel() {
   const [msg, setMsg] = useState({});
   const [busy, setBusy] = useState("");
 
+  // One submit wrapper per form: `key` scopes the busy state and the message to that card.
   const act = (key, fn, ok) => async (e) => {
     e.preventDefault();
     setBusy(key);
@@ -43,6 +45,7 @@ export default function ProfilePanel() {
       </Card>
 
       <Card title="Email" description={`You sign in with ${member.email}.`}>
+        {/* Pending Change: the old email stays until the link is opened. */}
         {member.pendingEmail && (
           <p className="mb-4 flex items-center gap-2 rounded-2xl bg-info/10 px-4 py-3 text-small text-info">
             <MailCheck className="h-4 w-4" aria-hidden="true" /> We sent a link to {member.pendingEmail}. Your email changes when you open it.
@@ -55,6 +58,7 @@ export default function ProfilePanel() {
         <Status {...msg.email} />
       </Card>
 
+      {/* Password: its own card, with its own form state. */}
       <PasswordCard />
 
       <Card title="Devices" description="Lost a phone, or signed in on a shared computer? Sign out everywhere; you'll sign in again on this device.">

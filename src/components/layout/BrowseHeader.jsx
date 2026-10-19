@@ -12,6 +12,7 @@ export default function BrowseHeader({ title, children, actions, className }) {
     <header className={cn("shell flex flex-wrap items-center gap-x-6 gap-y-3 pb-5 pt-[calc(4.5rem+clamp(1.25rem,3vw,2rem))]", className)}>
       <h1 className="text-heading">{title}</h1>
       {children}
+      {/* Actions sit at the far right and wrap under the title on narrow screens. */}
       {actions && <div className="ml-auto flex flex-wrap items-center gap-3">{actions}</div>}
     </header>
   );

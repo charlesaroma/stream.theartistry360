@@ -1,6 +1,7 @@
 /* Pre-roll Ad */
 import { useEffect, useState } from "react";
 
+// Seconds: the stand-in ad's length, and when Skip unlocks.
 const LENGTH = 8;
 const SKIPPABLE_AFTER = 5;
 
@@ -11,6 +12,7 @@ const SKIPPABLE_AFTER = 5;
 export default function PrerollAd({ onDone }) {
   const [left, setLeft] = useState(LENGTH);
 
+  // Count down a second at a time; hand back to the player at zero.
   useEffect(() => {
     if (left <= 0) {
       onDone();
@@ -29,6 +31,7 @@ export default function PrerollAd({ onDone }) {
         <p className="text-title">Your ad here</p>
         <p className="mt-2 text-small text-text-secondary">Free members watch with short ads. Subscribers never see them.</p>
       </div>
+      {/* Remaining time, announced politely as it counts. */}
       <div className="absolute bottom-8 left-8 rounded-full bg-black/60 px-4 py-2 text-caption font-bold tabular-nums" aria-live="polite">Ad · {left}s</div>
       <button
         type="button"

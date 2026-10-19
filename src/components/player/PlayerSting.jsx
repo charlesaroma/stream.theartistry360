@@ -11,6 +11,7 @@ const LENGTH = 1500;
  * decided in sting.js.
  */
 export default function PlayerSting({ onDone }) {
+  // Hand back to the player once the sting has run.
   useEffect(() => {
     const t = setTimeout(onDone, LENGTH);
     return () => clearTimeout(t);

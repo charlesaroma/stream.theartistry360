@@ -20,6 +20,7 @@ export default function PreviewCard({ title, rect, onEnter, onLeave }) {
   const { has, toggle } = useWatchlist();
   const { progress } = useProgress();
   const p = progress[title.id];
+  // At least WIDTH, wider for big cards; centred on the card but kept 16px inside the viewport.
   const w = Math.max(WIDTH, rect.width * 1.6);
   const left = Math.min(Math.max(rect.left + rect.width / 2 - w / 2, 16), window.innerWidth - w - 16);
   const top = Math.max(rect.top - 40, 16);
@@ -31,9 +32,11 @@ export default function PreviewCard({ title, rect, onEnter, onLeave }) {
       style={{ left, top, width: w }}
       className="fixed z-60 animate-rise overflow-hidden rounded-3xl border border-white/10 bg-surface-elevated shadow-[0_30px_80px_rgb(0_0_0/0.7)]"
     >
+      {/* The More info button below is the keyboard stop; this link is for pointers. */}
       <Link to={`/title/${title.id}`} viewTransition className="relative isolate block aspect-video overflow-hidden" tabIndex={-1}>
         <TrailerBackdrop title={title} startAfter={400} autoSound={false} controlsClassName="bottom-3 right-3" imageClassName="animate-kenburns" />
         <div className="absolute inset-0 bg-linear-to-t from-surface-elevated via-transparent to-transparent" />
+        {/* Progress bar once the member has started it. */}
         {p && (
           <div className="absolute inset-x-4 bottom-3 h-1 overflow-hidden rounded-full bg-white/20">
             <div className="h-full rounded-full bg-brand" style={{ width: `${(p.seconds / p.duration) * 100}%` }} />
@@ -41,6 +44,7 @@ export default function PreviewCard({ title, rect, onEnter, onLeave }) {
         )}
       </Link>
       <div className="flex flex-col gap-3 p-5">
+        {/* Actions: play or resume, save, more info. */}
         <div className="flex items-center gap-2">
           <IconButton label={p ? "Resume" : "Play"} onClick={() => navigate(`/watch/${title.id}`, { viewTransition: true })} className="h-11 w-11 bg-text-primary text-black hover:bg-white">
             <Play className="h-5 w-5 fill-current" aria-hidden="true" />

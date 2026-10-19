@@ -18,6 +18,7 @@ export default function RelatedList({ titles, heading = "More like this" }) {
               <span className="min-w-0 py-2">
                 <span className="line-clamp-2 text-small font-semibold text-text-primary group-hover:text-brand">{t.title}</span>
                 <span className="mt-1 block truncate text-caption text-text-muted">
+                  {/* Genre (or type when there is none), year and rating, skipping any that are missing. */}
                   {[categoryName(t.categoryIds?.[0]) || typeName(t.type), t.releaseYear, t.ageRating].filter(Boolean).join(" · ")}
                 </span>
               </span>

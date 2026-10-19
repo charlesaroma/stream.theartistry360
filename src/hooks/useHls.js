@@ -1,3 +1,4 @@
+/* HLS Playback */
 import { useEffect, useRef, useState } from "react";
 
 /**
@@ -35,6 +36,7 @@ export function useHls(videoRef, src, enabled = true, maxHeight = 0) {
             const within = data.levels.map((l, i) => ({ i, h: l.height })).filter((l) => l.h && l.h <= maxHeight).sort((a, b) => b.h - a.h)[0];
             if (within) hls.autoLevelCapping = within.i;
           }
+          // Offer the menu tallest first, keeping each level's manifest index for switching.
           setLevels(data.levels.map((l, index) => ({ index, height: l.height, bitrate: l.bitrate })).sort((a, b) => b.height - a.height));
         });
         hls.on(Hls.Events.LEVEL_SWITCHED, (_, data) => setPlayingHeight(hls.levels[data.level]?.height ?? 0));
@@ -54,6 +56,7 @@ export function useHls(videoRef, src, enabled = true, maxHeight = 0) {
       }
     });
 
+    // On a new source or unmount: drop a pending import and free the old hls.js instance.
     return () => {
       cancelled = true;
       hlsRef.current?.destroy();
@@ -63,6 +66,7 @@ export function useHls(videoRef, src, enabled = true, maxHeight = 0) {
     };
   }, [videoRef, src, enabled, maxHeight]);
 
+  // -1 hands quality back to Auto.
   const setLevel = (index) => {
     if (hlsRef.current) hlsRef.current.currentLevel = index;
     setLevelState(index);

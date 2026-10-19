@@ -24,10 +24,12 @@ export default function SearchDialog({ onClose }) {
   const { data: results = [], isFetching } = useSearch(deferred);
   const { data: titles = [] } = useTitles();
   const { recent, remember, clear } = useRecentSearches();
+  // From two letters, show results; before that, the five most watched.
   const searching = deferred.trim().length > 1;
   const trending = [...titles].sort((a, b) => (b.views ?? 0) - (a.views ?? 0)).slice(0, 5);
   const items = searching ? results.slice(0, 6) : trending;
 
+  // Focus the input on open, and stop the page behind from scrolling.
   useEffect(() => {
     inputRef.current?.focus();
     const prev = document.body.style.overflow;
@@ -41,6 +43,7 @@ export default function SearchDialog({ onClose }) {
     onClose();
     navigate(path, { viewTransition: true });
   };
+  // Only a real search is remembered, not a pick from Trending.
   const openTitle = (t) => {
     if (searching) remember(q);
     go(`/title/${t.id}`);
@@ -53,6 +56,7 @@ export default function SearchDialog({ onClose }) {
 
   const onKeyDown = (e) => {
     if (e.key === "Escape") {
+      // Stop Escape here so the page behind doesn't handle it too.
       e.stopPropagation();
       onClose();
     } else if (e.key === "ArrowDown") {
@@ -91,6 +95,7 @@ export default function SearchDialog({ onClose }) {
             role="combobox"
             aria-expanded="true"
             aria-controls={listId}
+            // Combobox pattern: focus stays in the input while arrows move the highlight.
             aria-activedescendant={active >= 0 ? `${listId}-${active}` : undefined}
             className="min-h-16 flex-1 bg-transparent text-lead text-text-primary placeholder:text-text-muted focus:outline-none [&::-webkit-search-cancel-button]:hidden"
           />
@@ -120,6 +125,7 @@ export default function SearchDialog({ onClose }) {
             </div>
           )}
 
+          {/* Status: the result count while searching, else the Trending heading. */}
           <p className="flex items-center gap-2 px-3 py-2 text-caption font-bold uppercase tracking-[0.18em] text-text-muted" aria-live="polite">
             {searching ? (
               isFetching ? "Searching…" : `${results.length} ${results.length === 1 ? "result" : "results"}`
@@ -128,6 +134,7 @@ export default function SearchDialog({ onClose }) {
             )}
           </p>
 
+          {/* Results or Trending */}
           <ul id={listId} role="listbox" aria-label={searching ? "Results" : "Trending"}>
             {items.map((t, i) => (
               <li
@@ -154,6 +161,7 @@ export default function SearchDialog({ onClose }) {
           )}
         </div>
 
+        {/* See All: the same as Enter with nothing highlighted. */}
         {searching && results.length > 0 && (
           <button type="button" onClick={() => openAll()} className="flex min-h-14 cursor-pointer items-center justify-between border-t border-white/10 px-6 text-small font-semibold text-brand hover:bg-white/5">
             See all results for “{q.trim()}” <span className="flex items-center gap-2 text-caption text-text-muted">Enter <ArrowRight className="h-4 w-4 text-brand" aria-hidden="true" /></span>

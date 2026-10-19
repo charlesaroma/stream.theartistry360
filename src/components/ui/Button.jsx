@@ -19,6 +19,7 @@ const VARIANTS = {
  */
 const Button = forwardRef(function Button({ variant = "primary", to, href, loading, className, children, ...rest }, ref) {
   const cls = cn(VARIANTS[variant], className);
+  // MotionRoot tracks the pointer over any [data-glass], so the glass catches the light.
   const glass = variant === "glass" ? { "data-glass": "" } : {};
   const body = (
     <>
@@ -29,6 +30,7 @@ const Button = forwardRef(function Button({ variant = "primary", to, href, loadi
   if (to) return <Link ref={ref} to={to} viewTransition className={cls} {...glass} {...rest}>{body}</Link>;
   if (href) return <a ref={ref} href={href} target="_blank" rel="noreferrer" className={cls} {...glass} {...rest}>{body}</a>;
   return (
+    // Loading also disables the button, so a form can't be sent twice.
     <button ref={ref} type="button" className={cls} disabled={loading || rest.disabled} aria-busy={loading || undefined} {...glass} {...rest}>
       {body}
     </button>

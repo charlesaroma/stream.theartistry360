@@ -1,3 +1,4 @@
+/* Streaming Types Seed */
 // Video types (formats), edited from the Studio. Every title has exactly one.
 // The Artistry360 produces for the screen, not the stage.
 export const streamingTypesSeed = [

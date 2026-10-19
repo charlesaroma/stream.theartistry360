@@ -12,6 +12,7 @@ export default function PageIntro({ eyebrow, title, lead, children, back = true 
       {eyebrow && <p className="eyebrow mb-3">{eyebrow}</p>}
       <h1 className="text-title text-balance">{title}</h1>
       {lead && <p className="mt-4 max-w-2xl text-lead text-text-secondary">{lead}</p>}
+      {/* Extra content under the lead, e.g. the search box or a status note. */}
       {children}
     </header>
   );

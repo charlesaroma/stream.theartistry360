@@ -8,6 +8,7 @@ import { isReleased, listedSeasons, resumeEpisode } from "@/utils/episodes";
 import { formatDuration } from "@/utils/format";
 import { cn } from "@/utils/cn";
 
+// Short date for a scheduled episode, e.g. 12 Nov.
 const comingOn = (iso) => new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 
 /**
@@ -31,6 +32,7 @@ export default function Episodes({ title, currentId = null, className }) {
     <section aria-labelledby="episodes-title" className={className}>
       <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
         <h2 id="episodes-title" className="text-heading">Episodes</h2>
+        {/* Season picker, or just the season's name when there is only one. */}
         {seasons.length > 1 ? (
           <label className="relative">
             <span className="sr-only">Season</span>
@@ -56,6 +58,7 @@ export default function Episodes({ title, currentId = null, className }) {
         {season.episodes.map((e) => {
           const out = isReleased(e);
           const p = seen[e.id];
+          // Progress bar width: full when done, else how far in.
           const pct = p?.done ? 100 : p?.duration ? (p.seconds / p.duration) * 100 : 0;
           const current = e.id === currentId;
           return (
@@ -73,6 +76,7 @@ export default function Episodes({ title, currentId = null, className }) {
                 <span className="hidden text-center text-heading tabular-nums text-text-muted sm:block">{e.number}</span>
                 <span className="relative block aspect-video overflow-hidden rounded-xl bg-surface-card">
                   {e.still && <img src={e.still} alt="" loading="lazy" className="h-full w-full object-cover" />}
+                  {/* Play overlay on hover or keyboard focus, for released episodes only. */}
                   {out && !current && (
                     <span className="absolute inset-0 grid place-items-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
                       <span className="grid h-10 w-10 place-items-center rounded-full bg-text-primary text-black"><Play className="ml-0.5 h-5 w-5 fill-current" aria-hidden="true" /></span>
@@ -84,6 +88,7 @@ export default function Episodes({ title, currentId = null, className }) {
                 </span>
                 <span className="min-w-0">
                   <span className="flex items-baseline justify-between gap-3">
+                    {/* On phones the number column is hidden, so it leads the title instead. */}
                     <span className="truncate text-body font-semibold text-text-primary"><span className="sm:hidden">{e.number}. </span>{e.title}</span>
                     <span className="shrink-0 text-caption tabular-nums text-text-muted">
                       {current ? <span className="font-bold text-brand">Now playing</span> : out ? formatDuration(e.video?.duration) : (

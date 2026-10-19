@@ -35,6 +35,7 @@ export default function ForgotPasswordPage() {
 
   const back = <>Remembered it? <Link to="/sign-in" viewTransition className="font-bold text-brand">Sign in</Link></>;
 
+  // Sent: the same message whether or not the account exists.
   if (sentTo) {
     return (
       <AuthFrame title="Check your email" footer={back}>
@@ -44,6 +45,7 @@ export default function ForgotPasswordPage() {
             If an account exists for <span className="font-semibold text-text-primary">{sentTo}</span>, we've sent a link to reset the password. It works once, for 30 minutes.
           </p>
           <p className="text-small text-text-muted">No email? Check spam, or signed up with Google? Use Continue with Google instead.</p>
+          {/* With mocks on there is no inbox, so offer the reset link directly. */}
           {demo && (
             <Link to="/reset-password?token=demo" className="text-small font-bold text-brand hover:underline">Demo: open the reset link</Link>
           )}

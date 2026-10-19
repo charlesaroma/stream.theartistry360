@@ -28,6 +28,7 @@ function takeToken() {
 export default function ResetPasswordPage() {
   usePageMeta({ title: "Set a new password", noindex: true });
   const { resetPassword } = useMember();
+  // Lazy initialiser: take the token on first render only, before it is stripped from the URL.
   const [token] = useState(takeToken);
   const [done, setDone] = useState(false);
   const [serverError, setServerError] = useState("");
@@ -43,6 +44,7 @@ export default function ResetPasswordPage() {
     }
   });
 
+  // No token: an old, used or hand-typed link.
   if (!token) {
     return (
       <AuthFrame title="This link has expired" lead="Reset links work once, for 30 minutes.">
@@ -68,6 +70,7 @@ export default function ResetPasswordPage() {
       <form onSubmit={submit} noValidate className="flex flex-col gap-5">
         <Field label="New password" type="password" autoComplete="new-password" input={register("password")} error={errors.password?.message} hint="At least 8 characters." />
         <Field label="Confirm new password" type="password" autoComplete="new-password" input={register("confirm")} error={errors.confirm?.message} />
+        {/* An expired or already used token is reported here by the API. */}
         {serverError && <p role="alert" className="text-small font-semibold text-danger">{serverError}</p>}
         <Button type="submit" loading={isSubmitting} className="mt-2 w-full">Save new password</Button>
       </form>

@@ -13,8 +13,10 @@ export default function CenterFlash({ flash }) {
   const Glyph = ICONS[kind];
   return (
     <div className="pointer-events-none absolute inset-0 z-10 grid place-items-center" aria-hidden="true">
+      {/* A new key per press restarts the animation. */}
       <span key={id} className="grid h-24 w-24 animate-[flash_650ms_var(--ease-out-soft)_forwards] place-items-center rounded-full bg-black/55 backdrop-blur-md">
         <Glyph className={kind === "play" || kind === "pause" ? "h-11 w-11 fill-current" : "h-10 w-10"} />
+        {/* Skips also say how far they jumped. */}
         {(kind === "back" || kind === "forward") && <span className="absolute bottom-4 text-caption font-bold">10s</span>}
       </span>
     </div>

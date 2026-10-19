@@ -10,6 +10,7 @@ const COUNTDOWN = 8;
  */
 export default function UpNext({ next, onPlay, onCancel, auto = true }) {
   const [left, setLeft] = useState(COUNTDOWN);
+  // Auto next off: no countdown, just wait for Play now.
   useEffect(() => {
     if (!auto) return undefined;
     if (left <= 0) {
@@ -24,6 +25,7 @@ export default function UpNext({ next, onPlay, onCancel, auto = true }) {
     <div data-glass="" className="molten-glass absolute bottom-24 right-[clamp(1rem,3vw,2rem)] z-20 flex w-[min(24rem,calc(100%-2rem))] animate-rise gap-4 rounded-2xl bg-black/60 p-4">
       <img src={next.backdrop || next.poster} alt="" className="aspect-video w-28 shrink-0 rounded-lg object-cover" />
       <div className="min-w-0 flex-1">
+        {/* Show the countdown only when it will actually start on its own. */}
         <p className="text-caption font-bold uppercase tracking-[0.18em] text-text-muted">{auto ? `Up next in ${left}s` : "Up next"}</p>
         <p className="mt-1 truncate text-small font-bold">{next.title}</p>
         <div className="mt-3 flex gap-2">

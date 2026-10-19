@@ -31,6 +31,7 @@ export default function GoogleButton({ next }) {
       navigate(next, { replace: true, viewTransition: true });
     } catch (e) {
       setError(e.message || "Google sign-in didn't finish. Try again.");
+      // Busy stays on after success, since the page navigates away.
       setBusy(false);
     }
   };
@@ -42,6 +43,7 @@ export default function GoogleButton({ next }) {
         onClick={go}
         disabled={busy}
         aria-busy={busy || undefined}
+        // Google's own white button colours, kept as raw values per their brand rules.
         className="flex min-h-12 w-full items-center justify-center gap-3 rounded-full bg-white px-6 text-small font-semibold text-[#1f1f1f] transition-colors hover:bg-[#f2f2f2] disabled:opacity-70"
       >
         <GoogleG />

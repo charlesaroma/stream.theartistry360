@@ -10,19 +10,23 @@ export default function MyListPage() {
   const { data: titles = [] } = useTitles();
   const { list } = useWatchlist();
   const { progress } = useProgress();
+  // Keep the saved order and skip any title that has been unpublished since.
   const saved = list.map((id) => titles.find((t) => t.id === id)).filter(Boolean);
+  // Anything with saved progress, finished or not.
   const continuing = Object.keys(progress).map((id) => titles.find((t) => t.id === id)).filter(Boolean);
 
   return (
     <>
       <PageIntro eyebrow="Library" title="My List" lead="What you saved for later, and what you're halfway through." />
       <div className="flex flex-col gap-[clamp(2.5rem,5vw,4rem)] pb-[clamp(3rem,6vw,6rem)]">
+        {/* Continue Watching: hidden until they have started something. */}
         {continuing.length > 0 && (
           <section aria-labelledby="continue">
             <h2 id="continue" className="shell text-heading mb-5">Continue watching</h2>
             <TitleGrid titles={continuing} />
           </section>
         )}
+        {/* Saved: always shown, with a hint when empty. */}
         <section aria-labelledby="saved">
           <h2 id="saved" className="shell text-heading mb-5">Saved</h2>
           <TitleGrid titles={saved} empty="Tap + on any title to save it here." />

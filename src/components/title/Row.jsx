@@ -15,6 +15,7 @@ export default function Row({ title, subtitle, seeAll, items, render, itemClassN
   const track = useRef(null);
   const [edges, setEdges] = useState({ start: true, end: false });
 
+  // Which ends the track has reached (8px slack), to hide that side's fade and arrow.
   const measure = () => {
     const el = track.current;
     if (!el) return;
@@ -26,12 +27,14 @@ export default function Row({ title, subtitle, seeAll, items, render, itemClassN
     return () => window.removeEventListener("resize", measure);
   }, [items.length]);
 
+  // Page by most of a screen, so the next card is still partly in view.
   const page = (dir) => track.current?.scrollBy({ left: dir * track.current.clientWidth * 0.85, behavior: "smooth" });
 
   if (!items.length) return null;
 
   return (
     <section className="group/row relative" aria-label={title}>
+      {/* Heading and See All */}
       <header className="shell mb-4 flex items-end justify-between gap-4">
         <div>
           <h2 className="text-heading">{title}</h2>
@@ -57,6 +60,7 @@ export default function Row({ title, subtitle, seeAll, items, render, itemClassN
         {/* Edge fades hint that the shelf scrolls */}
         <div className={cn("pointer-events-none absolute inset-y-0 left-0 w-[clamp(1rem,4vw,3.5rem)] bg-linear-to-r from-surface-primary transition-opacity", edges.start && "opacity-0")} />
         <div className={cn("pointer-events-none absolute inset-y-0 right-0 w-[clamp(1rem,4vw,3.5rem)] bg-linear-to-l from-surface-primary transition-opacity", edges.end && "opacity-0")} />
+        {/* Arrows: desktop only, shown on hover or focus; phones swipe. */}
         {!edges.start && (
           <IconButton label={`Scroll ${title} back`} onClick={() => page(-1)} className="absolute left-3 top-[40%] z-10 hidden -translate-y-1/2 opacity-0 transition-opacity group-hover/row:opacity-100 focus-visible:opacity-100 md:inline-grid">
             <ChevronLeft className="h-6 w-6" aria-hidden="true" />

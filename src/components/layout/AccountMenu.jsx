@@ -15,6 +15,7 @@ export default function AccountMenu() {
   const [open, setOpen] = useState(false);
   const subscribed = member.subscription?.status === "active";
 
+  // Escape closes the menu while it is open.
   useEffect(() => {
     if (!open) return undefined;
     const onKey = (e) => e.key === "Escape" && setOpen(false);
@@ -34,6 +35,7 @@ export default function AccountMenu() {
         aria-label="Account menu"
         className="flex min-h-11 cursor-pointer items-center gap-2 rounded-full pl-1 pr-3 text-text-secondary transition-colors hover:text-text-primary"
       >
+        {/* Initial avatar from the member's name. */}
         <span className="grid h-9 w-9 place-items-center rounded-full bg-brand font-bold text-black">{member.name.charAt(0).toUpperCase()}</span>
         <ChevronDown className={cn("h-4 w-4 transition-transform duration-200", open && "rotate-180")} aria-hidden="true" />
       </button>
@@ -42,6 +44,7 @@ export default function AccountMenu() {
       {open && <div className="fixed inset-0 z-40" onPointerDown={close} aria-hidden="true" />}
       {open && (
         <div role="menu" data-glass="" className="molten-glass absolute right-0 top-full z-50 mt-3 w-72 animate-rise rounded-3xl bg-surface-elevated/80 p-2">
+          {/* Who is signed in, and on which tier. */}
           <div className="px-3 pb-3 pt-2">
             <p className="truncate text-small font-bold text-text-primary">{member.name}</p>
             <p className="truncate text-caption text-text-muted">{member.email}</p>
@@ -53,6 +56,7 @@ export default function AccountMenu() {
             <Link role="menuitem" to="/my-list" viewTransition onClick={close} className={item}>
               <ListVideo className="h-4 w-4" aria-hidden="true" /> My List
             </Link>
+            {/* Subscribers manage their plan; free members are offered one. */}
             <Link role="menuitem" to={subscribed ? "/account?tab=membership" : "/plans"} viewTransition onClick={close} className={item}>
               <Crown className="h-4 w-4" aria-hidden="true" /> {subscribed ? "Manage plan" : "Upgrade to watch everything"}
             </Link>

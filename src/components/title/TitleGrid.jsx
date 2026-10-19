@@ -1,6 +1,7 @@
 /* Title Grid */
 import PosterCard from "./PosterCard";
 
+/** Posters in a responsive grid, or the caller's empty message when there are none. */
 export default function TitleGrid({ titles, empty }) {
   if (!titles.length) return <div className="shell py-16 text-center text-body text-text-muted">{empty}</div>;
   return (

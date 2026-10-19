@@ -1,6 +1,8 @@
 /* Credits */
 export default function Credits({ cast = [], crew = [] }) {
+  // Nothing to credit yet: no section at all.
   if (!cast.length && !crew.length) return null;
+  // One list per group, skipped when that group is empty.
   const group = (label, people) =>
     people.length > 0 && (
       <div>
@@ -8,6 +10,7 @@ export default function Credits({ cast = [], crew = [] }) {
         <ul className="flex flex-wrap gap-3">
           {people.map((p) => (
             <li key={`${p.name}-${p.role}`} className="flex min-w-44 items-center gap-3 rounded-2xl border border-border-default bg-surface-secondary px-4 py-3">
+              {/* Initial avatar: credits carry no photos. */}
               <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-brand/15 font-bold text-brand">{p.name.charAt(0)}</span>
               <span>
                 <span className="block text-small font-semibold text-text-primary">{p.name}</span>

@@ -16,6 +16,7 @@ export default function EndScreen({ title, next, onReplay, onNext, onDismissNext
           <RotateCcw className="h-4 w-4" aria-hidden="true" /> Watch again
         </button>
       </div>
+      {/* Up Next: the player decides when it applies (a next title, not dismissed). */}
       {next && showNext && <UpNext next={next} auto={autoNext} onPlay={onNext} onCancel={onDismissNext} />}
     </div>
   );

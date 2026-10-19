@@ -7,6 +7,7 @@ import { cn } from "@/utils/cn";
 
 export default function Modal({ open, onClose, title, children, className }) {
   const id = useId();
+  // While open: Escape closes and the page behind stops scrolling. The previous overflow is restored on close.
   useEffect(() => {
     if (!open) return undefined;
     const onKey = (e) => e.key === "Escape" && onClose?.();
@@ -21,7 +22,9 @@ export default function Modal({ open, onClose, title, children, className }) {
   if (!open) return null;
 
   return createPortal(
+    // A bottom sheet on phones, a centred dialog from sm up. Portalled so no parent can clip it.
     <div className="fixed inset-0 z-100 flex items-end justify-center p-0 sm:items-center sm:p-6">
+      {/* Backdrop: a click closes, unless the caller passed no onClose to lock it. */}
       <div className="absolute inset-0 animate-fade bg-black/70 backdrop-blur-sm" onClick={onClose} />
       <div
         role="dialog"

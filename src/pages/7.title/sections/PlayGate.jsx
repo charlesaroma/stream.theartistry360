@@ -23,13 +23,16 @@ export default function PlayGate({ title, open, onClose }) {
   const { data: plans = [] } = usePlans();
   const access = accessFor(title, member);
   const tier = title.access?.tier;
+  // After signing in, subscribing or paying, come back to the player.
   const next = encodeURIComponent(`/watch/${title.id}`);
 
+  // Anyone who can watch never sees the gate.
   if (access.ok || !open) return null;
   if (access.reason === "buy") {
     return <BuyDialog title={title} open onClose={onClose} onDone={() => navigate(`/watch/${title.id}`, { viewTransition: true })} />;
   }
 
+  // Quote the lowest plan price, as "from".
   const cheapest = [...plans].sort((a, b) => a.priceUGX - b.priceUGX)[0];
   const subscription = cheapest ? `Included with a subscription, from ${formatUGX(cheapest.priceUGX)} ${PER[cheapest.interval] ?? ""}.` : "Included with a subscription.";
   const lines = {
@@ -37,12 +40,14 @@ export default function PlayGate({ title, open, onClose }) {
     subscription: ["Watch with a subscription", subscription],
     ppv: [`Watch for ${formatUGX(title.access?.priceUGX)}`, "Pay once, then watch for 24 hours from first play. Sign in first so it's saved to your account."],
   };
+  // An unknown tier falls back to the free copy.
   const [heading, body] = lines[tier] ?? lines.free;
 
   return (
     <Modal open onClose={onClose} title={heading}>
       <p className="text-body text-text-secondary">{access.reason === "subscribe" ? subscription : body}</p>
       <div className="mt-8 flex flex-col gap-3">
+        {/* Signed in without a plan: plans. Signed out: sign in or sign up. */}
         {access.reason === "subscribe" ? (
           <Button to={`/plans?next=${next}`} className="w-full"><Crown className="h-5 w-5" aria-hidden="true" /> See plans</Button>
         ) : (

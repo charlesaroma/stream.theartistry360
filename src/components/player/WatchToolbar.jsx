@@ -26,16 +26,19 @@ export default function WatchToolbar({ series, onPrev, onNext, lightsOff, onLigh
   const prefs = useWatchPrefs();
   return (
     <div role="toolbar" aria-label="Player options" className="flex items-center gap-1 overflow-x-auto border-b border-white/8 px-1 py-1 md:px-0">
+      {/* Theatre mode is desktop only; on smaller screens the player is already full width. */}
       <button type="button" onClick={() => setWatchPref("theater", !prefs.theater)} aria-pressed={prefs.theater} className={cn(item, "hidden text-text-muted hover:text-text-primary lg:inline-flex")}>
         {prefs.theater ? <Minimize2 className="h-4 w-4" aria-hidden="true" /> : <Maximize2 className="h-4 w-4" aria-hidden="true" />}
         {prefs.theater ? "Shrink" : "Expand"}
       </button>
       <Toggle on={prefs.autoNext} onChange={(v) => setWatchPref("autoNext", v)}>Auto next</Toggle>
+      {/* Films have no intro to skip. */}
       {series && <Toggle on={prefs.autoSkip} onChange={(v) => setWatchPref("autoSkip", v)}>Auto skip intro</Toggle>}
       <button type="button" onClick={onLights} aria-pressed={lightsOff} className={cn(item, lightsOff ? "text-brand" : "text-text-muted hover:text-text-primary")}>
         {lightsOff ? <LightbulbOff className="h-4 w-4" aria-hidden="true" /> : <Lightbulb className="h-4 w-4" aria-hidden="true" />}
         Lights
       </button>
+      {/* Episode Stepping: disabled at either end of the series. */}
       {series && (
         <>
           <button type="button" onClick={onPrev} disabled={!onPrev} className={cn(item, "text-text-muted hover:text-text-primary")}>
@@ -46,6 +49,7 @@ export default function WatchToolbar({ series, onPrev, onNext, lightsOff, onLigh
           </button>
         </>
       )}
+      {/* My List: pushed to the far end of the strip. */}
       <button type="button" onClick={onList} aria-pressed={inList} className={cn(item, "ml-auto", inList ? "text-brand" : "text-text-muted hover:text-text-primary")}>
         {inList ? <Check className="h-4 w-4" aria-hidden="true" /> : <Plus className="h-4 w-4" aria-hidden="true" />}
         {inList ? "In My List" : "My List"}

@@ -7,6 +7,7 @@ import { advisoryLine, ratingOf } from "@/utils/ageRatings";
 /** The rating in words and the title's content warnings, so parents can decide. */
 export default function Guidance({ title }) {
   const r = ratingOf(title.ageRating);
+  // An unknown or missing rating shows no panel rather than a guess.
   if (!r) return null;
   const warnings = title.advisories ?? [];
   return (

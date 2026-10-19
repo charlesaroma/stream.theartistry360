@@ -7,6 +7,7 @@ import { useSite } from "@/store/tanstackStore/queries/site";
 import { safeHref } from "@/utils/links";
 import { PaymentLogos } from "@/components/ui/PaymentLogo";
 
+// Absolute links go to the main theartistry360.com site; the rest are routes here.
 const COLUMNS = [
   { title: "Watch", links: [["Home", "/"], ["Films", "/films"], ["My List", "/my-list"]] },
   { title: "Account", links: [["Plans", "/plans"], ["Sign in", "/sign-in"], ["Create account", "/sign-up"]] },
@@ -16,6 +17,7 @@ const COLUMNS = [
 
 export default function Footer() {
   const { data: site } = useSite();
+  // The WhatsApp icon shows only when the Studio has set a safe channel or group link.
   const wa = safeHref(site?.community?.channelUrl) || safeHref(site?.community?.groupUrl);
 
   return (
@@ -43,6 +45,7 @@ export default function Footer() {
             <ul className="flex flex-col">
               {col.links.map(([label, to]) => (
                 <li key={label}>
+                  {/* External links leave the app, so a plain anchor; routes use Link for the iris. */}
                   {to.startsWith("http") ? (
                     <a href={to} className="inline-flex min-h-11 items-center text-small text-text-secondary hover:text-text-primary">{label}</a>
                   ) : (

@@ -1,6 +1,7 @@
 /* FAQ */
 import { Plus } from "lucide-react";
 
+// Fixed copy, not Studio-managed: the answers describe how the service works.
 const QA = [
   ["What is The Artistry360 Stream?", "The Artistry360's streaming home: films, series, documentaries and behind the scenes, made by our actors."],
   ["How much does it cost?", "Start free: sign up and watch selected titles with ads. A subscription unlocks the whole library without ads. Some premieres are pay-per-view."],
@@ -16,6 +17,7 @@ export default function Faq() {
         <h2 id="faq-heading" className="text-title">Questions</h2>
         <div className="divide-y divide-border-default border-y border-border-default">
           {QA.map(([q, a]) => (
+            // Native details and summary give keyboard and screen-reader support for free; the plus turns into a close mark when open.
             <details key={q} className="group">
               <summary className="flex min-h-16 cursor-pointer list-none items-center justify-between gap-6 text-subheading [&::-webkit-details-marker]:hidden">
                 {q}

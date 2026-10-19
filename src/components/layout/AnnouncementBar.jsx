@@ -12,6 +12,7 @@ const DISMISS_KEY = "a360s:announcement";
 export default function AnnouncementBar() {
   const { data: site } = useSite();
   const a = site?.announcement;
+  // Dismissal is remembered for this tab session, per announcement text, so new wording shows again. Storage can be blocked, so fall back to showing it.
   const [dismissed, setDismissed] = useState(() => {
     try {
       return sessionStorage.getItem(DISMISS_KEY) === a?.text;
@@ -43,6 +44,7 @@ export default function AnnouncementBar() {
           <a href={href} target="_blank" rel="noopener noreferrer" className="inline-flex shrink-0 items-center gap-1 underline underline-offset-4">{a.linkLabel} <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" /></a>
         ))}
       </div>
+      {/* Pinned right so long text stays centred. */}
       <button type="button" onClick={dismiss} aria-label="Dismiss announcement" className="absolute right-1 top-1/2 grid h-11 w-11 -translate-y-1/2 cursor-pointer place-items-center rounded-full hover:bg-black/10">
         <X className="h-4 w-4" aria-hidden="true" />
       </button>

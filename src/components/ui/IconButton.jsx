@@ -6,6 +6,7 @@ export default function IconButton({ label, className, children, pressed, ...res
   return (
     <button
       type="button"
+      // Icon only, so the label is both the accessible name and the hover tooltip.
       aria-label={label}
       title={label}
       aria-pressed={pressed}

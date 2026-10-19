@@ -12,6 +12,7 @@ export default function VolumeHud({ hud }) {
   if (!hud) return null;
   const { volume, muted } = hud;
   const level = muted ? 0 : Math.round(volume * 100);
+  // The speaker icon follows the level: muted, low or high.
   const Glyph = level === 0 ? VolumeX : level < 50 ? Volume1 : Volume2;
   return (
     <div className="pointer-events-none absolute inset-x-0 top-[12%] z-40 flex justify-center px-4" aria-hidden="true">

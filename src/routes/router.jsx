@@ -34,6 +34,7 @@ export const router = createBrowserRouter([
       { path: "search", lazy: lazy(pages.search) },
       { path: "account", lazy: lazy(pages.account) },
       { path: "legal/:doc", lazy: lazy(pages.legal) },
+      // Short legal URLs redirect to their /legal pages.
       { path: "terms", element: <Navigate to="/legal/terms" replace /> },
       { path: "privacy", element: <Navigate to="/legal/privacy" replace /> },
       { path: "sign-in", lazy: lazy(pages.signIn) },

@@ -17,6 +17,7 @@ export default function PurchasesPanel() {
   const { data: titles = [] } = useTitles();
   const { data: payments = [], isLoading } = usePayments();
   const [receipt, setReceipt] = useState(null);
+  // Purchased ids in order, skipping titles no longer published.
   const owned = member.purchases.map((id) => titles.find((t) => t.id === id)).filter(Boolean);
 
   return (
@@ -40,6 +41,7 @@ export default function PurchasesPanel() {
         )}
       </Card>
 
+      {/* Payment History: scrolls sideways on a phone instead of squeezing the table. */}
       <Card title="Payment history" description="Every payment through PesaPal (MTN MoMo, Airtel Money or card). Quote the reference if you contact us about one.">
         {payments.length ? (
           <div className="-mx-2 overflow-x-auto">
@@ -75,6 +77,7 @@ export default function PurchasesPanel() {
         )}
       </Card>
 
+      {/* Receipt: a printable summary of one payment. */}
       <Modal open={Boolean(receipt)} onClose={() => setReceipt(null)} title="Receipt">
         {receipt && (
           <dl className="grid grid-cols-[8rem_minmax(0,1fr)] gap-y-3 text-small">
@@ -87,6 +90,7 @@ export default function PurchasesPanel() {
             <dt className="text-text-muted">Seller</dt><dd>Thee Artistry360 (U) SMC Ltd, Kampala</dd>
           </dl>
         )}
+        {/* The browser's print dialog also offers Save as PDF. */}
         <button type="button" onClick={() => window.print()} className="btn btn-glass mt-6 w-full">Print or save as PDF</button>
       </Modal>
     </div>

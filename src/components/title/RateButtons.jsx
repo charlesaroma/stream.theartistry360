@@ -4,7 +4,7 @@ import { useRatings } from "@/store/tanstackStore/queries/member";
 import { cn } from "@/utils/cn";
 import { RATINGS } from "@/utils/ratings";
 
-
+/** Thumbs and love for a title. Members only: a rating is saved to the account. */
 export default function RateButtons({ titleId, size = "md", showLabels = false, className }) {
   const { member } = useMember();
   const { ratings, rate } = useRatings();
@@ -19,6 +19,7 @@ export default function RateButtons({ titleId, size = "md", showLabels = false, 
           <button
             key={id}
             type="button"
+            // Pressing the chosen rating again clears it; the change shows at once and rolls back on failure.
             onClick={() => rate(titleId, id)}
             aria-pressed={on}
             title={label}
@@ -28,6 +29,7 @@ export default function RateButtons({ titleId, size = "md", showLabels = false, 
               "molten-glass ember relative inline-flex cursor-pointer items-center justify-center gap-2 rounded-full font-semibold transition-colors",
               size === "lg" ? "min-h-14 px-5 text-body" : "min-h-12 px-4 text-small",
               !showLabels && (size === "lg" ? "w-14 px-0" : "w-12 px-0"),
+              // Love glows red; the thumbs use the brand colour.
               on && (id === "love" ? "bg-danger/25 text-danger" : "bg-brand/25 text-brand-300"),
             )}
           >

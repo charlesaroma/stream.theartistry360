@@ -12,6 +12,7 @@ export default function FilmsHeader({ query, onQuery, sort, onSort, showSort }) 
       actions={
         <>
           <label className="relative flex min-w-0 items-center">
+            {/* The label wraps the input, so this hidden text names it for screen readers. */}
             <span className="sr-only">Search films</span>
             <Search className="pointer-events-none absolute left-3.5 h-4 w-4 text-text-muted" aria-hidden="true" />
             <input
@@ -21,12 +22,14 @@ export default function FilmsHeader({ query, onQuery, sort, onSort, showSort }) 
               placeholder="Search titles, cast, crew"
               className="min-h-11 w-[min(20rem,70vw)] rounded-full border border-border-subtle bg-surface-card pl-10 pr-10 text-small text-text-primary placeholder:text-text-muted focus-visible:border-brand focus-visible:outline-none [&::-webkit-search-cancel-button]:hidden"
             />
+            {/* Our own clear button replaces the browser's, which is hidden in the input's class list. */}
             {query && (
               <button type="button" onClick={() => onQuery("")} aria-label="Clear search" className="absolute right-1 grid h-9 w-9 place-items-center rounded-full text-text-muted hover:text-text-primary">
                 <X className="h-4 w-4" aria-hidden="true" />
               </button>
             )}
           </label>
+          {/* Sort only matters for the grid, so it shows only while filtering. */}
           {showSort && (
             <label className="flex items-center gap-2 text-small text-text-muted">
               <span className="sr-only sm:not-sr-only">Sort</span>

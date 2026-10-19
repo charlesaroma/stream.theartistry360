@@ -16,6 +16,7 @@ export default function EpisodeGrid({ title, currentId }) {
   const navigate = useNavigate();
   const { episodes: seen } = useProgress();
   const seasons = listedSeasons(title);
+  // Open on the season of the episode playing.
   const [seasonNo, setSeasonNo] = useState(() => seasons.find((s) => s.episodes.some((e) => e.id === currentId))?.number ?? seasons[0]?.number);
   const season = seasons.find((s) => s.number === seasonNo) ?? seasons[0];
   const current = season?.episodes.find((e) => e.id === currentId);
@@ -25,6 +26,7 @@ export default function EpisodeGrid({ title, currentId }) {
     <section aria-labelledby="episode-grid-title" className="rounded-2xl border border-white/8 bg-surface-card/60 p-4">
       <div className="mb-3 flex items-center justify-between gap-3">
         <h2 id="episode-grid-title" className="text-small font-bold uppercase tracking-[0.15em] text-text-secondary">Episodes</h2>
+        {/* Season picker only when there is more than one season. */}
         {seasons.length > 1 && (
           <label className="relative">
             <span className="sr-only">Season</span>
@@ -44,9 +46,11 @@ export default function EpisodeGrid({ title, currentId }) {
             <li key={e.id}>
               <button
                 type="button"
+                // Unreleased episodes and the one already playing can't be opened.
                 disabled={!out || playing}
                 onClick={() => navigate(`/watch/${title.id}?ep=${e.id}`, { viewTransition: true })}
                 aria-current={playing ? "true" : undefined}
+                // The grid shows numbers only, so the label carries the title and state.
                 aria-label={`Episode ${e.number}: ${e.title}${playing ? " (playing)" : p?.done ? " (watched)" : ""}${out ? "" : " (coming soon)"}`}
                 title={out ? e.title : `${e.title} (coming soon)`}
                 className={cn(
@@ -62,6 +66,7 @@ export default function EpisodeGrid({ title, currentId }) {
           );
         })}
       </ol>
+      {/* Names the episode playing, since the grid only shows numbers. */}
       {current && <p className="mt-3 text-caption text-text-muted">You're watching <span className="font-semibold text-brand">Episode {current.number}</span>: {current.title}</p>}
     </section>
   );

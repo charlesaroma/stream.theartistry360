@@ -1,3 +1,4 @@
+/* Recent Searches */
 import { useCallback, useState } from "react";
 
 const KEY = "a360s:recent-searches";

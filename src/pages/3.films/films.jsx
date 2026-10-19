@@ -30,8 +30,10 @@ export default function FilmsPage() {
   const access = params.get("access") ?? "";
   const query = params.get("q") ?? "";
   const sort = SORTS.find((s) => s.id === params.get("sort")) ?? SORTS[0];
+  // Any filter or search swaps the rows for a sorted grid.
   const filtering = Boolean(genre || access || query.trim());
 
+  // Write filter changes into the URL. Empty values are removed, and replace keeps Back from stepping through every keystroke.
   const update = (changes) => {
     const next = new URLSearchParams(params);
     for (const [k, v] of Object.entries(changes)) {
@@ -50,6 +52,7 @@ export default function FilmsPage() {
         .sort(sort.sort),
     [tabTitles, genre, access, query, sort],
   );
+  // No featured banner over a filtered grid.
   const featured = filtering ? null : featuredIn(tabTitles);
   const clear = () => update({ genre: "", access: "", q: "" });
 
@@ -59,6 +62,7 @@ export default function FilmsPage() {
         query={query}
         onQuery={(q) => update({ q })}
         sort={sort.id}
+        // Newest is the default, so it is left out of the URL.
         onSort={(id) => update({ sort: id === "new" ? "" : id })}
         showSort={filtering}
       />
@@ -73,11 +77,13 @@ export default function FilmsPage() {
         onAccess={(id) => update({ access: id })}
         query={query}
         onQuery={(q) => update({ q })}
+        // No count while loading; otherwise count what is on screen.
         count={isLoading ? null : filtering ? grid.length : tabTitles.length}
         onClear={clear}
       />
 
       <div className="pb-[clamp(3rem,6vw,6rem)]">
+        {/* Loading skeleton, then either the filtered grid or the tab's featured film and rows. */}
         {isLoading ? (
           <div className="shell grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5 2xl:grid-cols-6" aria-busy="true">
             {Array.from({ length: 10 }).map((_, i) => <div key={i} className="aspect-2/3 animate-pulse rounded-2xl bg-surface-card/60" />)}

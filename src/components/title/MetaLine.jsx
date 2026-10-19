@@ -9,6 +9,7 @@ import AgeBadge from "./AgeBadge";
 /** "Film · 2026 · 16+ · 1:42:00", one dot-separated line everywhere. */
 export default function MetaLine({ title, className, style }) {
   const { typeName } = useTaxonomy();
+  // Type, year, then seasons for a series or running time for a film. Empty values and the "—" placeholder are dropped.
   const parts = [typeName(title.type), title.releaseYear, isSeries(title) ? `${seasonCount(title)} ${seasonCount(title) === 1 ? "season" : "seasons"}` : formatDuration(title.video?.duration)].filter((p) => p && p !== "—");
   const liked = likedPercent(title.ratings);
   return (
@@ -16,6 +17,7 @@ export default function MetaLine({ title, className, style }) {
       {liked !== null && <span className="font-bold text-success">{liked}% liked it</span>}
       {parts.map((p, i) => (
         <span key={p} className="flex items-center gap-2">
+          {/* A dot before every part except the very first. */}
           {(i > 0 || liked !== null) && <span className="h-1 w-1 rounded-full bg-text-muted" aria-hidden="true" />}
           {p}
         </span>

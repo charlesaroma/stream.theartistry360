@@ -16,6 +16,7 @@ export default function DeleteAccount() {
     e.preventDefault();
     setDeleting(true);
     try {
+      // The typed text goes to the API too, so it can check the confirmation itself. On success the member signs out and the page changes.
       await deleteAccount(confirmText);
     } catch (err) {
       setError(err.message);
@@ -30,6 +31,7 @@ export default function DeleteAccount() {
           <span className="mb-2 block text-caption font-bold uppercase tracking-[0.12em] text-text-secondary">Type DELETE to confirm</span>
           <input value={confirmText} onChange={(e) => setConfirmText(e.target.value)} autoComplete="off" className="w-full rounded-2xl border border-danger/30 bg-surface-primary px-4 py-3 text-body focus:border-danger focus:outline-none" />
         </label>
+        {/* Locked until DELETE is typed, in any case. */}
         <button type="submit" disabled={confirmText.trim().toUpperCase() !== "DELETE" || deleting} className="btn min-h-12 bg-danger px-6 text-white hover:brightness-110 disabled:opacity-40">
           <Trash2 className="h-4 w-4" aria-hidden="true" /> Delete my account
         </button>

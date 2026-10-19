@@ -21,6 +21,7 @@ export default function ActivityPanel() {
   const [confirming, setConfirming] = useState(false);
   const [ok, setOk] = useState("");
 
+  // Titles unpublished since watching are left out.
   const rows = Object.entries(progress)
     .map(([id, p]) => ({ title: titles.find((t) => t.id === id), p }))
     .filter((r) => r.title)
@@ -38,6 +39,7 @@ export default function ActivityPanel() {
         <ul className="flex flex-col divide-y divide-white/8">
           {rows.map(({ title, p }) => {
             const ep = p.episodeId ? findEpisode(title, p.episodeId) : null;
+            // Guard against a missing duration; cap at 100 for rounding past the end.
             const pct = p.duration ? Math.min(100, (p.seconds / p.duration) * 100) : 0;
             return (
               <li key={title.id} className="flex items-center gap-4 py-3">
@@ -57,6 +59,7 @@ export default function ActivityPanel() {
         <p className="text-small text-text-muted">Nothing here yet. Titles you start watching appear here.</p>
       )}
 
+      {/* Clear All: a two-step confirm, since it can't be undone. */}
       {rows.length > 0 && (
         <div className="mt-5">
           {confirming ? (

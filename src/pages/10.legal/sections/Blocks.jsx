@@ -20,6 +20,7 @@ export default function Blocks({ blocks }) {
             </thead>
             <tbody>
               {b.table.rows.map((row) => (
+                // The first cell names the row, so it doubles as the key and is set in bold.
                 <tr key={row[0]} className="border-t border-white/8 align-top">
                   {row.map((cell, c) => <td key={c} className={c === 0 ? "px-4 py-3 font-semibold text-text-primary" : "px-4 py-3 text-text-secondary"}>{cell}</td>)}
                 </tr>

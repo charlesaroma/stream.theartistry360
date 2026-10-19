@@ -20,13 +20,16 @@ export default function PlansPage() {
   const navigate = useNavigate();
   const [chosen, setChosen] = useState(null);
   const [busy, setBusy] = useState(false);
+  // Where to return after paying, e.g. the title that sent them here. Empty when there is none.
   const next = safeNext(params.get("next"), "");
 
+  // Visitors sign up first and come back to this plan; members go straight to checkout.
   const choose = (plan) => {
     if (!member) return navigate(`/sign-up?next=${encodeURIComponent(`/plans?plan=${plan.id}${next ? `&next=${next}` : ""}`)}`, { viewTransition: true });
     setChosen(plan);
   };
 
+  // Demo checkout: subscribe resolves without PesaPal, then return to where they came from.
   const pay = async () => {
     setBusy(true);
     await subscribe(chosen.id);
@@ -38,6 +41,7 @@ export default function PlansPage() {
   return (
     <>
       <PageIntro eyebrow="Plans" title="Choose your plan" lead="The whole library, without ads. Cancel any time." >
+        {/* Already subscribed: say so, but still show the plans for switching. */}
         {member?.subscription?.status === "active" && (
           <p className="mt-6 inline-flex rounded-full bg-success/15 px-4 py-2 text-small font-semibold text-success">You're subscribed. Thank you for training with us.</p>
         )}
@@ -47,6 +51,7 @@ export default function PlansPage() {
         <p className="mt-8 text-center text-small text-text-muted">Not ready? Create a free account and watch selected titles with ads.</p>
       </div>
 
+      {/* Checkout Modal: can't be closed while the payment is in progress. */}
       <Modal open={Boolean(chosen)} onClose={busy ? undefined : () => setChosen(null)} title={`Subscribe: ${chosen?.name ?? ""}`}>
         {chosen && (
           <>

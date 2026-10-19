@@ -7,3 +7,4 @@ This site follows the conventions of `the_artistry360_2024/docs/01-code-conventi
 - **Buttons:** `components/ui/Button` (variants `primary`, `light`, `glass`; `to` routes with the iris) and `IconButton` (round glass). Both carry the ember press.
 - **Positioning:** `molten-glass` sets no position. Add `relative` or `absolute` yourself; `.ember` lives in the components layer so `absolute` still wins.
 - **Type:** only the scale tokens in `index.css`. Long film titles step down from `text-display` to `text-title` (more than 24 characters).
+- **Comments:** no differences. Follow section 7 of the shared conventions: a `/* Name */` header, Title Case block labels, an inline `{/* … */}` sentence above any element whose behaviour or data source is not obvious, and `//` notes above non-obvious logic.

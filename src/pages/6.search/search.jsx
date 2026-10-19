@@ -12,6 +12,7 @@ export default function SearchPage() {
   const [params, setParams] = useSearchParams();
   usePageMeta({ title: params.get("q") ? `Search: ${params.get("q")}` : "Search", noindex: true });
   const q = params.get("q") ?? "";
+  // Typing stays responsive while results for the previous query render.
   const deferred = useDeferredValue(q);
   const { data: results = [], isFetching } = useSearch(deferred);
 
@@ -25,16 +26,19 @@ export default function SearchPage() {
             autoFocus
             type="search"
             value={q}
+            // The query lives in the URL, so a search can be shared; replace keeps history clean.
             onChange={(e) => setParams(e.target.value ? { q: e.target.value } : {}, { replace: true })}
             placeholder="Titles, actors, coaches…"
             className="input min-h-16 rounded-full pl-14 text-lead"
           />
         </label>
+        {/* Status Line: a hint, "Searching", or the count, announced as it changes. */}
         <p className="mt-4 text-small text-text-muted" aria-live="polite">
           {deferred.trim().length > 1 ? (isFetching ? "Searching…" : `${results.length} ${results.length === 1 ? "result" : "results"}`) : "Type at least two letters."}
         </p>
       </PageIntro>
       <div className="pb-[clamp(3rem,6vw,6rem)]">
+        {/* Results start from two letters, matching the search query's own threshold. */}
         {deferred.trim().length > 1 && <TitleGrid titles={results} empty={`Nothing found for "${deferred}".`} />}
       </div>
     </>

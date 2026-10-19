@@ -1,3 +1,4 @@
+/* Stream Site Seed */
 // What this site shows. Mirrors the Studio document (Streaming › Stream Site);
 // when the API is live this comes from GET stream/site.
 export const streamSiteSeed = {

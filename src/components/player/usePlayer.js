@@ -1,3 +1,4 @@
+/* Player State */
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const HIDE_AFTER = 2600;
@@ -20,12 +21,14 @@ export function usePlayer(videoRef, frameRef) {
     playing: false, time: 0, duration: 0, buffered: 0, muted: false, volume: 1, rate: 1, fullscreen: false, pip: false, captions: -1,
   });
 
+  // Show the controls, then hide them again after a quiet spell.
   const wake = useCallback(() => {
     setChrome(true);
     clearTimeout(idle.current);
     idle.current = setTimeout(() => setChrome(false), hideAfter());
   }, []);
 
+  // Trigger the centre flash; a fresh id replays it on repeated presses.
   const pulse = useCallback((kind) => {
     setFlash({ kind, id: Date.now() });
     clearTimeout(flashTimer.current);
@@ -121,9 +124,11 @@ export function usePlayer(videoRef, frameRef) {
   // Video element events feed state
   const events = {
     onPlay: () => { setState((s) => ({ ...s, playing: true })); wake(); },
+    // Paused: keep the controls up until play resumes.
     onPause: () => { setState((s) => ({ ...s, playing: false })); setChrome(true); },
     onTimeUpdate: (e) => {
       const el = e.currentTarget;
+      // How far the last buffered range reaches, as a percentage of the length.
       const buffered = el.buffered.length ? (el.buffered.end(el.buffered.length - 1) / (el.duration || 1)) * 100 : 0;
       setState((s) => ({ ...s, time: el.currentTime, buffered }));
     },

@@ -12,16 +12,19 @@ import TrailerBackdrop from "@/components/title/TrailerBackdrop";
  */
 export default function FeaturedFilm({ title, eyebrow }) {
   const [trailer, setTrailer] = useState(false);
+  // Only offer the trailer once the Studio has finished processing it.
   const hasTrailer = title.trailer?.status === "ready";
 
   return (
     <section aria-labelledby="featured-film" className="shell pb-10">
       <div className="relative isolate flex min-h-[clamp(18rem,36vw,28rem)] items-end overflow-hidden rounded-3xl border border-white/8">
+        {/* Backdrop: the still until the trailer is asked for, then the trailer in its place. */}
         {trailer ? (
           <TrailerBackdrop title={title} startAfter={0} controlsClassName="right-5 top-5" />
         ) : (
           <img src={title.backdrop || title.poster} alt="" className="absolute inset-0 -z-10 h-full w-full object-cover" />
         )}
+        {/* The left-hand fade keeps the copy readable over any image. */}
         <div className="absolute inset-0 -z-10 bg-linear-to-r from-black/90 via-black/55 to-transparent" />
         <div className="flex max-w-2xl flex-col gap-3 p-[clamp(1.25rem,4vw,3rem)]">
           <p className="eyebrow">{eyebrow}</p>
@@ -37,6 +40,7 @@ export default function FeaturedFilm({ title, eyebrow }) {
               <Play className="h-4 w-4 fill-current" aria-hidden="true" />
               Play
             </Link>
+            {/* The Trailer button goes once the trailer is playing. */}
             {hasTrailer && !trailer && (
               <button type="button" onClick={() => setTrailer(true)} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/25 px-5 text-small font-semibold text-text-primary backdrop-blur-md hover:border-white/50">
                 <Clapperboard className="h-4 w-4" aria-hidden="true" />

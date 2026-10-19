@@ -14,6 +14,7 @@ const isOnline = () => onlineManager.isOnline();
  * AppProviders, above every route.
  */
 export default function NetworkStatus() {
+  // Assume online when rendering on a server.
   const online = useSyncExternalStore(subscribeOnline, isOnline, () => true);
   const notices = useSyncExternalStore(noticeStore.subscribe, noticeStore.getSnapshot, noticeStore.getSnapshot);
 
@@ -23,12 +24,14 @@ export default function NetworkStatus() {
       aria-live="polite"
       className="pointer-events-none fixed inset-x-0 bottom-[max(1rem,env(safe-area-inset-bottom))] z-[10000] flex flex-col items-center gap-2 px-4"
     >
+      {/* Offline Banner */}
       {!online && (
         <p className="pointer-events-auto flex min-h-11 items-center gap-2 rounded-full border border-warning/40 bg-surface-card px-4 text-sm text-text-primary shadow-lg">
           <WifiOff className="h-4 w-4 text-warning" aria-hidden="true" />
           You&apos;re offline. Showing saved data; it will refresh when you reconnect.
         </p>
       )}
+      {/* Notices: each clears itself after a few seconds, or on Dismiss. */}
       {notices.map((n) => (
         <p
           key={n.id}

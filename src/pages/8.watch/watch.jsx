@@ -78,12 +78,15 @@ export default function WatchPage() {
   const similar = moreLikeThis(title, titles);
   const media = mediaFor(title, episodeId);
   const current = isSeries(title) && media.episodeId;
+  // The episode line under the title, e.g. "S1:E2 · Title"; nothing for a film.
   const playing = current ? media.sub : null;
   const all = current ? flatEpisodes(title) : [];
   const at = all.findIndex((e) => e.id === media.episodeId);
+  // A handler for a neighbouring episode, or undefined at either end, which disables the toolbar button.
   const goEp = (e) => e && (() => navigate(`/watch/${title.id}?ep=${e.id}`, { viewTransition: true }));
 
   const share = async () => {
+    // Share the title page, not the player, so the link works for someone without access.
     const url = `${window.location.origin}/title/${title.id}`;
     if (navigator.share) {
       try { await navigator.share({ title: title.title, url }); } catch { /* dismissed */ }
@@ -117,6 +120,7 @@ export default function WatchPage() {
             </div>
           </div>
 
+          {/* About This Title */}
           <div className="mt-6 px-[clamp(1rem,4vw,3.5rem)] md:px-0">
             <BackButton className="mb-6" />
             <h1 className="text-title text-balance">{title.title}</h1>
@@ -134,7 +138,9 @@ export default function WatchPage() {
           </div>
         </div>
 
+        {/* Sidebar: beside the player, or in three columns below it in theatre mode. */}
         <aside className={cn("flex min-w-0 flex-col gap-8 px-[clamp(1rem,4vw,3.5rem)] md:px-0", theater && "lg:grid lg:grid-cols-3 lg:items-start")} aria-label="Episodes and more">
+          {/* Keyed by episode so the grid reopens on the right season after a jump. */}
           {current && <EpisodeGrid key={media.episodeId} title={title} currentId={media.episodeId} />}
           <RelatedList titles={similar} />
           <CommunityCard />

@@ -1,6 +1,7 @@
 /* Keyboard Shortcuts Sheet */
 import { X } from "lucide-react";
 
+// Must match the key handling in Player.jsx; this list is display only.
 const KEYS = [
   ["Space / K", "Play or pause"],
   ["J / ←", "Back 10 seconds"],
@@ -17,6 +18,7 @@ const KEYS = [
 export default function ShortcutsSheet({ onClose }) {
   return (
     <div className="absolute inset-0 z-40 grid place-items-center bg-black/60 p-4 backdrop-blur-sm" onClick={onClose}>
+      {/* Clicks inside the sheet don't reach the backdrop, which closes it. */}
       <div role="dialog" aria-label="Keyboard shortcuts" data-glass="" onClick={(e) => e.stopPropagation()} className="molten-glass relative w-full max-w-md animate-rise rounded-3xl bg-black/60 p-6">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-heading">Keyboard shortcuts</h2>
@@ -24,6 +26,7 @@ export default function ShortcutsSheet({ onClose }) {
         </div>
         <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-3 text-small">
           {KEYS.map(([k, d]) => (
+            // display: contents lets each pair sit directly in the two-column grid.
             <div key={k} className="contents">
               <dt><kbd className="rounded-md border border-white/20 px-2 py-0.5 font-sans text-caption">{k}</kbd></dt>
               <dd className="text-text-secondary">{d}</dd>

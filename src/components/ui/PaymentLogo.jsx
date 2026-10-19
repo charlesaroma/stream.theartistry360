@@ -9,6 +9,7 @@ import mtn from "@/assets/payments/mtn.svg";
 import visa from "@/assets/payments/visa.svg";
 import { cn } from "@/utils/cn";
 
+// Tile colours are the brands' own, so they are raw values rather than tokens.
 const LOGOS = {
   mtn: { src: mtn, alt: "MTN MoMo", tile: "bg-[#ffcc00]" },
   airtel: { src: airtel, alt: "Airtel Money", tile: "bg-white" },
@@ -30,6 +31,7 @@ export default function PaymentLogo({ name, decorative = false, className }) {
 export function PaymentLogos({ className }) {
   return (
     <span className={cn("inline-flex flex-wrap items-center gap-1.5", className)} role="list" aria-label="Pay with MTN MoMo, Airtel Money, Visa or Mastercard">
+      {/* The wrapper's aria-label already lists every network. */}
       {Object.keys(LOGOS).map((name) => (
         <span key={name} role="listitem"><PaymentLogo name={name} /></span>
       ))}

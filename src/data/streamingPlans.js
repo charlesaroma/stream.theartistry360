@@ -1,3 +1,4 @@
+/* Streaming Plans Seed */
 // Subscription plans and a sample of subscribers (MOU 3D). Prices are
 // placeholders until The Artistry360 confirms pricing in Phase 1 (MOU 8.1).
 export const streamingPlansSeed = [

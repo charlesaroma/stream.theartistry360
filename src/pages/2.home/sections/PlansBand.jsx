@@ -6,6 +6,7 @@ import { usePlans } from "@/store/tanstackStore/queries/site";
 import { cn } from "@/utils/cn";
 import { formatUGX } from "@/utils/formatCurrency";
 
+// How each plan interval reads after the price.
 const PER = { month: "month", quarter: "3 months", year: "year" };
 
 /** The pricing cards, shared by the home page (signed out) and /plans. */
@@ -19,6 +20,7 @@ export function PlanCards({ onChoose }) {
           data-glass={p.highlight ? "" : undefined}
           className={cn("relative flex flex-col rounded-3xl p-7", p.highlight ? "molten-glass" : "border border-border-default bg-surface-secondary")}
         >
+          {/* The Studio marks one plan as highlighted; it gets the glass card and this badge. */}
           {p.highlight && <span className="chip absolute right-5 top-5 bg-brand text-black">Most popular</span>}
           <h3 className="text-subheading">{p.name}</h3>
           <p className="mt-4 flex items-baseline gap-1">
@@ -30,6 +32,7 @@ export function PlanCards({ onChoose }) {
               <li key={b} className="flex gap-3 text-small text-text-secondary"><Check className="mt-0.5 h-4 w-4 shrink-0 text-brand" aria-hidden="true" />{b}</li>
             ))}
           </ul>
+          {/* /plans passes onChoose to open checkout in place; elsewhere the button links to /plans with the plan preselected. */}
           <Button variant={p.highlight ? "primary" : "glass"} className="mt-8 w-full" {...(onChoose ? { onClick: () => onChoose(p) } : { to: `/plans?plan=${p.id}` })}>
             Choose {p.name}
           </Button>
@@ -47,6 +50,7 @@ export default function PlansBand() {
         <h2 id="plans-heading" className="text-title">Watch everything, anywhere</h2>
         <p className="mt-4 text-lead text-text-secondary">One plan for the whole library, with no ads. Or start free and watch selected titles with ads.</p>
       </div>
+      {/* Without onChoose, each card links through to /plans. */}
       <PlanCards />
     </section>
   );

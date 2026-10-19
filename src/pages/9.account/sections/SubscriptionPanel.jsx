@@ -19,9 +19,11 @@ export default function SubscriptionPanel() {
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState({});
   const sub = member.subscription;
+  // Plans may still be loading, so the name and price fall back below.
   const plan = plans.find((p) => p.id === sub?.planId);
   const active = sub?.status === "active";
 
+  // Cancelling stops renewal only; access runs to the end of the paid period. Passing false undoes it.
   const setCancel = async (cancel) => {
     setBusy(true);
     setMsg({});
@@ -36,6 +38,7 @@ export default function SubscriptionPanel() {
     }
   };
 
+  // No active plan: the free tier, with a way in.
   if (!active) {
     return (
       <Card title="Your plan" description="You're on the free plan: selected titles with ads. Subscribe for the whole library without ads.">
@@ -58,6 +61,7 @@ export default function SubscriptionPanel() {
 
       <div className="mt-5 flex flex-wrap gap-3">
         <Button variant="glass" to="/plans?next=/account">Change plan</Button>
+        {/* Already cancelled: offer to keep it. Otherwise, a two-step cancel. */}
         {sub.cancelAtPeriodEnd ? (
           <Button onClick={() => setCancel(false)} loading={busy}>Keep my plan</Button>
         ) : confirming ? (

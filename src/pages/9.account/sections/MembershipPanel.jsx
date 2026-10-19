@@ -6,6 +6,7 @@ import SubscriptionPanel from "./SubscriptionPanel";
 export default function MembershipPanel() {
   return (
     <div className="flex flex-col gap-6">
+      {/* The plan first, then what was bought and paid. */}
       <SubscriptionPanel />
       <PurchasesPanel />
     </div>

@@ -1,3 +1,4 @@
+/* Sample Comments */
 // Sample member comments, so the section isn't empty in the demo. Real
 // comments come from GET streaming/titles/:id/comments.
 const ago = (hours) => new Date(Date.now() - hours * 3600_000).toISOString();

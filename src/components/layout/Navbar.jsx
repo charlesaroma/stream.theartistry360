@@ -37,6 +37,7 @@ export default function Navbar() {
     return () => document.removeEventListener("keydown", onKey);
   }, []);
 
+  // Firm up the glass once the page leaves the top. Run once on mount for a restored scroll position.
   useEffect(() => {
     const onScroll = () => setSolid(window.scrollY > 24);
     onScroll();
@@ -44,6 +45,7 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // While the mobile menu is open, lock page scroll and let Escape close it.
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
     const onKey = (e) => e.key === "Escape" && setOpen(false);
@@ -59,13 +61,16 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-40">
+      {/* Bar: clear while the menu is open, glass once scrolled, else a fade over the hero. */}
       <div className={cn("relative z-40 transition-[background-color,backdrop-filter,box-shadow] duration-500", open ? "bg-transparent" : solid ? "bg-surface-primary/80 shadow-[0_1px_0_rgb(255_255_255/0.06)] backdrop-blur-xl" : "bg-linear-to-b from-black/70 to-transparent")}>
         <nav aria-label="Main" className="shell flex h-18 items-center gap-6">
           <Link to="/" viewTransition className="flex min-h-11 shrink-0 items-center gap-3" aria-label="The Artistry360 Stream home">
+            {/* The link's aria-label names it, so the logo carries no label of its own. */}
             <BrandLogo intro label="" className="h-8 w-auto" />
             <span className="hidden text-caption font-bold uppercase tracking-[0.25em] text-text-secondary sm:inline">Stream</span>
           </Link>
 
+          {/* Desktop Links: an underline grows under the active page. */}
           <ul className="hidden items-center lg:flex">
             {NAV_ITEMS.map((i) => (
               <li key={i.to}>
@@ -81,6 +86,7 @@ export default function Navbar() {
             ))}
           </ul>
 
+          {/* Actions: search, then the account menu or Sign in, then the phone menu toggle. */}
           <div className="ml-auto flex items-center gap-2">
             <IconButton label="Search (/ or ⌘K)" onClick={() => setSearching(true)} className="h-11 w-11" aria-haspopup="dialog">
               <Search className="h-5 w-5" aria-hidden="true" />
@@ -97,12 +103,14 @@ export default function Navbar() {
         </nav>
       </div>
 
+      {/* Search: mounted only while open, so its chunk loads on first use. */}
       {searching && (
         <Suspense fallback={null}>
           <SearchDialog onClose={() => setSearching(false)} />
         </Suspense>
       )}
 
+      {/* Always mounted so it can fade in and out. */}
       <MobileMenu open={open} onClose={() => setOpen(false)} />
     </header>
   );

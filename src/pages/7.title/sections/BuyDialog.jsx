@@ -9,6 +9,7 @@ import PaymentLogo from "@/components/ui/PaymentLogo";
 import { useMember } from "@/store/context/MemberContext";
 import { formatUGX } from "@/utils/formatCurrency";
 
+// PesaPal's methods; the label is what the purchase record stores.
 const METHODS = [
   { id: "mtn", label: "MTN MoMo", logos: ["mtn"] },
   { id: "airtel", label: "Airtel Money", logos: ["airtel"] },
@@ -35,9 +36,11 @@ export default function BuyDialog({ title, open, onClose, onDone }) {
   };
 
   return (
+    // No closing mid-payment.
     <Modal open={open} onClose={busy ? undefined : onClose} title={`Watch ${title.title}`}>
       <p className="text-body text-text-secondary">Pay once and it's yours to watch for 24 hours from first play.</p>
       <p className="mt-4 text-title tabular-nums">{formatUGX(title.access.priceUGX)}</p>
+      {/* Payment Method: real radios, styled as cards. */}
       <fieldset className="mt-6">
         <legend className="mb-3 text-small font-semibold text-text-secondary">Pay with</legend>
         <div className="grid grid-cols-1 gap-2">

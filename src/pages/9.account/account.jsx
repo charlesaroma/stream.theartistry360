@@ -34,9 +34,11 @@ export default function AccountPage() {
   const { member, loading } = useMember();
   const [params, setParams] = useSearchParams();
   const asked = params.get("tab");
+  // Unknown or missing ?tab falls back to Membership.
   const tab = TABS.find((t) => t.id === (MOVED[asked] ?? asked)) ?? TABS[0];
 
   if (loading) return <PageLoader />;
+  // Signed out: sign in, then come back to the same tab.
   if (!member) return <Navigate to={`/sign-in?next=${encodeURIComponent(`/account?tab=${tab.id}`)}`} replace />;
 
   return (
@@ -66,6 +68,7 @@ export default function AccountPage() {
                   <button
                     type="button"
                     aria-current={tab.id === id ? "page" : undefined}
+                    // The tab lives in the URL so it survives a refresh; replace keeps Back for leaving the page.
                     onClick={() => setParams({ tab: id }, { replace: true })}
                     className={cn(
                       "flex min-h-11 w-full items-center gap-3 rounded-full px-4 text-small font-semibold transition-colors lg:rounded-xl",
@@ -78,6 +81,7 @@ export default function AccountPage() {
               ))}
             </ul>
           </nav>
+          {/* Keyed by tab so each switch remounts the panel and replays the rise. */}
           <div key={tab.id} className="min-w-0 animate-rise">
             <tab.Panel />
           </div>

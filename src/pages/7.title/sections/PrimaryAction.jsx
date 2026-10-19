@@ -21,6 +21,7 @@ export default function PrimaryAction({ title }) {
   const { progress, episodes } = useProgress();
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
+  // Open the gate on arrival when another page sent ?play=1.
   const [gate, setGate] = useState(params.get("play") === "1");
   // A series plays the episode you'd continue (or S1:E1); a film resumes.
   const next = isSeries(title) ? resumeEpisode(title, progress, episodes) : null;
@@ -34,6 +35,7 @@ export default function PrimaryAction({ title }) {
     if (accessFor(title, member).ok) navigate(to, { viewTransition: true });
     else setGate(true);
   };
+  // Drop ?play=1 on close so a refresh doesn't reopen the gate.
   const closeGate = () => {
     setGate(false);
     if (params.has("play")) setParams((p) => { p.delete("play"); return p; }, { replace: true });
@@ -44,6 +46,7 @@ export default function PrimaryAction({ title }) {
       <Button variant="light" onClick={() => play()}>
         <Play className="h-5 w-5 fill-current" aria-hidden="true" /> {label}
       </Button>
+      {/* Start Over: only once there is a saved place to skip. */}
       {resume && (
         <Button variant="glass" onClick={() => play(true)}>
           <RotateCcw className="h-5 w-5" aria-hidden="true" /> Start over

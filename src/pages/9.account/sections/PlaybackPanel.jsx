@@ -5,6 +5,7 @@ import { Card, SwitchRow } from "./ui";
 /** Player choices. They're kept on this device, so a phone and a TV can differ. */
 export default function PlaybackPanel() {
   const prefs = useWatchPrefs();
+  // One setter per switch, written straight to this device's preferences.
   const set = (name) => (v) => setWatchPref(name, v);
   return (
     <Card title="Playback" description="These apply on this device. The same switches sit under the player.">

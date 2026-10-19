@@ -1,3 +1,4 @@
+/* Key Light Tilt */
 import { useCallback, useRef } from "react";
 
 const MAX_TILT = 7; // degrees
@@ -14,6 +15,7 @@ export function useKeyLight() {
     if (e.pointerType !== "mouse") return;
     const el = e.currentTarget;
     const { clientX, clientY } = e;
+    // At most one update per frame, however fast the pointer moves.
     if (frame.current) return;
     frame.current = requestAnimationFrame(() => {
       frame.current = 0;
@@ -31,6 +33,7 @@ export function useKeyLight() {
     cancelAnimationFrame(frame.current);
     frame.current = 0;
     const el = e.currentTarget;
+    // Level the card again; the light stays where it was and fades with the hover styles.
     el.style.setProperty("--rx", "0deg");
     el.style.setProperty("--ry", "0deg");
   }, []);

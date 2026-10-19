@@ -14,6 +14,7 @@ export default function RatingNotice({ title, playing }) {
   const r = ratingOf(title.ageRating);
 
   useEffect(() => {
+    // Wait for the first play, show for SHOW_MS, then fade. It never comes back for this title.
     if (phase === "done" || (phase === "wait" && !playing)) return undefined;
     const t = setTimeout(() => setPhase(phase === "wait" ? "show" : "done"), phase === "wait" ? 0 : SHOW_MS);
     return () => clearTimeout(t);
@@ -24,9 +25,11 @@ export default function RatingNotice({ title, playing }) {
   const warnings = advisoryLine(title.advisories);
   return (
     <div aria-hidden={done} className={`pointer-events-none absolute left-4 top-4 z-20 flex items-stretch gap-3 transition-opacity duration-700 md:left-8 md:top-8 ${done ? "opacity-0" : "animate-fade opacity-100"}`}>
+      {/* Brand rule down the left edge, as on broadcast idents. */}
       <span className="w-1 rounded-full bg-brand" />
       <div className="drop-shadow-[0_2px_8px_rgb(0_0_0/0.8)]">
         <p className="text-lead font-bold">Rated {r.label}</p>
+        {/* Warnings when the title has any, else what the rating means. */}
         <p className="text-small text-text-secondary">{warnings || r.meaning}</p>
       </div>
     </div>

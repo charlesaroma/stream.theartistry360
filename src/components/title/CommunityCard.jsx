@@ -14,8 +14,10 @@ import { safeHref } from "@/utils/links";
 export default function CommunityCard({ className }) {
   const { data: site } = useSite();
   const c = site?.community;
+  // Switched off in the Studio: no card at all.
   if (!c?.enabled) return null;
 
+  // A live link, or a dashed "Soon" placeholder when the Studio hasn't set one.
   const action = (href, label, Icon, solid) =>
     href ? (
       <a
@@ -38,6 +40,7 @@ export default function CommunityCard({ className }) {
 
   return (
     <aside data-glass="" aria-labelledby="community-heading" className={cn("molten-glass relative overflow-hidden rounded-3xl p-6 md:p-8", className)}>
+      {/* Soft WhatsApp glow in the corner. */}
       <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-whatsapp/20 blur-3xl" aria-hidden="true" />
       <div className="mb-6 flex items-center gap-4">
         <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-whatsapp text-black shadow-[0_8px_24px_color-mix(in_oklab,var(--color-whatsapp)_40%,transparent)]">

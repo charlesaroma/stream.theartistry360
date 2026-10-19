@@ -33,10 +33,12 @@ export default function TitlePage() {
   const [copied, setCopied] = useState(false);
 
   if (isLoading) return <PageLoader />;
+  // A missing or unpublished title goes back to the catalogue.
   if (error || !title) return <Navigate to="/films" replace />;
 
   const similar = moreLikeThis(title, titles);
 
+  // The native share sheet where there is one (phones); otherwise copy the link and confirm on the button.
   const share = async () => {
     const url = window.location.href;
     if (navigator.share) {
@@ -60,6 +62,7 @@ export default function TitlePage() {
         <div className="absolute inset-0 -z-10 bg-linear-to-r from-black via-black/70 to-black/10" />
         <div className="absolute inset-0 -z-10 bg-linear-to-t from-surface-primary via-surface-primary/30 to-black/50" />
         <div className="shell grid grid-cols-1 items-end gap-10 pb-[clamp(3rem,6vw,5rem)] pt-40 md:grid-cols-[minmax(0,13rem)_1fr] lg:grid-cols-[minmax(0,16rem)_1fr]">
+          {/* Poster beside the copy from md up; the h1 already names the film, so it's decorative. */}
           <img src={title.poster} alt="" className="hidden aspect-2/3 w-full rounded-3xl object-cover shadow-[0_30px_80px_rgb(0_0_0/0.7)] md:block" />
           <div className="max-w-3xl animate-rise">
             <BackButton className="mb-8" />
@@ -70,6 +73,7 @@ export default function TitlePage() {
             <h1 className={title.title.length > 24 ? "text-title text-balance" : "text-display text-balance"}>{title.title}</h1>
             <MetaLine title={title} className="mt-5" />
             <p className="mt-5 max-w-2xl text-lead text-text-secondary">{title.synopsis}</p>
+            {/* Actions: play, rate, save, share. */}
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <PrimaryAction title={title} />
               <RateButtons titleId={title.id} />
@@ -87,6 +91,7 @@ export default function TitlePage() {
       {/* Details */}
       <div className="shell grid grid-cols-1 gap-[clamp(2.5rem,5vw,4rem)] pb-[clamp(3rem,6vw,6rem)] lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
         <div className="flex flex-col gap-[clamp(2.5rem,5vw,4rem)]">
+          {/* Episodes lead for a series; a film goes straight to its story. */}
           {isSeries(title) && <Episodes title={title} />}
           {title.description && (
             <section aria-labelledby="about-heading">
@@ -97,6 +102,7 @@ export default function TitlePage() {
           <Credits cast={title.cast} crew={title.crew} />
           <Comments titleId={title.id} />
         </div>
+        {/* Side Column: guidance and the community card, kept in view on desktop. */}
         <div className="flex flex-col gap-6 lg:sticky lg:top-24 lg:self-start">
           <Guidance title={title} />
           <CommunityCard />
@@ -104,6 +110,7 @@ export default function TitlePage() {
       </div>
 
       <div className="pb-[clamp(3rem,6vw,6rem)]">
+        {/* More Like This */}
         <Row title="More like this" items={similar} render={(t) => <PosterCard title={t} />} />
       </div>
     </article>

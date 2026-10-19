@@ -1,3 +1,4 @@
+/* Streaming Categories Seed */
 // Streaming catalogue categories (genres and topics), edited from the Studio.
 export const streamingCategoriesSeed = [
   { id: "cat_drama", name: "Drama", slug: "drama" },

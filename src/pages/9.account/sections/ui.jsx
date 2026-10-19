@@ -21,6 +21,7 @@ export function SwitchRow({ label, hint, checked, onChange, disabled }) {
         {hint && <span className="mt-0.5 block text-small text-text-muted">{hint}</span>}
       </span>
       <span className="relative mt-1 inline-flex shrink-0">
+        {/* A real checkbox, visually hidden, drives the track and thumb through peer classes and keeps keyboard focus. */}
         <input type="checkbox" role="switch" checked={checked} disabled={disabled} onChange={(e) => onChange(e.target.checked)} className="peer sr-only" />
         <span className="h-6 w-11 rounded-full bg-white/15 transition-colors peer-checked:bg-brand peer-focus-visible:ring-2 peer-focus-visible:ring-brand peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-black" />
         <span className="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform peer-checked:translate-x-5" />
