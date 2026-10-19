@@ -28,13 +28,16 @@ export function useHls(videoRef, src, enabled = true, maxHeight = 0) {
     import("hls.js").then(({ default: Hls }) => {
       if (cancelled) return;
       if (Hls.isSupported()) {
-        const hls = new Hls({ capLevelToPlayerSize: true, startLevel: -1, maxBufferLength: 30 });
+        const hls = new Hls({ capLevelToPlayerSize: !maxHeight, startLevel: -1, maxBufferLength: 30 });
         hlsRef.current = hls;
         hls.on(Hls.Events.MANIFEST_PARSED, (_, data) => {
           if (maxHeight) {
             // Highest rendition within the cap (levels are in the manifest's order).
             const within = data.levels.map((l, i) => ({ i, h: l.height })).filter((l) => l.h && l.h <= maxHeight).sort((a, b) => b.h - a.h)[0];
-            if (within) hls.autoLevelCapping = within.i;
+            if (within) {
+              hls.autoLevelCapping = within.i;
+              hls.startLevel = within.i;
+            }
           }
           // Offer the menu tallest first, keeping each level's manifest index for switching.
           setLevels(data.levels.map((l, index) => ({ index, height: l.height, bitrate: l.bitrate })).sort((a, b) => b.height - a.height));

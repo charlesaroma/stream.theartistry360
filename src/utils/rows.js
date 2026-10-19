@@ -2,14 +2,16 @@
 // Turns the Studio's row settings (`source`) into the titles to show.
 import { FILM_TABS } from "./catalog";
 
+const MAX_HOME_ROW_ITEMS = 12;
+
 export function resolveRow(source, { titles, progress }) {
   if (source === "trending") return [...titles].sort((a, b) => (b.views ?? 0) - (a.views ?? 0)).slice(0, 10);
   if (source === "new") return [...titles].sort((a, b) => new Date(b.releaseAt) - new Date(a.releaseAt)).slice(0, 12);
-  if (source === "continue") return continueItems(titles, progress).map((c) => c.title);
+  if (source === "continue") return continueItems(titles, progress).slice(0, MAX_HOME_ROW_ITEMS).map((c) => c.title);
   const [kind, value] = source.split(":");
-  if (kind === "tier") return titles.filter((t) => t.access?.tier === value);
-  if (kind === "type") return titles.filter((t) => t.type === value);
-  if (kind === "category") return titles.filter((t) => t.categoryIds?.includes(value));
+  if (kind === "tier") return titles.filter((t) => t.access?.tier === value).slice(0, MAX_HOME_ROW_ITEMS);
+  if (kind === "type") return titles.filter((t) => t.type === value).slice(0, MAX_HOME_ROW_ITEMS);
+  if (kind === "category") return titles.filter((t) => t.categoryIds?.includes(value)).slice(0, MAX_HOME_ROW_ITEMS);
   return [];
 }
 

@@ -9,6 +9,7 @@ import { cn } from "@/utils/cn";
 
 const START_AFTER = 1800;
 const SOUND_KEY = "a360s:trailer-sound"; // "on" | "off": the visitor's last choice, this session
+const TRAILER_MAX_HEIGHT = 720;
 
 /**
  * Sound for trailers. Browsers allow a page to start video with sound only
@@ -51,19 +52,21 @@ export default function TrailerBackdrop({ title, onPlayingChange, onSound, contr
   const { data: site } = useSite();
   const box = useRef(null);
   const video = useRef(null);
+  const inView = useRef(false);
   const [start, setStart] = useState(false);
   const [showing, setShowing] = useState(false);
   const [done, setDone] = useState(false);
   const [gaveUp, setGaveUp] = useState(false);
   const [muted, setMuted] = useState(true);
   const [progress, setProgress] = useState(0); // 0–1 through the trailer (capped at MAX_SECONDS)
+  const lastProgressUpdate = useRef(0);
   const eligible =
     title?.trailer?.status === "ready" &&
     title.trailer.autoplay !== false &&
     site?.hero?.autoplayTrailers !== false &&
     allowedToAutoplay();
 
-  const { error: hlsError } = useHls(video, title?.trailer?.playbackUrl, start && !gaveUp);
+  const { error: hlsError } = useHls(video, title?.trailer?.playbackUrl, start && !gaveUp, TRAILER_MAX_HEIGHT);
   // Any failure keeps the backdrop and lets the hero move on.
   const failed = gaveUp || Boolean(hlsError);
 
@@ -74,10 +77,12 @@ export default function TrailerBackdrop({ title, onPlayingChange, onSound, contr
   };
 
   // An interrupted play() (pause, a new source) rejects with AbortError: not a failure.
-  const tryPlay = (v) =>
+  const tryPlay = (v) => {
+    if (v.readyState < 3) return;
     v.play().catch((e) => {
       if (e?.name !== "AbortError") fail("play() was refused", e);
     });
+  };
 
   // Start after a moment. In a hidden tab, wait until it's visible again
   // rather than giving up.
@@ -116,11 +121,15 @@ export default function TrailerBackdrop({ title, onPlayingChange, onSound, contr
     const v = video.current;
     const io = new IntersectionObserver(([entry]) => {
       if (!v || done) return;
-      if (entry.intersectionRatio > 0.35 && !document.hidden) tryPlay(v);
+      inView.current = entry.intersectionRatio > 0.35;
+      if (inView.current && !document.hidden) tryPlay(v);
       else v.pause();
     }, { threshold: [0, 0.35] });
     if (box.current) io.observe(box.current);
-    const onVis = () => (document.hidden ? v?.pause() : null);
+    const onVis = () => {
+      if (document.hidden) v?.pause();
+      else if (inView.current && v) tryPlay(v);
+    };
     document.addEventListener("visibilitychange", onVis);
     return () => {
       io.disconnect();
@@ -172,7 +181,9 @@ export default function TrailerBackdrop({ title, onPlayingChange, onSound, contr
     setDone(false);
     if (video.current) {
       video.current.currentTime = 0;
-      video.current.play().catch(() => {});
+      lastProgressUpdate.current = 0;
+      setProgress(0);
+      tryPlay(video.current);
     }
   };
 
@@ -200,6 +211,9 @@ export default function TrailerBackdrop({ title, onPlayingChange, onSound, contr
           autoPlay
           crossOrigin="anonymous"
           aria-hidden="true"
+          onCanPlay={(e) => {
+            if (inView.current && !document.hidden) tryPlay(e.currentTarget);
+          }}
           onPlaying={(e) => {
             setShowing(true);
             // Started muted (always allowed); now ask for sound if the visitor
@@ -223,7 +237,10 @@ export default function TrailerBackdrop({ title, onPlayingChange, onSound, contr
           onTimeUpdate={(e) => {
             const v = e.currentTarget;
             const length = Math.min(v.duration || MAX_SECONDS, MAX_SECONDS);
-            setProgress(Math.min(1, v.currentTime / length));
+            if (v.currentTime - lastProgressUpdate.current >= 1 || v.currentTime >= MAX_SECONDS) {
+              lastProgressUpdate.current = v.currentTime;
+              setProgress(Math.min(1, v.currentTime / length));
+            }
             if (v.currentTime > MAX_SECONDS) finish();
           }}
           className={cn("absolute inset-0 h-full w-full object-cover transition-opacity duration-1000", showing ? "opacity-100" : "opacity-0")}

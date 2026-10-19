@@ -3,7 +3,7 @@
 | Folder | Route | What |
 |---|---|---|
 | `1.auth` | `/sign-in`, `/sign-up`, `/forgot-password`, `/reset-password?token=` | Glass card over a cinema still; **Continue with Google** first, then email and password; "Forgot password?" under the password; `?next=` redirect (site paths only) |
-| `2.home` | `/` | Hero (Studio featured order; swaps as a focus pull with the copy wiping in; one glass pill holds the picker and the trailer's sound button, which must stay while trailers play with sound by default, WCAG 1.4.2), rows (Studio row settings), then for signed-out visitors: plans, why, FAQ. Community card for everyone |
+| `2.home` | `/` | Hero (Studio featured order; swaps as a focus pull with the copy wiping in; background trailers capped at 720p; one glass pill holds the picker and the trailer's sound button, which must stay while trailers play with sound by default, WCAG 1.4.2), rows (Studio row settings; up to 12 titles per shelf, with See all for the full collection), then for signed-out visitors: plans, why, FAQ. Community card for everyone |
 | `3.films` | `/films` | One-line header (Films, search, sort), one filter row: type tabs, Genre and Access menus (bottom sheets on phones), removable chips with Clear all. No filters: the tab's featured film and rows; a filter or search: a sorted grid. `?tab=&genre=&access=&q=&sort=` |
 | `4.plans` | `/plans` | Plan cards (Studio › Subscriptions) → PesaPal stand-in; `?next=` returns to the title |
 | `5.my-list` | `/my-list` | Continue watching and saved titles (per member, local until the API) |
@@ -53,4 +53,3 @@ Measured in headless Chrome at 1440px and 390px:
 - **Age rating** (`utils/ageRatings.js`, `AgeBadge`): G, PG, 13+, 16+, 18+ as colour-coded badges on cards and the meta line, with the meaning on hover and for screen readers. The title page's **Parental guidance** block gives the meaning and the content warnings (`advisories`, set in the Studio). When a film starts, "Rated 16+ · Violence, language and alcohol" shows in the corner for 7 s (`RatingNotice`).
 - **Comments** (`components/title/Comments.jsx`, `services/commentsApi.ts`): on the title and watch pages. Anyone reads; members post (500 characters, optional spoiler cover), like, delete their own and report. Top / Newest. Bodies render as plain text. The API must take the author from the session, strip control characters, rate-limit, and queue reports for moderation in the Studio. The mock keeps comments in the browser, seeded from `data/comments.js`.
 - **WhatsApp community card**: live with sample Channel and Group links from the Stream Site settings; set the real ones in Studio › Streaming › Stream Site.
-
