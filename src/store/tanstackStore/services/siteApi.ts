@@ -8,6 +8,7 @@ import { mockApi } from "@/store/tanstackStore/services/api/mock";
 import type { RequestOptions } from "@/store/tanstackStore/services/api/types";
 import type { Plan, StreamSite } from "./types";
 import { streamSiteSeed } from "@/data/streamSite";
+import { DEFAULT_RATES } from "@/utils/charges";
 import { streamingPlansSeed } from "@/data/streamingPlans";
 
 export const getSite = ({ signal }: RequestOptions = {}) =>
@@ -27,3 +28,11 @@ export const getAds = ({ signal }: RequestOptions = {}) =>
   !useMockApi
     ? http.get<AdSettings>(routes.ads, { signal })
     : mockApi((): AdSettings => ({ enabled: true, frequencyCapPerHour: 4, web: { adTagUrl: "", preroll: true, midrollEveryMinutes: 15, skippableAfterSeconds: 5 } }), 0, signal);
+
+/** The charges added on top of every price (PesaPal's fee and system maintenance), to show the total before paying. */
+export interface ChargeRates {
+  pesapalPercent: number;
+  maintenancePercent: number;
+}
+export const getChargeRates = ({ signal }: RequestOptions = {}) =>
+  !useMockApi ? http.get<ChargeRates>(routes.charges, { signal }) : mockApi((): ChargeRates => DEFAULT_RATES, 50, signal);

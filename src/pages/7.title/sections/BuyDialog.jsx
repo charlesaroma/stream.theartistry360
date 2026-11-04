@@ -9,6 +9,8 @@ import PesapalCheckout from "@/components/payments/PesapalCheckout";
 import PaymentLogo from "@/components/ui/PaymentLogo";
 import { useMember } from "@/store/context/MemberContext";
 import { formatUGX } from "@/utils/formatCurrency";
+import PriceBreakdown from "@/components/payments/PriceBreakdown";
+import { useCharges } from "@/store/tanstackStore/queries/site";
 
 // PesaPal's methods; the label is what the purchase record stores.
 const METHODS = [
@@ -25,6 +27,8 @@ const METHODS = [
  */
 export default function BuyDialog({ title, open, onClose, onDone }) {
   const { purchase, startCheckout, refreshAccess, demo } = useMember();
+  // PesaPal's fee and system maintenance go on top of the title's price.
+  const charges = useCharges(title.access?.priceUGX ?? 0);
   // Live: PesaPal's page open in this dialog.
   const [checkout, setCheckout] = useState(null);
   const [method, setMethod] = useState("mtn");
@@ -49,7 +53,7 @@ export default function BuyDialog({ title, open, onClose, onDone }) {
     try {
       if (!demo) {
         const order = await startCheckout({ kind: "ppv", titleId: title.id }, `/watch/${title.id}`);
-        setCheckout({ ...order, amountUGX: title.access.priceUGX, label: title.title });
+        setCheckout({ ...order, amountUGX: charges.totalUGX, label: title.title });
         setBusy(false);
         return;
       }
@@ -74,7 +78,7 @@ export default function BuyDialog({ title, open, onClose, onDone }) {
       ) : (
       <>
       <p className="text-body text-text-secondary">Pay once and it's yours to watch for 24 hours from first play.</p>
-      <p className="mt-4 text-title tabular-nums">{formatUGX(title.access.priceUGX)}</p>
+      <PriceBreakdown className="mt-4" label="24 hours to watch" charges={charges} />
       {/* Payment Method: real radios, styled as cards. Live, PesaPal asks on its own page. */}
       {!demo && <p className="mt-6 text-small text-text-secondary">You'll be taken to PesaPal to pay with MTN MoMo, Airtel Money or card.</p>}
       {demo && <fieldset className="mt-6">
@@ -90,7 +94,7 @@ export default function BuyDialog({ title, open, onClose, onDone }) {
         </div>
       </fieldset>}
       {error && <p role="alert" className="mt-4 text-small font-semibold text-danger">{error}</p>}
-      <Button className="mt-8 w-full" onClick={pay} loading={busy}>Pay {formatUGX(title.access.priceUGX)} with PesaPal</Button>
+      <Button className="mt-8 w-full" onClick={pay} loading={busy}>Pay {formatUGX(charges.totalUGX)} with PesaPal</Button>
       <p className="mt-4 flex items-center justify-center gap-2 text-caption text-text-muted">
         <ShieldCheck className="h-4 w-4" aria-hidden="true" /> Secured by PesaPal: your card and PIN never reach our servers.{demo && " Demo mode: no money moves."}
       </p>

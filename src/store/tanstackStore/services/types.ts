@@ -133,7 +133,10 @@ export interface Payment {
   planId?: Id;
   titleId?: Id;
   description: string;
+  /** The price; the charges paid on top (PesaPal and system maintenance), and the total paid. */
   amountUGX: number;
+  chargesUGX?: number;
+  totalUGX?: number;
   method: string;
   /** PesaPal's reference, for support queries. */
   reference: string;

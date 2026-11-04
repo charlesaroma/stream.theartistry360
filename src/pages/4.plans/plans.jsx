@@ -8,11 +8,12 @@ import PesapalCheckout from "@/components/payments/PesapalCheckout";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
 import { useMember } from "@/store/context/MemberContext";
-import { formatUGX } from "@/utils/formatCurrency";
 import { PlanCards } from "@/pages/2.home/sections/PlansBand";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { safeNext } from "@/utils/links";
 import { pageMeta } from "@/seo/seo";
+import PriceBreakdown from "@/components/payments/PriceBreakdown";
+import { useCharges } from "@/store/tanstackStore/queries/site";
 
 export default function PlansPage() {
   const { member, subscribe, startCheckout, refreshAccess, demo } = useMember();
@@ -20,6 +21,8 @@ export default function PlansPage() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const [chosen, setChosen] = useState(null);
+  // PesaPal's fee and system maintenance go on top of the plan's price.
+  const charges = useCharges(chosen?.priceUGX ?? 0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   // Live: PesaPal's page open in the dialog, { reference, redirectUrl, amountUGX, label }.
@@ -41,7 +44,7 @@ export default function PlansPage() {
     try {
       if (!demo) {
         const order = await startCheckout({ kind: "subscription", planId: chosen.id }, next || "/");
-        setCheckout({ ...order, amountUGX: chosen.priceUGX, label: `${chosen.name} plan` });
+        setCheckout({ ...order, amountUGX: charges.totalUGX, label: `${chosen.name} plan` });
         setBusy(false);
         return;
       }
@@ -87,7 +90,7 @@ export default function PlansPage() {
         {chosen && checkout && <PesapalCheckout checkout={checkout} onCompleted={paid} onFailed={(m) => { setCheckout(null); setError(m); }} onBack={() => setCheckout(null)} />}
         {chosen && !checkout && (
           <>
-            <p className="text-title tabular-nums">{formatUGX(chosen.priceUGX)}</p>
+            <PriceBreakdown label={`${chosen.name} plan`} charges={charges} />
             <p className="mt-2 text-body text-text-secondary">You'll be taken to PesaPal to pay with MTN MoMo, Airtel Money or card.</p>
             {member?.subscription?.status === "active" && <p className="mt-2 text-small text-text-secondary">It adds its time on top of what's left on your plan.</p>}
             {error && <p role="alert" className="mt-4 text-small font-semibold text-danger">{error}</p>}

@@ -5,6 +5,7 @@ import { useQuery, type QueryClient } from "@tanstack/react-query";
 
 import { catalogQueries } from "./catalog";
 import { siteQueries } from "./site";
+import { chargesFor } from "@/utils/charges";
 
 export const useTitles = () => useQuery(catalogQueries.titles());
 export const useTitle = (id?: string) => useQuery(catalogQueries.title(id));
@@ -13,6 +14,12 @@ export const useTypes = () => useQuery(catalogQueries.types());
 export const useCategories = () => useQuery(catalogQueries.categories());
 export const useSite = () => useQuery(siteQueries.settings());
 export const usePlans = () => useQuery(siteQueries.plans());
+
+/** A price with the charges on top, as PesaPal will ask for it. The usual rates until the API answers; the server's sum is the one charged. */
+export function useCharges(priceUGX: number) {
+  const { data: rates } = useQuery(siteQueries.charges());
+  return chargesFor(priceUGX, rates);
+}
 
 /** id -> name lookups for types and categories. */
 export function useTaxonomy() {

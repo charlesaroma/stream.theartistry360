@@ -61,7 +61,7 @@ export default function PurchasesPanel() {
                     <td className="whitespace-nowrap px-2 py-3 text-text-secondary">{shortDate(p.paidAt)}</td>
                     <td className="px-2 py-3 text-text-primary">{p.description}</td>
                     <td className="px-2 py-3 text-text-secondary">{p.method}</td>
-                    <td className="whitespace-nowrap px-2 py-3 text-right tabular-nums">{formatUGX(p.amountUGX)}</td>
+                    <td className="whitespace-nowrap px-2 py-3 text-right tabular-nums">{formatUGX(p.totalUGX ?? p.amountUGX)}</td>
                     <td className="px-2 py-3 text-right">
                       <button type="button" onClick={() => setReceipt(p)} className="inline-flex min-h-9 items-center gap-1.5 rounded-full px-3 font-semibold text-brand hover:bg-brand/10">
                         <ReceiptText className="h-4 w-4" aria-hidden="true" /> Receipt
@@ -83,7 +83,14 @@ export default function PurchasesPanel() {
           <dl className="grid grid-cols-[8rem_minmax(0,1fr)] gap-y-3 text-small">
             <dt className="text-text-muted">Paid</dt><dd>{new Date(receipt.paidAt).toLocaleString("en-GB")}</dd>
             <dt className="text-text-muted">For</dt><dd>{receipt.description}</dd>
-            <dt className="text-text-muted">Amount</dt><dd className="font-bold">{formatUGX(receipt.amountUGX)}</dd>
+            {/* The receipt: the price, then the charges paid on top (payments from before charges have none). */}
+            {receipt.chargesUGX > 0 && (
+              <>
+                <dt className="text-text-muted">Price</dt><dd>{formatUGX(receipt.amountUGX)}</dd>
+                <dt className="text-text-muted">Charges</dt><dd>{formatUGX(receipt.chargesUGX)}</dd>
+              </>
+            )}
+            <dt className="text-text-muted">{receipt.chargesUGX > 0 ? "Total paid" : "Amount"}</dt><dd className="font-bold">{formatUGX(receipt.totalUGX ?? receipt.amountUGX)}</dd>
             <dt className="text-text-muted">Paid with</dt><dd>{receipt.method}</dd>
             <dt className="text-text-muted">Reference</dt><dd className="font-mono">{receipt.reference}</dd>
             <dt className="text-text-muted">Account</dt><dd>{member.email}</dd>

@@ -1,7 +1,7 @@
 /* Stream Site Settings Queries */
 import { queryOptions } from "@tanstack/react-query";
 
-import { getAds, getSite, listPlans } from "../../services/siteApi";
+import { getAds, getChargeRates, getSite, listPlans } from "../../services/siteApi";
 import { siteRoot } from "../keys";
 
 export const siteQueries = {
@@ -12,4 +12,7 @@ export const siteQueries = {
   ads: () => queryOptions({ queryKey: [...siteRoot, "ads"] as const, queryFn: ({ signal }) => getAds({ signal }), meta: { label: "ads" } }),
   plans: () =>
     queryOptions({ queryKey: [...siteRoot, "plans"] as const, queryFn: ({ signal }) => listPlans({ signal }), meta: { label: "plans" } }),
+  // PesaPal's fee and system maintenance, added on top of every price.
+  charges: () =>
+    queryOptions({ queryKey: [...siteRoot, "charges"] as const, queryFn: ({ signal }) => getChargeRates({ signal }), staleTime: 10 * 60_000, meta: { label: "charges" } }),
 };
