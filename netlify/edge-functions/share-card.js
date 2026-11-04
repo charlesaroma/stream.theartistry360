@@ -17,6 +17,7 @@ import { lookupTitle } from "../shared/lookup.js";
 export default async function shareCard(request, context) {
   const url = new URL(request.url);
   const response = await context.next();
+  if (url.pathname.startsWith("/payment/return")) return framableBySelf(response);
   if (!(response.headers.get("content-type") ?? "").includes("text/html")) return response;
 
   let card = null;
@@ -33,6 +34,19 @@ export default async function shareCard(request, context) {
   headers.set("cache-control", "public, max-age=0, must-revalidate");
   if (card.noindex) headers.set("x-robots-tag", "noindex");
   return new Response(withCard(html, card), { status: response.status, headers });
+}
+
+/**
+ * PesaPal's return page loads inside the site's own PesaPal window, so it
+ * alone may be framed, and only by this site (every other page: never,
+ * public/_headers). Never indexed.
+ */
+function framableBySelf(response) {
+  const headers = new Headers(response.headers);
+  headers.set("x-frame-options", "SAMEORIGIN");
+  headers.set("content-security-policy", "frame-ancestors 'self'");
+  headers.set("x-robots-tag", "noindex");
+  return new Response(response.body, { status: response.status, headers });
 }
 
 // Every page, so even the home page's card points at the address that was

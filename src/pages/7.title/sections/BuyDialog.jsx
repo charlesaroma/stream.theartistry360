@@ -5,6 +5,7 @@ import { ShieldCheck } from "lucide-react";
 
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
+import PesapalCheckout from "@/components/payments/PesapalCheckout";
 import PaymentLogo from "@/components/ui/PaymentLogo";
 import { useMember } from "@/store/context/MemberContext";
 import { formatUGX } from "@/utils/formatCurrency";
@@ -23,15 +24,35 @@ const METHODS = [
  * stand-in that grants it at once.
  */
 export default function BuyDialog({ title, open, onClose, onDone }) {
-  const { purchase, demo } = useMember();
+  const { purchase, startCheckout, refreshAccess, demo } = useMember();
+  // Live: PesaPal's page open in this dialog.
+  const [checkout, setCheckout] = useState(null);
   const [method, setMethod] = useState("mtn");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+
+  const close = () => {
+    setCheckout(null);
+    setError("");
+    onClose();
+  };
+  // PesaPal confirmed: the rental is on the account; on to the player.
+  const paid = async () => {
+    await refreshAccess().catch(() => {});
+    close();
+    onDone?.();
+  };
 
   const pay = async () => {
     setBusy(true);
     setError("");
     try {
+      if (!demo) {
+        const order = await startCheckout({ kind: "ppv", titleId: title.id }, `/watch/${title.id}`);
+        setCheckout({ ...order, amountUGX: title.access.priceUGX, label: title.title });
+        setBusy(false);
+        return;
+      }
       await purchase(title.id, METHODS.find((m) => m.id === method)?.label, `/watch/${title.id}`);
     } catch (e) {
       setError(e.message);
@@ -47,7 +68,11 @@ export default function BuyDialog({ title, open, onClose, onDone }) {
 
   return (
     // No closing mid-payment.
-    <Modal open={open} onClose={busy ? undefined : onClose} title={`Watch ${title.title}`}>
+    <Modal open={open} onClose={busy ? undefined : close} title={`Watch ${title.title}`} className={checkout ? "sm:max-w-2xl" : undefined}>
+      {checkout ? (
+        <PesapalCheckout checkout={checkout} onCompleted={paid} onFailed={(m) => { setCheckout(null); setError(m); }} onBack={() => setCheckout(null)} />
+      ) : (
+      <>
       <p className="text-body text-text-secondary">Pay once and it's yours to watch for 24 hours from first play.</p>
       <p className="mt-4 text-title tabular-nums">{formatUGX(title.access.priceUGX)}</p>
       {/* Payment Method: real radios, styled as cards. Live, PesaPal asks on its own page. */}
@@ -72,6 +97,8 @@ export default function BuyDialog({ title, open, onClose, onDone }) {
       <p className="mt-2 text-center text-caption text-text-muted">
         By paying you agree to our <Link to="/legal/terms" className="underline hover:text-brand">Terms</Link> and <Link to="/legal/refunds" className="underline hover:text-brand">Refunds policy</Link>.
       </p>
+      </>
+      )}
     </Modal>
   );
 }

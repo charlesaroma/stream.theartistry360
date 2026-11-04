@@ -57,6 +57,8 @@ export function MemberProvider({ children }) {
       signInWithGoogle: (next) => switchAccount(auth.signInWithGoogle, next),
       // Live sign-in: Google's ID token from its button, or Apple's popup.
       signInWith: (provider, idToken) => switchAccount(auth.signInWith, provider, idToken),
+      // Live checkout in the site's PesaPal window: → { reference, redirectUrl }.
+      startCheckout: auth.startCheckout,
       // After PesaPal sends the member back: what they may watch now.
       refreshAccess: async () => { const m = await run(auth.refreshAccess); queryClient.invalidateQueries({ queryKey: realmRoot("member") }); return m; },
       // Password reset doesn't sign anyone in; the member signs in afterwards.

@@ -4,6 +4,7 @@ import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { ShieldCheck } from "lucide-react";
 
 import PageIntro from "@/components/layout/PageIntro";
+import PesapalCheckout from "@/components/payments/PesapalCheckout";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
 import { useMember } from "@/store/context/MemberContext";
@@ -14,13 +15,15 @@ import { safeNext } from "@/utils/links";
 import { pageMeta } from "@/seo/seo";
 
 export default function PlansPage() {
-  const { member, subscribe, demo } = useMember();
+  const { member, subscribe, startCheckout, refreshAccess, demo } = useMember();
   usePageMeta({ title: "Plans", description: pageMeta("/plans").description });
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const [chosen, setChosen] = useState(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  // Live: PesaPal's page open in the dialog, { reference, redirectUrl, amountUGX, label }.
+  const [checkout, setCheckout] = useState(null);
   // Where to return after paying, e.g. the title that sent them here. Empty when there is none.
   const next = safeNext(params.get("next"), "");
 
@@ -30,12 +33,18 @@ export default function PlansPage() {
     setChosen(plan);
   };
 
-  // Live: off to PesaPal, which sends them back to /payment/return and then `next`.
+  // Live: PesaPal opens in the dialog; the plan starts once PesaPal confirms (paid).
   // Demo: subscribe resolves without PesaPal, then return to where they came from.
   const pay = async () => {
     setBusy(true);
     setError("");
     try {
+      if (!demo) {
+        const order = await startCheckout({ kind: "subscription", planId: chosen.id }, next || "/");
+        setCheckout({ ...order, amountUGX: chosen.priceUGX, label: `${chosen.name} plan` });
+        setBusy(false);
+        return;
+      }
       await subscribe(chosen.id, undefined, next || "/");
     } catch (e) {
       setError(e.message);
@@ -44,6 +53,18 @@ export default function PlansPage() {
     }
     setBusy(false);
     setChosen(null);
+    navigate(next || "/", { viewTransition: true });
+  };
+
+  const close = () => {
+    setChosen(null);
+    setCheckout(null);
+    setError("");
+  };
+  // PesaPal confirmed: the plan is on the account; carry on to where they were going.
+  const paid = async () => {
+    await refreshAccess().catch(() => {});
+    close();
     navigate(next || "/", { viewTransition: true });
   };
 
@@ -60,9 +81,11 @@ export default function PlansPage() {
         <p className="mt-8 text-center text-small text-text-muted">Not ready? Create a free account and watch selected titles with ads.</p>
       </div>
 
-      {/* Checkout Modal: can't be closed while the payment is in progress. */}
-      <Modal open={Boolean(chosen)} onClose={busy ? undefined : () => setChosen(null)} title={`Subscribe: ${chosen?.name ?? ""}`}>
-        {chosen && (
+      {/* Checkout Modal: can't be closed while the payment is starting. With PesaPal open it can:
+          a payment finished there still counts, through PesaPal's own notice. */}
+      <Modal open={Boolean(chosen)} onClose={busy ? undefined : close} title={`Subscribe: ${chosen?.name ?? ""}`} className={checkout ? "sm:max-w-2xl" : undefined}>
+        {chosen && checkout && <PesapalCheckout checkout={checkout} onCompleted={paid} onFailed={(m) => { setCheckout(null); setError(m); }} onBack={() => setCheckout(null)} />}
+        {chosen && !checkout && (
           <>
             <p className="text-title tabular-nums">{formatUGX(chosen.priceUGX)}</p>
             <p className="mt-2 text-body text-text-secondary">You'll be taken to PesaPal to pay with MTN MoMo, Airtel Money or card.</p>

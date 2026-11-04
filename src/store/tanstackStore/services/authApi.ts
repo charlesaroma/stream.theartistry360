@@ -221,13 +221,27 @@ export function signOutEverywhere() {
  */
 export const CHECKOUT_KEY = "a360s:checkout";
 
-async function checkout(body: { kind: "subscription"; planId: Id } | { kind: "ppv"; titleId: Id }, next: string): Promise<never> {
-  const { reference, redirectUrl } = await http.post<{ reference: string; redirectUrl: string }>(routes.orders, body);
+export type CheckoutFor = { kind: "subscription"; planId: Id } | { kind: "ppv"; titleId: Id };
+
+/**
+ * Starts paying: → { reference, redirectUrl }, PesaPal's page, which the
+ * site shows in its own PesaPal window (components/payments/PesapalCheckout).
+ * Where to go afterwards is kept for the "Open in a new tab" route, which
+ * ends on /payment/return in a full tab.
+ */
+export async function startCheckout(body: CheckoutFor, next: string) {
+  const order = await http.post<{ reference: string; redirectUrl: string }>(routes.orders, body);
   try {
-    sessionStorage.setItem(CHECKOUT_KEY, JSON.stringify({ reference, next, kind: body.kind }));
+    sessionStorage.setItem(CHECKOUT_KEY, JSON.stringify({ reference: order.reference, next, kind: body.kind }));
   } catch {
     // Storage blocked: the return page still finds the order from PesaPal's link.
   }
+  return order;
+}
+
+/** A full-page checkout (the API's answer is followed in this tab). */
+async function checkout(body: CheckoutFor, next: string): Promise<never> {
+  const { redirectUrl } = await startCheckout(body, next);
   window.location.assign(redirectUrl);
   return new Promise<never>(() => {}); // the page is leaving
 }

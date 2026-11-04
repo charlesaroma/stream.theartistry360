@@ -6,6 +6,7 @@ import { CircleCheck, LoaderCircle, TriangleAlert } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { useMember } from "@/store/context/MemberContext";
+import { RETURN_MESSAGE } from "@/components/payments/PesapalCheckout";
 import { CHECKOUT_KEY, getOrder } from "@/store/tanstackStore/queries/member";
 import { safeNext } from "@/utils/links";
 
@@ -20,13 +21,43 @@ const readCheckout = () => {
   }
 };
 
+const framed = (() => {
+  try {
+    return window.self !== window.top;
+  } catch {
+    return true; // a parent on another origin can't be read: still framed
+  }
+})();
+
 /**
  * Where PesaPal sends a member after paying (?OrderMerchantReference=…).
- * It asks the API about the order until PesaPal has given its word: the plan
- * or rental is the API's to grant, never this page's. Then it refreshes what
+ * Inside the site's PesaPal window it tells the window (same origin only),
+ * which checks the order. In a full tab (the "Open in a new tab" link) it
+ * asks the API about the order until PesaPal has given its word: the plan or
+ * rental is the API's to grant, never this page's. Then it refreshes what
  * the member may watch and goes on to where they were heading.
  */
 export default function PaymentReturnPage() {
+  return framed ? <FramedReturn /> : <FullPageReturn />;
+}
+
+function FramedReturn() {
+  usePageMeta({ title: "Payment", noindex: true });
+  const [params] = useSearchParams();
+  const reference = params.get("OrderMerchantReference");
+  useEffect(() => {
+    window.parent.postMessage({ type: RETURN_MESSAGE, reference }, window.location.origin);
+  }, [reference]);
+  return (
+    <main className="grid min-h-dvh place-items-center bg-surface-card p-6 text-center">
+      <p role="status" className="flex items-center gap-3 text-small text-text-secondary">
+        <LoaderCircle className="h-5 w-5 animate-spin text-brand" aria-hidden="true" /> Payment received. Finishing up…
+      </p>
+    </main>
+  );
+}
+
+function FullPageReturn() {
   usePageMeta({ title: "Payment", noindex: true });
   const [params] = useSearchParams();
   const navigate = useNavigate();
@@ -90,7 +121,7 @@ export default function PaymentReturnPage() {
   const Icon = view.icon;
 
   return (
-    <section className="shell grid min-h-[80dvh] place-items-center pt-18 text-center">
+    <section className="shell grid min-h-dvh place-items-center text-center">
       <div className="max-w-md" role="status" aria-live="polite">
         <Icon className={`mx-auto mb-6 h-12 w-12 ${view.tone ?? "text-brand"} ${view.spin ? "animate-spin" : ""}`} aria-hidden="true" />
         <h1 className="text-title">{view.title}</h1>
