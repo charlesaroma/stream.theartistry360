@@ -13,7 +13,7 @@ import { usePageMeta } from "@/hooks/usePageMeta";
 import { safeNext } from "@/utils/links";
 import { pageMeta } from "@/seo/seo";
 import PriceBreakdown from "@/components/payments/PriceBreakdown";
-import { useCharges } from "@/store/tanstackStore/queries/site";
+import { useCharges, usePlans } from "@/store/tanstackStore/queries/site";
 
 export default function PlansPage() {
   const { member, subscribe, startCheckout, refreshAccess, demo } = useMember();
@@ -29,6 +29,14 @@ export default function PlansPage() {
   const [checkout, setCheckout] = useState(null);
   // Where to return after paying, e.g. the title that sent them here. Empty when there is none.
   const next = safeNext(params.get("next"), "");
+  // ?plan= (back from sign-up, or sent by the app): open that plan's checkout once, when signed in.
+  const { data: plans = [] } = usePlans();
+  const [asked, setAsked] = useState(false);
+  const wanted = member && !asked ? plans.find((p) => p.id === params.get("plan")) : null;
+  if (wanted) {
+    setAsked(true);
+    setChosen(wanted);
+  }
 
   // Visitors sign up first and come back to this plan; members go straight to checkout.
   const choose = (plan) => {
