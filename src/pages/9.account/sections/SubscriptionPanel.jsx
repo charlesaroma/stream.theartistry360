@@ -7,7 +7,7 @@ import { useMember } from "@/store/context/MemberContext";
 import { usePlans } from "@/store/tanstackStore/queries/site";
 import { formatUGX } from "@/utils/formatCurrency";
 import { longDate } from "./dates";
-import { Card, Status } from "./ui";
+import { Card, Status, SwitchRow } from "./ui";
 
 const PER = { month: "month", quarter: "3 months", year: "year" };
 
@@ -33,7 +33,7 @@ export default function SubscriptionPanel() {
     setMsg({});
     try {
       await setCancelAtPeriodEnd(cancel);
-      setMsg({ ok: cancel ? `Cancelled. You keep full access until ${longDate(sub.renewsAt)}.` : "Your plan will renew as normal." });
+      setMsg({ ok: !demo ? (cancel ? "Reminders off. You keep full access until the date above." : "We'll email you before your plan ends.") : cancel ? `Cancelled. You keep full access until ${longDate(sub.renewsAt)}.` : "Your plan will renew as normal." });
       setConfirming(false);
     } catch (e) {
       setMsg({ error: e.message });
@@ -67,6 +67,14 @@ export default function SubscriptionPanel() {
         <div className="mt-5 flex flex-col gap-3">
           <p className="text-small text-text-secondary">Nothing is charged by itself. Renew before then to keep watching; a renewal adds its time on top of what's left.</p>
           <div><Button variant="glass" to="/plans?next=/account">Renew or change plan</Button></div>
+          {/* Reminders: "cancel" in the API means don't remind me. */}
+          <SwitchRow
+            label="Email me before my plan ends"
+            hint={`Three days before ${longDate(sub.renewsAt)}, and once it has ended, to ${member.email}.`}
+            checked={!sub.cancelAtPeriodEnd}
+            disabled={busy}
+            onChange={(on) => setCancel(!on)}
+          />
         </div>
       ) : (
       <div className="mt-5 flex flex-wrap gap-3">
