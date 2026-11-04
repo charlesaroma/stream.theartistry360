@@ -39,6 +39,7 @@ export const routes = {
   categories: "streaming/categories",
   plans: "streaming/plans",
   site: "stream/site",
+  ads: "stream/ads",
   playback: "streaming/playback",
   // The member's own
   library: "library",

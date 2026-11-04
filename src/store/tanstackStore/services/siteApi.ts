@@ -15,3 +15,15 @@ export const getSite = ({ signal }: RequestOptions = {}) =>
 // Live: active plans only, in the Studio's order.
 export const listPlans = ({ signal }: RequestOptions = {}) =>
   !useMockApi ? http.get<Plan[]>(routes.plans, { signal }) : mockApi(() => (streamingPlansSeed as Plan[]).filter((p) => p.active), 100, signal);
+
+/** What the player needs to show free viewers ads (Studio › Streaming › Ads): `GET stream/ads`. */
+export interface AdSettings {
+  enabled: boolean;
+  frequencyCapPerHour: number;
+  web: { adTagUrl: string; preroll: boolean; midrollEveryMinutes: number; skippableAfterSeconds: number };
+}
+
+export const getAds = ({ signal }: RequestOptions = {}) =>
+  !useMockApi
+    ? http.get<AdSettings>(routes.ads, { signal })
+    : mockApi((): AdSettings => ({ enabled: true, frequencyCapPerHour: 4, web: { adTagUrl: "", preroll: true, midrollEveryMinutes: 15, skippableAfterSeconds: 5 } }), 0, signal);
