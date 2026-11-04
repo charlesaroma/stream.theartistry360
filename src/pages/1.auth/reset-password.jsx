@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { CircleCheck } from "lucide-react";
 
 import Button from "@/components/ui/Button";
@@ -25,7 +25,14 @@ function takeToken() {
 }
 
 /** /reset-password?token=…: the page the emailed link opens. */
+/** Live sign-in is Google or Apple, so there's no password to reset: off to sign in. */
 export default function ResetPasswordPage() {
+  const { demo } = useMember();
+  if (!demo) return <Navigate to="/sign-in" replace />;
+  return <ResetPasswordPageForm />;
+}
+
+function ResetPasswordPageForm() {
   usePageMeta({ title: "Set a new password", noindex: true });
   const { resetPassword } = useMember();
   // Lazy initialiser: take the token on first render only, before it is stripped from the URL.

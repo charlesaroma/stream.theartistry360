@@ -55,22 +55,27 @@ export function MemberProvider({ children }) {
       signIn: (c) => switchAccount(auth.signIn, c),
       signUp: (d) => switchAccount(auth.signUp, d),
       signInWithGoogle: (next) => switchAccount(auth.signInWithGoogle, next),
+      // Live sign-in: Google's ID token from its button, or Apple's popup.
+      signInWith: (provider, idToken) => switchAccount(auth.signInWith, provider, idToken),
+      // After PesaPal sends the member back: what they may watch now.
+      refreshAccess: async () => { const m = await run(auth.refreshAccess); queryClient.invalidateQueries({ queryKey: realmRoot("member") }); return m; },
       // Password reset doesn't sign anyone in; the member signs in afterwards.
       requestPasswordReset: auth.requestPasswordReset,
       resetPassword: auth.resetPassword,
       /** Mocks on: pages may show demo shortcuts (e.g. the reset link). */
       demo: useMockApi,
       signOut: () => switchAccount(auth.signOut),
-      // A payment adds a receipt: refresh the member's payments.
-      subscribe: async (planId, method) => { const m = await run(auth.subscribe, planId, method); queryClient.invalidateQueries({ queryKey: realmRoot("member") }); return m; },
-      purchase: async (titleId, method) => { const m = await run(auth.purchase, titleId, method); queryClient.invalidateQueries({ queryKey: realmRoot("member") }); return m; },
+      // A payment adds a receipt: refresh the member's payments. Live, both go
+      // to PesaPal and never come back here; /payment/return picks up from there.
+      subscribe: async (planId, method, next) => { const m = await run(auth.subscribe, planId, method, next); queryClient.invalidateQueries({ queryKey: realmRoot("member") }); return m; },
+      purchase: async (titleId, method, next) => { const m = await run(auth.purchase, titleId, method, next); queryClient.invalidateQueries({ queryKey: realmRoot("member") }); return m; },
       // Account page: each returns the updated member.
       updateProfile: (data) => run(account.updateProfile, member, data),
       requestEmailChange: (email) => run(account.requestEmailChange, member, email),
       changePassword: (data) => run(account.changePassword, member, data),
       setCancelAtPeriodEnd: (cancel) => run(account.setCancelAtPeriodEnd, member, cancel),
-      // The API revokes every refresh token for the member; here, this device.
-      signOutEverywhere: () => switchAccount(auth.signOut),
+      // The API revokes every refresh token for the member, this device's too.
+      signOutEverywhere: () => switchAccount(auth.signOutEverywhere),
       deleteAccount: async (confirmText) => {
         await account.deleteAccount(member, confirmText);
         return switchAccount(auth.signOut);

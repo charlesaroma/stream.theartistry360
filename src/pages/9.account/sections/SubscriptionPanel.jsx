@@ -11,9 +11,13 @@ import { Card, Status } from "./ui";
 
 const PER = { month: "month", quarter: "3 months", year: "year" };
 
-/** The plan, when it renews (or ends), and changing or cancelling it. */
+/**
+ * The plan, when it renews (or ends), and changing or cancelling it. Against
+ * the API a plan is paid a period at a time through PesaPal, never charged by
+ * itself, so it shows what's paid up and a way to renew instead.
+ */
 export default function SubscriptionPanel() {
-  const { member, setCancelAtPeriodEnd } = useMember();
+  const { member, setCancelAtPeriodEnd, demo } = useMember();
   const { data: plans = [] } = usePlans();
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -55,10 +59,16 @@ export default function SubscriptionPanel() {
           {plan && <p className="mt-1 text-small text-text-secondary">{formatUGX(plan.priceUGX)} every {PER[plan.interval]}</p>}
         </div>
         <p className="text-small text-text-secondary">
-          {sub.cancelAtPeriodEnd ? <>Ends on <strong className="text-warning">{longDate(sub.renewsAt)}</strong></> : <>Renews on <strong className="text-text-primary">{longDate(sub.renewsAt)}</strong></>}
+          {!demo ? <>Paid until <strong className="text-text-primary">{longDate(sub.renewsAt)}</strong></> : sub.cancelAtPeriodEnd ? <>Ends on <strong className="text-warning">{longDate(sub.renewsAt)}</strong></> : <>Renews on <strong className="text-text-primary">{longDate(sub.renewsAt)}</strong></>}
         </p>
       </div>
 
+      {!demo ? (
+        <div className="mt-5 flex flex-col gap-3">
+          <p className="text-small text-text-secondary">Nothing is charged by itself. Renew before then to keep watching; a renewal adds its time on top of what's left.</p>
+          <div><Button variant="glass" to="/plans?next=/account">Renew or change plan</Button></div>
+        </div>
+      ) : (
       <div className="mt-5 flex flex-wrap gap-3">
         <Button variant="glass" to="/plans?next=/account">Change plan</Button>
         {/* Already cancelled: offer to keep it. Otherwise, a two-step cancel. */}
@@ -76,6 +86,7 @@ export default function SubscriptionPanel() {
           <Button variant="ghost" onClick={() => setConfirming(true)}>Cancel plan</Button>
         )}
       </div>
+      )}
       <Status {...msg} />
     </Card>
   );

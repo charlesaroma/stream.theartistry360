@@ -5,11 +5,12 @@
  * the realm is still named on every call so the transport matches
  * theartistry360.com's and a second realm could never share this slot.
  *
- * Held in sessionStorage while the API runs on mocks, so a reload keeps you
- * signed in during development. When the backend lands, the token moves to
- * memory with an httpOnly refresh cookie.
+ * Against the API the token lives in memory only, and the httpOnly refresh
+ * cookie (a360_rt_member) brings a new one after a reload. On mocks it sits
+ * in sessionStorage, so a reload keeps you signed in during development.
  */
 
+import { useMockApi } from "./config";
 import type { Realm } from "./types";
 
 export const REALMS: readonly Realm[] = ["member"];
@@ -18,10 +19,13 @@ type TokenListener = (realm: Realm, token: string | null) => void;
 
 const KEY = (realm: Realm) => `a360s:token:${realm}`;
 const listeners = new Set<TokenListener>();
+const inMemory = new Map<Realm, string>();
 
 export function accessToken(realm: Realm) {
+  assertRealm(realm);
+  if (!useMockApi) return inMemory.get(realm) ?? null;
   try {
-    return window.sessionStorage.getItem(KEY(assertRealm(realm)));
+    return window.sessionStorage.getItem(KEY(realm));
   } catch {
     return null;
   }
@@ -29,11 +33,16 @@ export function accessToken(realm: Realm) {
 
 export function setAccessToken(realm: Realm, token: string | null) {
   assertRealm(realm);
-  try {
-    if (token) window.sessionStorage.setItem(KEY(realm), token);
-    else window.sessionStorage.removeItem(KEY(realm));
-  } catch {
-    // Storage unavailable: the session lasts until the next reload.
+  if (!useMockApi) {
+    if (token) inMemory.set(realm, token);
+    else inMemory.delete(realm);
+  } else {
+    try {
+      if (token) window.sessionStorage.setItem(KEY(realm), token);
+      else window.sessionStorage.removeItem(KEY(realm));
+    } catch {
+      // Storage unavailable: the session lasts until the next reload.
+    }
   }
   listeners.forEach((fn) => fn(realm, token ?? null));
 }

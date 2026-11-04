@@ -15,5 +15,6 @@ export const pages = {
   signUp: () => import("@/pages/1.auth/sign-up"),
   forgotPassword: () => import("@/pages/1.auth/forgot-password"),
   resetPassword: () => import("@/pages/1.auth/reset-password"),
+  paymentReturn: () => import("@/pages/11.payment/payment-return"),
   notFound: () => import("@/pages/not-found"),
 };

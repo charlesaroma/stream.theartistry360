@@ -11,9 +11,15 @@ import { Card, Status } from "./ui";
 const input = "w-full rounded-2xl border border-white/10 bg-surface-primary px-4 py-3 text-body text-text-primary focus:border-brand focus:outline-none";
 const label = "mb-2 block text-caption font-bold uppercase tracking-[0.12em] text-text-secondary";
 
-/** Security: name and phone, email (changed through a confirmation link), password (PasswordCard), and signing out everywhere. */
+/**
+ * Security: name and phone, email (changed through a confirmation link),
+ * password (PasswordCard), and signing out everywhere. Against the API a
+ * member signs in with Google or Apple, so only the name is kept here: the
+ * email and password are the provider's, and no phone is stored.
+ */
 export default function ProfilePanel() {
-  const { member, updateProfile, requestEmailChange, signOutEverywhere } = useMember();
+  const { member, updateProfile, requestEmailChange, signOutEverywhere, demo } = useMember();
+  const providerName = member.provider === "apple" ? "Apple" : "Google";
   const [profile, setProfile] = useState({ name: member.name, phone: member.phone ?? "" });
   const [email, setEmail] = useState("");
   const [msg, setMsg] = useState({});
@@ -36,14 +42,17 @@ export default function ProfilePanel() {
 
   return (
     <div className="flex flex-col gap-6">
-      <Card title="Profile" description="Your name shows on your comments. Your phone is only used if we need to reach you about a payment, and is never shown to others.">
+      <Card title="Profile" description={demo ? "Your name shows on your comments. Your phone is only used if we need to reach you about a payment, and is never shown to others." : "Your name shows on your comments."}>
         <form onSubmit={act("profile", () => updateProfile(profile), "Saved.")} className="grid max-w-2xl grid-cols-1 gap-4 sm:grid-cols-2">
           <label><span className={label}>Name</span><input className={input} value={profile.name} maxLength={60} autoComplete="name" onChange={(e) => setProfile({ ...profile, name: e.target.value })} /></label>
-          <label><span className={label}>Phone</span><input className={input} type="tel" value={profile.phone} autoComplete="tel" placeholder="+256 772 000 000" onChange={(e) => setProfile({ ...profile, phone: e.target.value })} /></label>
+          {demo && <label><span className={label}>Phone</span><input className={input} type="tel" value={profile.phone} autoComplete="tel" placeholder="+256 772 000 000" onChange={(e) => setProfile({ ...profile, phone: e.target.value })} /></label>}
           <div className="sm:col-span-2"><Button type="submit" loading={busy === "profile"}>Save profile</Button><Status {...msg.profile} /></div>
         </form>
       </Card>
 
+      {!demo ? (
+        <Card title="Sign-in" description={`You sign in with ${providerName}${member.email ? ` as ${member.email}` : ""}. Your email and password are looked after by ${providerName}.`} />
+      ) : (
       <Card title="Email" description={`You sign in with ${member.email}.`}>
         {/* Pending Change: the old email stays until the link is opened. */}
         {member.pendingEmail && (
@@ -57,9 +66,10 @@ export default function ProfilePanel() {
         </form>
         <Status {...msg.email} />
       </Card>
+      )}
 
-      {/* Password: its own card, with its own form state. */}
-      <PasswordCard />
+      {/* Password: its own card, with its own form state (mocks only: live sign-in has no password). */}
+      {demo && <PasswordCard />}
 
       <Card title="Devices" description="Lost a phone, or signed in on a shared computer? Sign out everywhere; you'll sign in again on this device.">
         <Button variant="glass" onClick={() => signOutEverywhere()}><LogOut className="h-4 w-4" aria-hidden="true" /> Sign out of all devices</Button>

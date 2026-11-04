@@ -9,23 +9,59 @@ export interface HttpOptions {
   realm?: Realm;
   headers?: Record<string, string>;
   signal?: AbortSignal;
+  /** False for the auth calls themselves, so a 401 there never triggers a refresh. */
+  refresh?: boolean;
 }
 
 interface RequestInit_ extends HttpOptions {
   body?: unknown;
 }
 
+/** Gets the realm a new access token from its refresh cookie; true when it did. */
+type Refresher = () => Promise<boolean>;
+let refresher: Refresher | null = null;
+let inFlight: Promise<boolean> | null = null;
+
+/** The auth service says how the member realm refreshes. */
+export function registerRefresher(fn: Refresher) {
+  refresher = fn;
+}
+
+/** One refresh at a time: requests that hit an expired token together wait for the same one. */
+export function refreshRealm(): Promise<boolean> {
+  if (!refresher) return Promise.resolve(false);
+  inFlight ??= refresher()
+    .catch(() => false)
+    .finally(() => {
+      inFlight = null;
+    });
+  return inFlight;
+}
+
 /**
  * Every call names its realm, so a Studio token never rides along on a
- * member request.
+ * member request. An expired access token is refreshed once and the call
+ * retried; if that fails, the member is signed out.
  */
 async function request<T>(method: string, path: string, options: RequestInit_ = {}): Promise<Envelope<T>> {
+  const { realm = "member", refresh = true } = options;
+  const response = await send(method, path, options);
+
+  if (response.status === 401 && refresh && accessToken(realm) && refresher) {
+    if (await refreshRealm()) return unwrap<T>(await send(method, path, options));
+  }
+
+  // A rejected token is dropped; the auth context hears it and signs out.
+  if (response.status === 401 && accessToken(realm)) clearAccessToken(realm);
+
+  return unwrap<T>(response);
+}
+
+async function send(method: string, path: string, options: RequestInit_): Promise<Response> {
   const { body, params, realm = "member", headers, signal } = options;
   const control = abortAfter(apiTimeout, signal);
-  let response: Response;
-
   try {
-    response = await fetch(apiUrl(path, params), {
+    return await fetch(apiUrl(path, params), {
       method,
       signal: control.signal,
       credentials: "include",
@@ -37,11 +73,6 @@ async function request<T>(method: string, path: string, options: RequestInit_ = 
   } finally {
     control.done();
   }
-
-  // A rejected token is dropped; the auth context hears it and signs out.
-  if (response.status === 401 && accessToken(realm)) clearAccessToken(realm);
-
-  return unwrap<T>(response);
 }
 
 function buildHeaders({ body, headers, realm }: { body: unknown; headers?: Record<string, string>; realm: Realm }) {

@@ -29,3 +29,10 @@ export function useAccountData() {
   const clearHistory = useMutation({ mutationFn: () => account.clearHistory(memberId!), meta: { invalidates: [[...memberRoot(memberId)]], handlesErrors: true } });
   return { clearHistory: clearHistory.mutateAsync };
 }
+
+// The PesaPal return page asks about the order itself (it polls until
+// PesaPal has answered), so it gets the plain call, through the store.
+export { getOrder, type OrderStatus } from "../../services/accountApi";
+export { CHECKOUT_KEY } from "../../services/authApi";
+// Sign-in buttons: the providers' own scripts, reached through the store too.
+export { memberProviders, preloadApple, renderGoogleButton } from "../../services/identityProviders";

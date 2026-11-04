@@ -1,10 +1,15 @@
 /* Member Account Service */
-// Everything on /account: the plan, payments and receipts, profile and
-// password, and the member's data. The mock
-// keeps it in this browser. The real API (auth/me, payments, account/*)
-// must check every change against the session, never the request body:
-// the member id below comes from the signed-in member only.
+// Everything on /account: the plan, payments and receipts, profile, and the
+// member's data. Live: auth/me, payments/history, payments/subscription/*,
+// library/progress, auth/me/delete. The API takes the member from the
+// session, never the request: the member passed below is only for the page.
+// Signing in is Google or Apple, so there's no password or email to change
+// here (that's done with the provider). The mock keeps it in this browser.
+import { http } from "@/store/tanstackStore/services/api/client";
+import { useMockApi } from "@/store/tanstackStore/services/api/config";
+import { routes } from "@/store/tanstackStore/services/api/routes";
 import { ApiError, mockApi } from "@/store/tanstackStore/services/api/mock";
+import { rememberMember } from "./authApi";
 import type { Id, RequestOptions } from "@/store/tanstackStore/services/api/types";
 import type { Member, Payment } from "./types";
 
@@ -29,7 +34,7 @@ function write<T>(k: string, value: T): T {
 /* Payments (PesaPal). Written only by the IPN webhook in the real API. */
 
 export const listPayments = (memberId: Id, { signal }: RequestOptions = {}) =>
-  mockApi(() => read<Payment[]>(K("payments", memberId), []), 150, signal);
+  !useMockApi ? http.get<Payment[]>(routes.paymentHistory, { signal }) : mockApi(() => read<Payment[]>(K("payments", memberId), []), 150, signal);
 
 export function recordPayment(memberId: Id, payment: Omit<Payment, "id" | "reference" | "status" | "paidAt">) {
   const row: Payment = {
@@ -49,6 +54,10 @@ const MEMBER_KEY = "a360s:member";
 const saveMember = (m: Member) => write(MEMBER_KEY, m);
 
 export function updateProfile(member: Member | null, { name, phone }: { name: string; phone: string }) {
+  if (!useMockApi) {
+    if (!member) return Promise.reject(new ApiError("Sign in first.", 401));
+    return http.patch<{ name: string }>(routes.me, { name }).then((u) => rememberMember({ ...member, name: u.name }));
+  }
   return mockApi(() => {
     if (!member) throw new ApiError("Sign in first.", 401);
     if (!name.trim()) throw new ApiError("Enter your name.", 422);
@@ -78,6 +87,12 @@ export function changePassword(member: Member | null, { current, next }: { curre
 /* Plan */
 
 export function setCancelAtPeriodEnd(member: Member | null, cancel: boolean) {
+  if (!useMockApi) {
+    if (!member) return Promise.reject(new ApiError("Sign in first.", 401));
+    return http
+      .post<Pick<Member, "subscription" | "purchases">>(cancel ? routes.cancelPlan : routes.resumePlan)
+      .then((access) => rememberMember({ ...member, subscription: access.subscription, purchases: access.purchases }));
+  }
   return mockApi(() => {
     if (!member?.subscription) throw new ApiError("There's no active plan.", 409);
     return saveMember({ ...member, subscription: { ...member.subscription, cancelAtPeriodEnd: cancel } });
@@ -96,7 +111,9 @@ const memberKeys = (memberId: Id) => {
 
 
 export const clearHistory = (memberId: Id) =>
-  mockApi(() => {
+  !useMockApi
+    ? http.del(routes.progress)
+    : mockApi(() => {
     for (const what of ["progress", "episodes"]) {
       try {
         localStorage.removeItem(K(what, memberId));
@@ -108,7 +125,9 @@ export const clearHistory = (memberId: Id) =>
 
 /** Deletes the account and everything tied to it. The caller signs out. */
 export const deleteAccount = (member: Member | null, confirmText: string) =>
-  mockApi(() => {
+  !useMockApi
+    ? http.post(routes.deleteAccount, { confirm: confirmText })
+    : mockApi(() => {
     if (!member) throw new ApiError("Sign in first.", 401);
     if (confirmText.trim().toUpperCase() !== "DELETE") throw new ApiError('Type DELETE to confirm.', 422);
     for (const k of memberKeys(member.id)) {
@@ -119,3 +138,19 @@ export const deleteAccount = (member: Member | null, confirmText: string) =>
       }
     }
   }, 600);
+
+/** A payment the member just made, as PesaPal left it (`GET payments/orders/:reference`), for the return page. */
+export interface OrderStatus {
+  reference: string;
+  status: "pending" | "completed" | "failed" | "reversed";
+  kind: string;
+  amountUGX: number;
+  planId?: Id;
+  titleId?: Id;
+  itemName?: string;
+}
+
+export const getOrder = (reference: string) =>
+  !useMockApi
+    ? http.get<OrderStatus>(`${routes.orders}/${encodeURIComponent(reference)}`)
+    : mockApi(() => ({ reference, status: "completed" as const, kind: "subscription", amountUGX: 0 }), 300);

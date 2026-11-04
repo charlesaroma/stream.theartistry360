@@ -1,20 +1,122 @@
 /* Member Auth Service */
-import { apiRoot, useMockApi } from "@/store/tanstackStore/services/api/config";
+import { useMockApi } from "@/store/tanstackStore/services/api/config";
+import { http, refreshRealm, registerRefresher } from "@/store/tanstackStore/services/api/client";
 import { ApiError, mockApi } from "@/store/tanstackStore/services/api/mock";
+import { routes } from "@/store/tanstackStore/services/api/routes";
 import { accessToken, clearAccessToken, setAccessToken } from "@/store/tanstackStore/services/api/tokens";
 import type { Id } from "@/store/tanstackStore/services/api/types";
 import type { Member } from "./types";
 import { recordPayment } from "./accountApi";
+import { appleSignIn } from "./identityProviders";
 import { streamingPlansSeed } from "@/data/streamingPlans";
 import { streamingTitlesSeed } from "@/data/streamingTitles";
 
 /**
- * Members only: this site has no admin realm, and it is the only place the
- * public signs in (theartistry360.com has no public login). Mock mode keeps
- * the member in localStorage so a reload stays signed in. The real API uses
- * member accounts (MOU 3D: email, phone or Google).
+ * Members only: this site has no admin realm. The same member accounts as
+ * voting on theartistry360.com: Google or Apple vouches for the member
+ * (`POST auth/google`, `auth/apple`), so there is no password to keep. The
+ * access token is held in memory and the httpOnly refresh cookie brings it
+ * back after a reload. What the member may watch (plan, rentals) comes with
+ * them, from `GET library/access`.
+ *
+ * Mock mode keeps the member in localStorage so a reload stays signed in.
  */
 const KEY = "a360s:member";
+
+/* Live */
+
+interface MemberUser {
+  id: Id;
+  name: string;
+  email: string;
+  provider?: "google" | "apple";
+}
+interface LiveBody {
+  accessToken: string;
+  expiresIn: number;
+  member: MemberUser;
+}
+interface Access {
+  subscription: Member["subscription"];
+  purchases: Id[];
+}
+
+// A hint, not a secret: whether this browser has a session worth refreshing,
+// so a visitor who never signed in doesn't ask the API on every load.
+const HINT = "a360s:member:signed-in";
+const setHint = (on: boolean) => {
+  try {
+    if (on) localStorage.setItem(HINT, "1");
+    else localStorage.removeItem(HINT);
+  } catch {
+    // Storage unavailable: each load asks the API instead.
+  }
+};
+const hasHint = () => {
+  try {
+    return localStorage.getItem(HINT) === "1";
+  } catch {
+    return true;
+  }
+};
+
+let live: Member | null = null;
+const toMember = (u: MemberUser, a: Access): Member => ({ id: u.id, name: u.name, email: u.email, provider: u.provider === "apple" ? "apple" : "google", subscription: a.subscription, purchases: a.purchases });
+
+const forget = () => {
+  live = null;
+  setHint(false);
+  clearAccessToken("member");
+};
+
+/** Keep what a sign-in or refresh answered, with what the member may watch. */
+async function accept(body: LiveBody) {
+  setAccessToken("member", body.accessToken);
+  setHint(true);
+  const access = await http.get<Access>(routes.access, { refresh: false });
+  live = toMember(body.member, access);
+  return live;
+}
+
+/** Trade the refresh cookie for a new access token. False when the session has ended. */
+async function refresh() {
+  try {
+    await accept(await http.post<LiveBody>(routes.memberRefresh, undefined, { refresh: false }));
+    return true;
+  } catch (error) {
+    // Offline or a server fault keeps the member; a refusal signs them out.
+    if (error instanceof ApiError && error.status > 0 && error.status < 500) forget();
+    return false;
+  }
+}
+if (!useMockApi) registerRefresher(refresh);
+
+/** The account pages changed the member (name, plan): keep the change for the next read. */
+export function rememberMember(m: Member) {
+  if (!useMockApi) live = m;
+  return m;
+}
+
+/** After a payment or a cancel: what the member may watch now. */
+export async function refreshAccess(): Promise<Member | null> {
+  if (useMockApi) return read();
+  if (!live) return null;
+  const access = await http.get<Access>(routes.access);
+  live = { ...live, ...access };
+  return live;
+}
+
+/**
+ * Sign in with Google (the ID token its button gave the page) or Apple (its
+ * popup opens here). Apple sends the name only the first time; it's passed on.
+ */
+export async function signInWith(provider: "google" | "apple", idToken?: string): Promise<Member> {
+  if (useMockApi) return signInWithGoogle("/") as Promise<Member>;
+  const credential = provider === "apple" ? await appleSignIn() : { idToken };
+  return accept(await http.post<LiveBody>(provider === "apple" ? routes.memberApple : routes.memberGoogle, credential, { refresh: false }));
+}
+
+/* Mock */
 
 const read = (): Member | null => {
   try {
@@ -33,7 +135,12 @@ const write = <T extends Member | null>(m: T): T => {
   return m;
 };
 
-export function currentMember() {
+export function currentMember(): Promise<Member | null> {
+  if (!useMockApi) {
+    if (accessToken("member") && live) return Promise.resolve(live);
+    if (!hasHint()) return Promise.resolve(null);
+    return refreshRealm().then((ok) => (ok ? live : null));
+  }
   return mockApi(() => (accessToken("member") || read() ? read() : null), 0);
 }
 
@@ -59,17 +166,8 @@ export function signUp({ name, email, password }: { name: string; email: string;
   }, 500);
 }
 
-/**
- * Continue with Google. The real flow is server-side (authorization code with
- * PKCE and a state check): the browser goes to the API, the API talks to
- * Google, sets the refresh cookie and sends the member back to `next`. No
- * Google token ever reaches this page. Mock mode signs in a demo account.
- */
-export function signInWithGoogle(next: string) {
-  if (!useMockApi) {
-    window.location.assign(`${apiRoot}/auth/member/google?next=${encodeURIComponent(next)}`);
-    return new Promise<never>(() => {}); // the page is leaving
-  }
+/** Mock "Continue with Google": signs in a demo account. Live sign-in is signInWith. */
+export function signInWithGoogle(_next: string) {
   return mockApi(() => {
     const email = "google.member@gmail.com";
     const existing = read();
@@ -100,21 +198,45 @@ export function resetPassword({ token, password }: { token: string; password: st
   }, 600);
 }
 
+/** Signed out here whatever the network says; the server clears the cookie when it hears. */
 export function signOut() {
+  if (!useMockApi) return http.post(routes.memberLogout, undefined, { refresh: false }).catch(() => {}).then(() => { forget(); return null; });
   return mockApi(() => {
     clearAccessToken("member");
     return write(null);
   }, 0);
 }
 
+/** Every device signs out, this one too. */
+export function signOutEverywhere() {
+  if (!useMockApi) return http.post(routes.signOutEverywhere).catch(() => {}).then(() => { forget(); return null; });
+  return signOut();
+}
+
 /**
- * PesaPal stand-ins. The real flow: POST payments/orders returns a PesaPal
- * redirect; the member pays by MoMo, Airtel or card; the IPN webhook confirms;
- * only then does the API mark the plan or purchase. Never trusted from here.
+ * Paying. Live: POST payments/orders answers with PesaPal's page and the
+ * member goes there (MoMo, Airtel or card); PesaPal sends them back to
+ * /payment/return, which waits for the API to confirm. Only PesaPal's word
+ * (its IPN, or the API's own check) starts a plan or a rental, never this page.
  */
+export const CHECKOUT_KEY = "a360s:checkout";
+
+async function checkout(body: { kind: "subscription"; planId: Id } | { kind: "ppv"; titleId: Id }, next: string): Promise<never> {
+  const { reference, redirectUrl } = await http.post<{ reference: string; redirectUrl: string }>(routes.orders, body);
+  try {
+    sessionStorage.setItem(CHECKOUT_KEY, JSON.stringify({ reference, next, kind: body.kind }));
+  } catch {
+    // Storage blocked: the return page still finds the order from PesaPal's link.
+  }
+  window.location.assign(redirectUrl);
+  return new Promise<never>(() => {}); // the page is leaving
+}
+
+/** The stand-ins below grant at once (mock); `next` is where a live checkout returns to. */
 const DAYS = { month: 30, quarter: 91, year: 365 } as const;
 
-export function subscribe(planId: Id, method = "Mobile money") {
+export function subscribe(planId: Id, method = "Mobile money", next = "/") {
+  if (!useMockApi) return checkout({ kind: "subscription", planId }, next);
   return mockApi(() => {
     const m = read();
     if (!m) throw new ApiError("Sign in first.", 401);
@@ -125,7 +247,8 @@ export function subscribe(planId: Id, method = "Mobile money") {
   }, 1200);
 }
 
-export function purchase(titleId: Id, method = "Mobile money") {
+export function purchase(titleId: Id, method = "Mobile money", next = `/watch/${titleId}`) {
+  if (!useMockApi) return checkout({ kind: "ppv", titleId }, next);
   return mockApi(() => {
     const m = read();
     if (!m) throw new ApiError("Sign in first.", 401);

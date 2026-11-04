@@ -15,7 +15,7 @@ import { safeNext } from "@/utils/links";
 
 export default function SignInPage() {
   usePageMeta({ title: "Sign in", noindex: true });
-  const { signIn } = useMember();
+  const { signIn, demo } = useMember();
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const [serverError, setServerError] = useState("");
@@ -38,8 +38,10 @@ export default function SignInPage() {
     <AuthFrame title="Welcome back" lead="Sign in to watch and save titles to your list." footer={<>New here? <Link to={`/sign-up?next=${encodeURIComponent(next)}`} viewTransition className="font-bold text-brand">Create a free account</Link></>}>
       {/* Google first: one tap, and no password to remember. */}
       <GoogleButton next={next} />
-      <OrDivider />
+      {/* Live sign-in is Google or Apple only: no email form. */}
+      {demo && <OrDivider />}
       {/* Email Form: zod validates on submit, and server errors show above the button. */}
+      {demo && (
       <form onSubmit={submit} noValidate className="flex flex-col gap-5">
         <Field label="Email" type="email" autoComplete="email" input={register("email")} error={errors.email?.message} />
         <div className="flex flex-col gap-2">
@@ -49,6 +51,7 @@ export default function SignInPage() {
         {serverError && <p role="alert" className="text-small font-semibold text-danger">{serverError}</p>}
         <Button type="submit" loading={isSubmitting} className="mt-2 w-full">Sign in</Button>
       </form>
+      )}
     </AuthFrame>
   );
 }

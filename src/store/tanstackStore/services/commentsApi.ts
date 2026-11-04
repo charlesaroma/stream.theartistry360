@@ -1,10 +1,14 @@
 /* Comments Service */
 // Members discuss a title. Reading is public; posting, liking, deleting and
-// reporting need a signed-in member. The mock keeps comments in this browser
-// (seeded with samples). The real API (streaming/titles/:id/comments) must:
-// take the author from the session (never the request), cap length, strip
-// control characters, rate-limit per member, and hide reported comments
-// for review in the Studio. The page renders bodies as plain text only.
+// reporting need a signed-in member. Live: streaming/titles/:id/comments,
+// which takes the author from the session (never the request), caps length,
+// strips control characters, limits how fast a member posts, and hides a
+// comment three members reported until the Studio looks at it. The mock
+// keeps comments in this browser (seeded with samples). The page renders
+// bodies as plain text only.
+import { http } from "@/store/tanstackStore/services/api/client";
+import { useMockApi } from "@/store/tanstackStore/services/api/config";
+import { routes } from "@/store/tanstackStore/services/api/routes";
 import { ApiError, mockApi } from "@/store/tanstackStore/services/api/mock";
 import type { Id, RequestOptions } from "@/store/tanstackStore/services/api/types";
 import type { Member } from "./types";
@@ -50,9 +54,16 @@ const printable = (ch: string) => {
 };
 const clean = (text: string) => [...text].filter(printable).join("").replace(/\n{3,}/g, "\n\n").trim();
 
-export const listComments = (titleId: Id, { signal }: RequestOptions = {}) => mockApi(() => all(titleId), 200, signal);
+const commentsOf = (titleId: Id) => `${routes.titles}/${encodeURIComponent(titleId)}/comments`;
+
+export const listComments = (titleId: Id, { signal }: RequestOptions = {}) =>
+  !useMockApi ? http.get<Comment[]>(commentsOf(titleId), { signal }) : mockApi(() => all(titleId), 200, signal);
 
 export function postComment(member: Member | null, titleId: Id, { body, spoiler }: { body: string; spoiler: boolean }) {
+  if (!useMockApi) {
+    if (!member) return Promise.reject(new ApiError("Sign in to comment.", 401));
+    return http.post<Comment>(commentsOf(titleId), { body: clean(body ?? ""), spoiler: Boolean(spoiler) });
+  }
   return mockApi(() => {
     if (!member) throw new ApiError("Sign in to comment.", 401);
     const text = clean(body ?? "");
@@ -65,6 +76,7 @@ export function postComment(member: Member | null, titleId: Id, { body, spoiler 
 }
 
 export function deleteComment(member: Member | null, titleId: Id, commentId: Id) {
+  if (!useMockApi) return http.del(`${commentsOf(titleId)}/${commentId}`);
   return mockApi(() => {
     const list = all(titleId);
     const c = list.find((x) => x.id === commentId);
@@ -75,9 +87,15 @@ export function deleteComment(member: Member | null, titleId: Id, commentId: Id)
 
 /** Likes: one per member per comment; the set is kept per member. */
 export const likedComments = (memberId: Id | null | undefined, { signal }: RequestOptions = {}) =>
-  mockApi(() => (memberId ? read<Id[]>(likedKey(memberId), []) : []), 0, signal);
+  !useMockApi
+    ? memberId ? http.get<Id[]>(routes.commentLikes, { signal }) : Promise.resolve([])
+    : mockApi(() => (memberId ? read<Id[]>(likedKey(memberId), []) : []), 0, signal);
 
 export function toggleLike(member: Member | null, titleId: Id, commentId: Id) {
+  if (!useMockApi) {
+    if (!member) return Promise.reject(new ApiError("Sign in to like comments.", 401));
+    return http.post<{ liked: boolean; likes: number }>(`${commentsOf(titleId)}/${commentId}/like`).then((r) => r.liked);
+  }
   return mockApi(() => {
     if (!member) throw new ApiError("Sign in to like comments.", 401);
     const liked = read<Id[]>(likedKey(member.id), []);
@@ -88,9 +106,11 @@ export function toggleLike(member: Member | null, titleId: Id, commentId: Id) {
   }, 0);
 }
 
-/** A report hides nothing in the mock; the API queues it for the Studio. */
-export const reportComment = (member: Member | null, _titleId: Id, _commentId: Id) =>
-  mockApi(() => {
+/** A report hides nothing in the mock; the API counts it, and three hide the comment for the Studio. */
+export const reportComment = (member: Member | null, titleId: Id, commentId: Id) =>
+  !useMockApi
+    ? member ? http.post<{ reported: true }>(`${commentsOf(titleId)}/${commentId}/report`) : Promise.reject(new ApiError("Sign in to report comments.", 401))
+    : mockApi(() => {
     if (!member) throw new ApiError("Sign in to report comments.", 401);
     return { reported: true as const };
   }, 300);

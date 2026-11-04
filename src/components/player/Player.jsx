@@ -5,7 +5,7 @@ import { ChevronsRight, Minimize, Pause, Play } from "lucide-react";
 import BrandMark from "@/components/ui/brand/BrandMark";
 import { useHls } from "@/hooks/useHls";
 import { useWatchPrefs } from "@/hooks/useWatchPrefs";
-import { useProgress } from "@/store/tanstackStore/queries/member";
+import { usePlaybackLink, useProgress } from "@/store/tanstackStore/queries/member";
 import { cn } from "@/utils/cn";
 import CenterFlash from "./CenterFlash";
 import VolumeHud from "./VolumeHud";
@@ -66,7 +66,11 @@ export default function Player({ title, media, ads, next, onNext, startAt = null
     setStingDone(true);
   }, [title.id]);
   const ready = adDone && stingDone;
-  const hls = useHls(video, media.playbackUrl, ready, prefs.dataSaver ? 480 : 0);
+  // A link for this viewer (POST streaming/playback), asked for as the stream is about to start.
+  const link = usePlaybackLink(media, ready);
+  const hls = useHls(video, link.url, ready, prefs.dataSaver ? 480 : 0);
+  // Not allowed to watch, or the video isn't ready: the API says why.
+  const streamError = link.error ?? hls.error;
   const { state, actions } = p;
   const fs = state.fullscreen;
   const captions = media.captions;
@@ -198,7 +202,7 @@ export default function Player({ title, media, ads, next, onNext, startAt = null
       </video>
 
       {/* Buffering: the orbit turns until frames arrive */}
-      {ready && buffering && !ended && !hls.error && (
+      {ready && buffering && !ended && !streamError && (
         <div role="status" aria-label="Loading video" className="pointer-events-none absolute inset-0 z-10 grid place-items-center">
           <BrandMark motion="spin" className="brand-loader h-16 w-16 drop-shadow-[0_2px_12px_rgb(0_0_0/0.6)]" />
         </div>
@@ -231,8 +235,8 @@ export default function Player({ title, media, ads, next, onNext, startAt = null
         </button>
       )}
 
-      {hls.error && (
-        <div role="alert" className="absolute inset-0 z-20 grid place-items-center p-6 text-center text-heading">{hls.error}</div>
+      {streamError && (
+        <div role="alert" className="absolute inset-0 z-20 grid place-items-center p-6 text-center text-heading">{streamError}</div>
       )}
 
       {ended && (

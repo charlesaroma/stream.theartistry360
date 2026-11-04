@@ -45,7 +45,7 @@ export function useWatchlist() {
   const options = libraryQueries.watchlist(memberId);
   const { data: list = [] } = useQuery(options);
   const toggle = useMutation({
-    mutationFn: (titleId: Id) => library.toggleWatchlist(memberId, titleId),
+    mutationFn: (titleId: Id) => library.toggleWatchlist(memberId, titleId, !list.includes(titleId)),
     onMutate: async (titleId) => {
       await qc.cancelQueries({ queryKey: options.queryKey });
       const previous = qc.getQueryData(options.queryKey);
@@ -106,6 +106,7 @@ export function useRatings() {
     onError: (_error, _vars, context) => qc.setQueryData(options.queryKey, context?.previous),
     onSettled: () => qc.invalidateQueries({ queryKey: options.queryKey }),
   });
-  return { ratings, rate: (titleId: Id, rating: Rating | null) => rate.mutate({ titleId, rating }) };
+  // Choosing the rating already given clears it.
+  return { ratings, rate: (titleId: Id, rating: Rating | null) => rate.mutate({ titleId, rating: rating && ratings[titleId] !== rating ? rating : null }) };
 }
 

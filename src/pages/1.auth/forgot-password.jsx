@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { MailCheck } from "lucide-react";
 
 import Button from "@/components/ui/Button";
@@ -16,7 +16,14 @@ import { forgotSchema } from "./schemas";
  * Asks for a reset link. The answer is the same whether or not the email has
  * an account, so nobody can use this page to check who is a member.
  */
+/** Live sign-in is Google or Apple, so there's no password to reset: off to sign in. */
 export default function ForgotPasswordPage() {
+  const { demo } = useMember();
+  if (!demo) return <Navigate to="/sign-in" replace />;
+  return <ForgotPasswordPageForm />;
+}
+
+function ForgotPasswordPageForm() {
   usePageMeta({ title: "Reset your password", noindex: true });
   const { requestPasswordReset, demo } = useMember();
   const [sentTo, setSentTo] = useState("");

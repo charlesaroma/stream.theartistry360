@@ -14,12 +14,13 @@ import { safeNext } from "@/utils/links";
 import { pageMeta } from "@/seo/seo";
 
 export default function PlansPage() {
-  const { member, subscribe } = useMember();
+  const { member, subscribe, demo } = useMember();
   usePageMeta({ title: "Plans", description: pageMeta("/plans").description });
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const [chosen, setChosen] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
   // Where to return after paying, e.g. the title that sent them here. Empty when there is none.
   const next = safeNext(params.get("next"), "");
 
@@ -29,10 +30,18 @@ export default function PlansPage() {
     setChosen(plan);
   };
 
-  // Demo checkout: subscribe resolves without PesaPal, then return to where they came from.
+  // Live: off to PesaPal, which sends them back to /payment/return and then `next`.
+  // Demo: subscribe resolves without PesaPal, then return to where they came from.
   const pay = async () => {
     setBusy(true);
-    await subscribe(chosen.id);
+    setError("");
+    try {
+      await subscribe(chosen.id, undefined, next || "/");
+    } catch (e) {
+      setError(e.message);
+      setBusy(false);
+      return;
+    }
     setBusy(false);
     setChosen(null);
     navigate(next || "/", { viewTransition: true });
@@ -57,10 +66,12 @@ export default function PlansPage() {
           <>
             <p className="text-title tabular-nums">{formatUGX(chosen.priceUGX)}</p>
             <p className="mt-2 text-body text-text-secondary">You'll be taken to PesaPal to pay with MTN MoMo, Airtel Money or card.</p>
+            {member?.subscription?.status === "active" && <p className="mt-2 text-small text-text-secondary">It adds its time on top of what's left on your plan.</p>}
+            {error && <p role="alert" className="mt-4 text-small font-semibold text-danger">{error}</p>}
             <Button className="mt-8 w-full" onClick={pay} loading={busy}>Continue to PesaPal</Button>
-            <p className="mt-4 flex items-center justify-center gap-2 text-caption text-text-muted"><ShieldCheck className="h-4 w-4" aria-hidden="true" /> Secured by PesaPal: your card and PIN never reach our servers. Demo mode: no money moves.</p>
+            <p className="mt-4 flex items-center justify-center gap-2 text-caption text-text-muted"><ShieldCheck className="h-4 w-4" aria-hidden="true" /> Secured by PesaPal: your card and PIN never reach our servers.{demo && " Demo mode: no money moves."}</p>
             <p className="mt-2 text-center text-caption text-text-muted">
-              Cancel any time. By paying you agree to our <Link to="/legal/terms" className="underline hover:text-brand">Terms</Link> and <Link to="/legal/refunds" className="underline hover:text-brand">Refunds policy</Link>.
+              {demo ? "Cancel any time. " : "Nothing renews by itself. "}By paying you agree to our <Link to="/legal/terms" className="underline hover:text-brand">Terms</Link> and <Link to="/legal/refunds" className="underline hover:text-brand">Refunds policy</Link>.
             </p>
           </>
         )}

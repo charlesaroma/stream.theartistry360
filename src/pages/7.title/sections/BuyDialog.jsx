@@ -17,17 +17,27 @@ const METHODS = [
 ];
 
 /**
- * Stand-in for the PesaPal checkout. The real flow redirects to PesaPal and
- * the purchase is granted only by the IPN webhook, never by this dialog.
+ * Pay-per-view checkout. Live: off to PesaPal (it asks how to pay), which
+ * sends the member back to /payment/return and then to the player; the
+ * rental is granted only by PesaPal's word, never by this dialog. Demo: a
+ * stand-in that grants it at once.
  */
 export default function BuyDialog({ title, open, onClose, onDone }) {
-  const { purchase } = useMember();
+  const { purchase, demo } = useMember();
   const [method, setMethod] = useState("mtn");
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
 
   const pay = async () => {
     setBusy(true);
-    await purchase(title.id, METHODS.find((m) => m.id === method)?.label);
+    setError("");
+    try {
+      await purchase(title.id, METHODS.find((m) => m.id === method)?.label, `/watch/${title.id}`);
+    } catch (e) {
+      setError(e.message);
+      setBusy(false);
+      return;
+    }
     setBusy(false);
     // Close first: closing tidies the title page's URL, and must not undo
     // onDone's navigation to the player.
@@ -40,8 +50,9 @@ export default function BuyDialog({ title, open, onClose, onDone }) {
     <Modal open={open} onClose={busy ? undefined : onClose} title={`Watch ${title.title}`}>
       <p className="text-body text-text-secondary">Pay once and it's yours to watch for 24 hours from first play.</p>
       <p className="mt-4 text-title tabular-nums">{formatUGX(title.access.priceUGX)}</p>
-      {/* Payment Method: real radios, styled as cards. */}
-      <fieldset className="mt-6">
+      {/* Payment Method: real radios, styled as cards. Live, PesaPal asks on its own page. */}
+      {!demo && <p className="mt-6 text-small text-text-secondary">You'll be taken to PesaPal to pay with MTN MoMo, Airtel Money or card.</p>}
+      {demo && <fieldset className="mt-6">
         <legend className="mb-3 text-small font-semibold text-text-secondary">Pay with</legend>
         <div className="grid grid-cols-1 gap-2">
           {METHODS.map((m) => (
@@ -52,10 +63,11 @@ export default function BuyDialog({ title, open, onClose, onDone }) {
             </label>
           ))}
         </div>
-      </fieldset>
+      </fieldset>}
+      {error && <p role="alert" className="mt-4 text-small font-semibold text-danger">{error}</p>}
       <Button className="mt-8 w-full" onClick={pay} loading={busy}>Pay {formatUGX(title.access.priceUGX)} with PesaPal</Button>
       <p className="mt-4 flex items-center justify-center gap-2 text-caption text-text-muted">
-        <ShieldCheck className="h-4 w-4" aria-hidden="true" /> Secured by PesaPal: your card and PIN never reach our servers. Demo mode: no money moves.
+        <ShieldCheck className="h-4 w-4" aria-hidden="true" /> Secured by PesaPal: your card and PIN never reach our servers.{demo && " Demo mode: no money moves."}
       </p>
       <p className="mt-2 text-center text-caption text-text-muted">
         By paying you agree to our <Link to="/legal/terms" className="underline hover:text-brand">Terms</Link> and <Link to="/legal/refunds" className="underline hover:text-brand">Refunds policy</Link>.

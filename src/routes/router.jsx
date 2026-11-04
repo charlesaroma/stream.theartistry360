@@ -33,6 +33,8 @@ export const router = createBrowserRouter([
       { path: "watch/:id", lazy: lazy(pages.watch), loader: titleLoader },
       { path: "search", lazy: lazy(pages.search) },
       { path: "account", lazy: lazy(pages.account) },
+      // PesaPal sends payers back here (STREAM_URL/payment/return on the API).
+      { path: "payment/return", lazy: lazy(pages.paymentReturn) },
       { path: "legal/:doc", lazy: lazy(pages.legal) },
       // Short legal URLs redirect to their /legal pages.
       { path: "terms", element: <Navigate to="/legal/terms" replace /> },

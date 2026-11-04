@@ -113,8 +113,8 @@ export interface Member {
   name: string;
   email: string;
   phone?: string;
-  /** How they sign in: a password, or Google only (no password set). */
-  provider?: "email" | "google";
+  /** How they sign in: a password (mocks only), Google or Apple. */
+  provider?: "email" | "google" | "apple";
   /** A new email waiting for its confirmation link. */
   pendingEmail?: string | null;
   subscription: {

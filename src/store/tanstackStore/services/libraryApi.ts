@@ -1,5 +1,10 @@
 /* Member Library Service (watchlist, progress, ratings) */
-// Kept per member in localStorage until the API's library module exists.
+// A signed-in member's are kept on their account (`library/*`), so they
+// follow them to every device and the app. A guest's (and everyone's on
+// mocks) stay in this browser's localStorage.
+import { http } from "@/store/tanstackStore/services/api/client";
+import { useMockApi } from "@/store/tanstackStore/services/api/config";
+import { routes } from "@/store/tanstackStore/services/api/routes";
 import { mockApi } from "@/store/tanstackStore/services/api/mock";
 import type { Id, RequestOptions } from "@/store/tanstackStore/services/api/types";
 import type { EpisodeProgress, ProgressEntry, Rating } from "./types";
@@ -8,6 +13,9 @@ type MemberId = Id | null | undefined;
 type ProgressMap = Record<Id, ProgressEntry>;
 type EpisodeMap = Record<Id, EpisodeProgress>;
 type RatingMap = Record<Id, Rating>;
+
+/** Whether this member's library is on the API. */
+const onAccount = (memberId: MemberId): memberId is Id => !useMockApi && Boolean(memberId);
 
 const key = (memberId: MemberId, what: string) => `a360s:${what}:${memberId ?? "guest"}`;
 const read = <T>(k: string, fallback: T): T => {
@@ -27,10 +35,13 @@ const write = <T>(k: string, v: T): T => {
 };
 
 export const getWatchlist = (memberId: MemberId, { signal }: RequestOptions = {}) =>
-  mockApi(() => read<Id[]>(key(memberId, "list"), []), 0, signal);
+  onAccount(memberId) ? http.get<Id[]>(routes.watchlist, { signal }) : mockApi(() => read<Id[]>(key(memberId, "list"), []), 0, signal);
 
-export const toggleWatchlist = (memberId: MemberId, titleId: Id) =>
-  mockApi(() => {
+/** Adds (`on`) or removes a title; answers with the list. */
+export const toggleWatchlist = (memberId: MemberId, titleId: Id, on: boolean) =>
+  onAccount(memberId)
+    ? on ? http.put<Id[]>(`${routes.watchlist}/${titleId}`) : http.del<Id[]>(`${routes.watchlist}/${titleId}`)
+    : mockApi(() => {
     const list = read<Id[]>(key(memberId, "list"), []);
     return write(key(memberId, "list"), list.includes(titleId) ? list.filter((x) => x !== titleId) : [titleId, ...list]);
   }, 0);
@@ -41,12 +52,14 @@ export const toggleWatchlist = (memberId: MemberId, titleId: Id) =>
  * live in a second map, so an episode list can show every episode's progress.
  */
 export const getProgress = (memberId: MemberId, { signal }: RequestOptions = {}) =>
-  mockApi(() => read<ProgressMap>(key(memberId, "progress"), {}), 0, signal);
+  onAccount(memberId) ? http.get<ProgressMap>(routes.progress, { signal }) : mockApi(() => read<ProgressMap>(key(memberId, "progress"), {}), 0, signal);
 export const getEpisodeProgress = (memberId: MemberId, { signal }: RequestOptions = {}) =>
-  mockApi(() => read<EpisodeMap>(key(memberId, "episodes"), {}), 0, signal);
+  onAccount(memberId) ? http.get<EpisodeMap>(routes.episodeProgress, { signal }) : mockApi(() => read<EpisodeMap>(key(memberId, "episodes"), {}), 0, signal);
 
 export const saveProgress = (memberId: MemberId, titleId: Id, seconds: number, duration: number, episodeId: Id | null = null) =>
-  mockApi(() => {
+  onAccount(memberId)
+    ? http.put<ProgressMap>(routes.progress, { titleId, episodeId, seconds, duration })
+    : mockApi(() => {
     const done = duration && seconds / duration > 0.95;
     const all = read<ProgressMap>(key(memberId, "progress"), {});
     if (episodeId) {
@@ -61,7 +74,9 @@ export const saveProgress = (memberId: MemberId, titleId: Id, seconds: number, d
   }, 0);
 
 export const clearProgress = (memberId: MemberId, titleId: Id) =>
-  mockApi(() => {
+  onAccount(memberId)
+    ? http.del<ProgressMap>(`${routes.progress}/${titleId}`)
+    : mockApi(() => {
     const all = read<ProgressMap>(key(memberId, "progress"), {});
     delete all[titleId];
     return write(key(memberId, "progress"), all);
@@ -69,10 +84,13 @@ export const clearProgress = (memberId: MemberId, titleId: Id) =>
 
 /** Ratings: "meh" (Not for me), "like" (I like this), "love" (Love this!). */
 export const getRatings = (memberId: MemberId, { signal }: RequestOptions = {}) =>
-  mockApi(() => read<RatingMap>(key(memberId, "ratings"), {}), 0, signal);
+  onAccount(memberId) ? http.get<RatingMap>(routes.ratings, { signal }) : mockApi(() => read<RatingMap>(key(memberId, "ratings"), {}), 0, signal);
 
+/** Sets a rating, or clears it with null. */
 export const setRating = (memberId: MemberId, titleId: Id, rating: Rating | null) =>
-  mockApi(() => {
+  onAccount(memberId)
+    ? rating ? http.put<RatingMap>(`${routes.ratings}/${titleId}`, { rating }) : http.del<RatingMap>(`${routes.ratings}/${titleId}`)
+    : mockApi(() => {
     const all = read<RatingMap>(key(memberId, "ratings"), {});
     if (!rating || all[titleId] === rating) delete all[titleId];
     else all[titleId] = rating;
