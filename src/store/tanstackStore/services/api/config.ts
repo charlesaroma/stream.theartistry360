@@ -1,9 +1,9 @@
 /* Api Base Url And Version */
 
 /**
- * The base URL is empty by default, making every call relative: Netlify
- * proxies /api to the API in production and Vite's dev proxy does the same
- * locally. Set VITE_API_BASE_URL only to address an API directly.
+ * Where the API is comes from the build mode (.env.development, .env.production):
+ * empty in development, so calls stay relative and Vite's dev proxy sends them
+ * to the local server; https://api.theartistry360.com in a build.
  */
 const DEFAULTS: Record<string, string> = {
   VITE_API_BASE_URL: "",

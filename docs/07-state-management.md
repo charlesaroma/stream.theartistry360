@@ -66,7 +66,7 @@ src/store/
 
 ## 6. Realtime
 
-`App.jsx` mounts `useLiveInvalidation("public")` and `useLiveInvalidation("member")`. Both are off until `VITE_REALTIME_URL` (the API origin) is set, and `socket.io-client` only loads then.
+`App.jsx` mounts `useLiveInvalidation("public")` and `useLiveInvalidation("member")`. Both are off until `VITE_REALTIME_URL` (the API origin, set in `.env.development` and `.env.production`) is set, and `socket.io-client` only loads then.
 
 The transport is **Socket.IO**, with the namespaces `/public` and `/member`. The member token goes in the handshake (`auth: { token }`) and is re-read on each reconnect. The server sends one event, `invalidate`: `{ entity, id? }`. This site invalidates `entity` as a prefix and ignores `id`, so `["site","titles"]` refreshes lists, detail pages and search alike. Full contract: the main repo's `docs/17-api-server.md` §8.
 

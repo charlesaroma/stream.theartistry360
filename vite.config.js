@@ -17,7 +17,7 @@ export default defineConfig({
   },
   server: {
     port: 5174,
-    // Same API as theartistry360.com; mirrors the Netlify proxy.
+    // Development only: a build calls the API directly (.env.production).
     proxy: { '/api': 'http://localhost:5000' },
   },
 })

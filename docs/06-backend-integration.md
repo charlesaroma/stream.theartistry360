@@ -1,6 +1,6 @@
 # 06 — Backend Integration
 
-**Live (November 2026):** with `VITE_API_MOCKS=false` in `.env.local` every service below uses the API, except sign-in by email, password reset, email and password changes, which stay mock-only: members sign in with Google or Apple (`VITE_GOOGLE_CLIENT_ID`, `VITE_APPLE_SERVICES_ID`). A guest's My List and progress stay in the browser. Checkout goes to PesaPal and back to `/payment/return`. The player asks `POST streaming/playback` for each stream. Exact shapes: "Live now" in `12-backend-integration.md`.
+**Live (November 2026):** with `VITE_API_MOCKS=false` (`.env.development` and `.env.production`) every service below uses the API, except sign-in by email, password reset, email and password changes, which stay mock-only: members sign in with Google or Apple (`VITE_GOOGLE_CLIENT_ID`, `VITE_APPLE_SERVICES_ID`). A guest's My List and progress stay in the browser. Checkout goes to PesaPal and back to `/payment/return`. The player asks `POST streaming/playback` for each stream. Exact shapes: "Live now" in `12-backend-integration.md`.
 
 Same API as theartistry360.com (`api.theartistry360.com/api/v1`), proxied at `/api`. Same envelope `{ data, meta? } | { error }`, same `ApiError`. Swap one service at a time (`src/store/tanstackStore/services/*.ts`), as described in `the_artistry360_2024/docs/12-backend-integration.md`. Query factories and pages do not change. Every call names `realm: "member"`; this site has no other.
 

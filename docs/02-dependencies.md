@@ -15,6 +15,6 @@
 
 Dev: Vite 8, `@vitejs/plugin-react` 6, ESLint 10 with the layering rules, `@tanstack/eslint-plugin-query`, `typescript` + `typescript-eslint` (the store layer), `@tanstack/react-query-devtools`.
 
-Config: `tsconfig.json` (`@/` alias, `strict` for `.ts`); `vite.config.js` defines `__APP_BUILD__` (the persisted cache's buster); `.env.example` adds `VITE_REALTIME_URL`.
+Config: `tsconfig.json` (`@/` alias, `strict` for `.ts`); `vite.config.js` defines `__APP_BUILD__` (the persisted cache's buster); `.env.development` (`npm run dev`: the local server on `:5000` through the Vite proxy) and `.env.production` (`npm run build`: `https://api.theartistry360.com`) set `VITE_API_BASE_URL`, `VITE_API_MOCKS` and `VITE_REALTIME_URL`; `.env.example` lists the `.env.local` keys (the Google and Apple sign-in ids).
 
 Still to add, with the backend: the Google IMA SDK for real pre-roll ads (the tag is set in Studio › Streaming › Ads).
