@@ -23,9 +23,9 @@ Share cards: once the API is live, set `SHARE_API_BASE` in Netlify so link previ
 
 Remove `playbackUrl` from the seed once `streaming/playback` exists. The demo stream is Mux's public test HLS.
 
-## Pay-per-view premiere pricing (frontend ready, backend to build)
+## Pay-per-view fee and premiere (frontend ready, backend to build)
 
-The title page shows the price for the current stage from `access.ppv` (early access before `premiereAt`, premiere for `premiereDays`, then standard; `utils/access.js` `ppvStage`), 24 hours to watch **from payment** (`RENTAL_HOURS`). A title without `ppv` keeps its flat `access.priceUGX`. Display only: the server prices the order and times the rental. Plans may use any billing period id (`plan.interval`), with `plan.period { name, days }` for the label. Contract, error codes and rules: the Studio repo's docs/12-backend-integration.md.
+A ppv film has one fee, `access.priceUGX`, that the client edits any time; nothing changes by date. `access.premiereAt` (optional) makes the title page say "Premieres on <date>" with **Buy a ticket** (`access.ticketUrl`, an outside `https://` page) and **Watch now · UGX <fee>** (the normal checkout, before the premiere too). A purchase can be watched for 24 hours **from payment**. Display only: the server prices the order and times the rental. Plans may use any billing period id (`plan.interval`), with `plan.period { name, days }` for the label. Contract, error codes and rules: the Studio repo's docs/12 and docs/19.
 
 ## Security already in place
 
