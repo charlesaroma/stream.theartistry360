@@ -4,10 +4,10 @@ import { Check } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { usePlans } from "@/store/tanstackStore/queries/site";
 import { cn } from "@/utils/cn";
+import { periodLabel } from "@/utils/access";
 import { formatUGX } from "@/utils/formatCurrency";
 
 // How each plan interval reads after the price.
-const PER = { month: "month", quarter: "3 months", year: "year" };
 
 /** The pricing cards, shared by the home page (signed out) and /plans. */
 export function PlanCards({ onChoose }) {
@@ -25,7 +25,7 @@ export function PlanCards({ onChoose }) {
           <h3 className="text-subheading">{p.name}</h3>
           <p className="mt-4 flex items-baseline gap-1">
             <span className="text-title tabular-nums">{formatUGX(p.priceUGX)}</span>
-            <span className="text-small text-text-muted">/ {PER[p.interval]}</span>
+            <span className="text-small text-text-muted">/ {periodLabel(p)}</span>
           </p>
           <ul className="mt-6 flex flex-1 flex-col gap-3">
             {p.benefits.map((b) => (
