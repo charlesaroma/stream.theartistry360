@@ -4,25 +4,25 @@
 /** What a rental lasts, counted from payment. One number for every screen. */
 export const RENTAL_HOURS = 24;
 
-export const PPV_STAGE_LABEL = { early: "Early access", premiere: "Premiere price", standard: "" };
-
-const DAY = 86_400_000;
+/** A ticket link must be an https address; anything else is ignored. */
+export function isHttpsUrl(value) {
+  try {
+    return new URL(String(value)).protocol === "https:";
+  } catch {
+    return false;
+  }
+}
 
 /**
- * The pay-per-view price right now: early access before the premiere,
- * premiere pricing for `premiereDays` after it, then standard. A title with no
- * schedule keeps its flat `priceUGX`. Display only: the server charges its own
- * price. Same rule as the Studio's utils/streaming.js.
+ * A pay-per-view film's premiere, if one is announced and still ahead:
+ * `{ upcoming, at, ticketUrl }`. The fee is `access.priceUGX` and does not
+ * depend on the date: anyone can watch before the premiere by paying it.
+ * `ticketUrl` is only returned when it is an https address.
  */
-export function ppvStage(access, now = new Date()) {
-  const s = access?.ppv;
-  if (!s?.premiereAt) return { stage: "standard", priceUGX: access?.priceUGX ?? 0, nextChangeAt: null };
-  const start = new Date(s.premiereAt).getTime();
-  const end = start + s.premiereDays * DAY;
-  const t = now.getTime();
-  if (t < start) return { stage: "early", priceUGX: s.earlyUGX, nextChangeAt: new Date(start).toISOString() };
-  if (t < end) return { stage: "premiere", priceUGX: s.premiereUGX, nextChangeAt: new Date(end).toISOString() };
-  return { stage: "standard", priceUGX: s.standardUGX, nextChangeAt: null };
+export function premiereOf(access, now = new Date()) {
+  const at = access?.premiereAt ? new Date(access.premiereAt) : null;
+  const upcoming = Boolean(at) && !Number.isNaN(at.getTime()) && at.getTime() > now.getTime();
+  return { upcoming, at: upcoming ? at : null, ticketUrl: upcoming && isHttpsUrl(access?.ticketUrl) ? access.ticketUrl : null };
 }
 
 /** "a week", "3 months"… for a plan; a period the site doesn't know yet reads "N days". */
@@ -35,7 +35,7 @@ export function accessFor(title, member) {
   if (tier === "free") return member ? { ok: true, ads: member.subscription?.status !== "active" } : { ok: false, reason: "signin" };
   if (!member) return { ok: false, reason: "signin" };
   if (tier === "subscription") return member.subscription?.status === "active" ? { ok: true } : { ok: false, reason: "subscribe" };
-  if (tier === "ppv") return member.purchases?.includes(title.id) ? { ok: true } : { ok: false, reason: "buy", ...ppvStage(title.access) };
+  if (tier === "ppv") return member.purchases?.includes(title.id) ? { ok: true } : { ok: false, reason: "buy", priceUGX: title.access.priceUGX };
   return { ok: false, reason: "signin" };
 }
 
