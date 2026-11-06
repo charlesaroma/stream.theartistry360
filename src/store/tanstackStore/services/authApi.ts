@@ -10,7 +10,6 @@ import { recordPayment } from "./accountApi";
 import { appleSignIn } from "./identityProviders";
 import { streamingPlansSeed } from "@/data/streamingPlans";
 import { streamingTitlesSeed } from "@/data/streamingTitles";
-import { ppvStage } from "@/utils/access";
 
 /**
  * Members only: this site has no admin realm. The same member accounts as
@@ -268,7 +267,7 @@ export function purchase(titleId: Id, method = "Mobile money", next = `/watch/${
     const m = read();
     if (!m) throw new ApiError("Sign in first.", 401);
     const title = streamingTitlesSeed.find((t) => t.id === titleId);
-    recordPayment(m.id, { kind: "purchase", titleId, description: `Watch: ${title?.title ?? "a title"} (24 hours)`, amountUGX: ppvStage(title?.access).priceUGX, method });
+    recordPayment(m.id, { kind: "purchase", titleId, description: `Watch: ${title?.title ?? "a title"} (24 hours)`, amountUGX: title?.access?.priceUGX ?? 0, method });
     return write({ ...m, purchases: [...new Set([...(m.purchases ?? []), titleId])] });
   }, 1200);
 }
