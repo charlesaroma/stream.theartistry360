@@ -31,7 +31,8 @@ export default function Modal({ open, onClose, title, children, className }) {
         aria-modal="true"
         aria-labelledby={id}
         data-glass=""
-        className={cn("molten-glass relative w-full max-w-lg animate-rise rounded-t-4xl p-6 sm:rounded-4xl sm:p-8", className)}
+        // Tall content (the checkout) scrolls inside the sheet instead of running off a short phone screen.
+        className={cn("molten-glass relative max-h-[92dvh] w-full max-w-lg animate-rise overflow-y-auto overscroll-contain rounded-t-4xl p-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:max-h-[90dvh] sm:rounded-4xl sm:p-8", className)}
       >
         <div className="mb-6 flex items-start justify-between gap-4">
           <h2 id={id} className="text-heading">{title}</h2>
