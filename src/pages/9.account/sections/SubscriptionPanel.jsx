@@ -7,9 +7,9 @@ import { useMember } from "@/store/context/MemberContext";
 import { usePlans } from "@/store/tanstackStore/queries/site";
 import { formatUGX } from "@/utils/formatCurrency";
 import { longDate } from "./dates";
+import { periodLabel } from "@/utils/access";
 import { Card, Status, SwitchRow } from "./ui";
 
-const PER = { month: "month", quarter: "3 months", year: "year" };
 
 /**
  * The plan, when it renews (or ends), and changing or cancelling it. Against
@@ -56,7 +56,7 @@ export default function SubscriptionPanel() {
       <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-brand/30 bg-brand/5 p-5">
         <div>
           <p className="flex items-center gap-2 text-subheading font-bold"><Crown className="h-5 w-5 text-brand" aria-hidden="true" /> {plan?.name ?? "Subscription"}</p>
-          {plan && <p className="mt-1 text-small text-text-secondary">{formatUGX(plan.priceUGX)} every {PER[plan.interval]}</p>}
+          {plan && <p className="mt-1 text-small text-text-secondary">{formatUGX(plan.priceUGX)} every {periodLabel(plan)}</p>}
         </div>
         <p className="text-small text-text-secondary">
           {!demo ? <>Paid until <strong className="text-text-primary">{longDate(sub.renewsAt)}</strong></> : sub.cancelAtPeriodEnd ? <>Ends on <strong className="text-warning">{longDate(sub.renewsAt)}</strong></> : <>Renews on <strong className="text-text-primary">{longDate(sub.renewsAt)}</strong></>}
