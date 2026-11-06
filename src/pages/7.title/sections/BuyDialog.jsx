@@ -8,6 +8,7 @@ import Modal from "@/components/ui/Modal";
 import PesapalCheckout from "@/components/payments/PesapalCheckout";
 import PaymentLogo from "@/components/ui/PaymentLogo";
 import { useMember } from "@/store/context/MemberContext";
+import { PPV_STAGE_LABEL, RENTAL_HOURS, ppvStage } from "@/utils/access";
 import { formatUGX } from "@/utils/formatCurrency";
 import PriceBreakdown from "@/components/payments/PriceBreakdown";
 import { useCharges } from "@/store/tanstackStore/queries/site";
@@ -28,7 +29,8 @@ const METHODS = [
 export default function BuyDialog({ title, open, onClose, onDone }) {
   const { purchase, startCheckout, refreshAccess, demo } = useMember();
   // PesaPal's fee and system maintenance go on top of the title's price.
-  const charges = useCharges(title.access?.priceUGX ?? 0);
+  const now = ppvStage(title.access);
+  const charges = useCharges(now.priceUGX);
   // Live: PesaPal's page open in this dialog.
   const [checkout, setCheckout] = useState(null);
   const [method, setMethod] = useState("mtn");
@@ -77,8 +79,14 @@ export default function BuyDialog({ title, open, onClose, onDone }) {
         <PesapalCheckout checkout={checkout} onCompleted={paid} onFailed={(m) => { setCheckout(null); setError(m); }} onBack={() => setCheckout(null)} />
       ) : (
       <>
-      <p className="text-body text-text-secondary">Pay once and it's yours to watch for 24 hours from first play.</p>
-      <PriceBreakdown className="mt-4" label="24 hours to watch" charges={charges} />
+      <p className="text-body text-text-secondary">Pay once and it's yours to watch for {RENTAL_HOURS} hours from payment.</p>
+      {PPV_STAGE_LABEL[now.stage] && (
+        <p className="mt-2 text-small font-semibold text-brand">
+          {PPV_STAGE_LABEL[now.stage]}
+          {now.nextChangeAt && ` until ${new Date(now.nextChangeAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}`}
+        </p>
+      )}
+      <PriceBreakdown className="mt-4" label={`${RENTAL_HOURS} hours to watch`} charges={charges} />
       {/* Payment Method: real radios, styled as cards. Live, PesaPal asks on its own page. */}
       {!demo && <p className="mt-6 text-small text-text-secondary">You'll be taken to PesaPal to pay with MTN MoMo, Airtel Money or card.</p>}
       {demo && <fieldset className="mt-6">
