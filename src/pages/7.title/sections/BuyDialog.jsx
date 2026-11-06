@@ -8,7 +8,7 @@ import Modal from "@/components/ui/Modal";
 import PesapalCheckout from "@/components/payments/PesapalCheckout";
 import PaymentLogo from "@/components/ui/PaymentLogo";
 import { useMember } from "@/store/context/MemberContext";
-import { PPV_STAGE_LABEL, RENTAL_HOURS, ppvStage } from "@/utils/access";
+import { RENTAL_HOURS, premiereOf } from "@/utils/access";
 import { formatUGX } from "@/utils/formatCurrency";
 import PriceBreakdown from "@/components/payments/PriceBreakdown";
 import { useCharges } from "@/store/tanstackStore/queries/site";
@@ -29,8 +29,8 @@ const METHODS = [
 export default function BuyDialog({ title, open, onClose, onDone }) {
   const { purchase, startCheckout, refreshAccess, demo } = useMember();
   // PesaPal's fee and system maintenance go on top of the title's price.
-  const now = ppvStage(title.access);
-  const charges = useCharges(now.priceUGX);
+  const premiere = premiereOf(title.access);
+  const charges = useCharges(title.access?.priceUGX ?? 0);
   // Live: PesaPal's page open in this dialog.
   const [checkout, setCheckout] = useState(null);
   const [method, setMethod] = useState("mtn");
@@ -80,10 +80,9 @@ export default function BuyDialog({ title, open, onClose, onDone }) {
       ) : (
       <>
       <p className="text-body text-text-secondary">Pay once and it's yours to watch for {RENTAL_HOURS} hours from payment.</p>
-      {PPV_STAGE_LABEL[now.stage] && (
+      {premiere.upcoming && (
         <p className="mt-2 text-small font-semibold text-brand">
-          {PPV_STAGE_LABEL[now.stage]}
-          {now.nextChangeAt && ` until ${new Date(now.nextChangeAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}`}
+          Early access: premieres {premiere.at.toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
         </p>
       )}
       <PriceBreakdown className="mt-4" label={`${RENTAL_HOURS} hours to watch`} charges={charges} />
