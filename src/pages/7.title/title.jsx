@@ -7,6 +7,7 @@ import CommunityCard from "@/components/title/CommunityCard";
 import TrailerBackdrop from "@/components/title/TrailerBackdrop";
 import MetaLine from "@/components/title/MetaLine";
 import PosterCard from "@/components/title/PosterCard";
+import PremiereBanner from "@/components/title/PremiereBanner";
 import RateButtons from "@/components/title/RateButtons";
 import Row from "@/components/title/Row";
 import BackButton from "@/components/ui/BackButton";
@@ -73,6 +74,8 @@ export default function TitlePage() {
             <h1 className={title.title.length > 24 ? "text-title text-balance" : "text-display text-balance"}>{title.title}</h1>
             <MetaLine title={title} className="mt-5" />
             <p className="mt-5 max-w-2xl text-lead text-text-secondary">{title.synopsis}</p>
+            {/* Announced premiere, with a ticket link and Watch now (only while the date is ahead). */}
+            <PremiereBanner title={title} className="mt-6 max-w-2xl" />
             {/* Actions: play, rate, save, share. */}
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <PrimaryAction title={title} />
