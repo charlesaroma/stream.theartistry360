@@ -67,7 +67,8 @@ export interface Title {
   playbackUrl?: string;
   captions?: Caption[];
   seasons?: Season[];
-  access: { tier: AccessTier; priceUGX: number };
+  /** `priceUGX` is the price right now; `ppv` is the schedule (early access, premiere, standard). */
+  access: { tier: AccessTier; priceUGX: number; ppv?: { premiereAt: string; earlyUGX: number; premiereUGX: number; standardUGX: number; premiereDays: number } };
   publishStatus: PublishStatus;
   releaseAt: string | null;
   featured?: boolean;
@@ -87,7 +88,10 @@ export interface Plan {
   id: Id;
   name: string;
   priceUGX: number;
-  interval: "month" | "quarter" | "year";
+  /** A billing period id: "week", "month", "quarter", "year", or one added in the Studio. */
+  interval: string;
+  /** The period's name and length, filled by the API. */
+  period?: { name: string; days: number };
   benefits: string[];
   active: boolean;
   highlight: boolean;
