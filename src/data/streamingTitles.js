@@ -85,7 +85,8 @@ export const streamingTitlesSeed = [
     poster: poster("photo-1517457373958-b7bdd4587205"),
     backdrop: backdrop("photo-1492684223066-81342ee5ff30"),
     video: { status: "ready", duration: 6120 },
-    access: { tier: "ppv", priceUGX: 10000 },
+    // Premiere pricing: early access until the premiere, 50K for two weeks, then 1,000.
+    access: { tier: "ppv", priceUGX: 100000, ppv: { premiereAt: "2026-12-12T18:00:00.000Z", earlyUGX: 100000, premiereUGX: 50000, standardUGX: 1000, premiereDays: 14 } },
     featured: true,
     views: 2210,
     releaseAt: "2026-09-12T17:00:00.000Z",
