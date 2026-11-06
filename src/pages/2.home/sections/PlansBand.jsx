@@ -13,7 +13,7 @@ import { formatUGX } from "@/utils/formatCurrency";
 export function PlanCards({ onChoose }) {
   const { data: plans = [] } = usePlans();
   return (
-    <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
       {plans.map((p) => (
         <article
           key={p.id}
@@ -23,7 +23,7 @@ export function PlanCards({ onChoose }) {
           {/* The Studio marks one plan as highlighted; it gets the glass card and this badge. */}
           {p.highlight && <span className="chip absolute right-5 top-5 bg-brand text-black">Most popular</span>}
           <h3 className="text-subheading">{p.name}</h3>
-          <p className="mt-4 flex items-baseline gap-1">
+          <p className="mt-4 flex flex-wrap items-baseline gap-x-1">
             <span className="text-title tabular-nums">{formatUGX(p.priceUGX)}</span>
             <span className="text-small text-text-muted">/ {periodLabel(p)}</span>
           </p>
