@@ -22,7 +22,7 @@ export default async function titleCard(request) {
   } catch {
     // Falls through to the default card.
   }
-  if (!t) return Response.redirect(new URL("/share/default.png", url.origin), 302);
+  if (!t) return Response.redirect(new URL("/share/stream-card.jpg", url.origin), 302);
 
   const load = async (path) => {
     const res = await fetch(new URL(path, url.origin));
@@ -40,7 +40,7 @@ export default async function titleCard(request) {
       },
     });
   } catch {
-    return Response.redirect(new URL("/share/default.png", url.origin), 302);
+    return Response.redirect(new URL("/share/stream-card.jpg", url.origin), 302);
   }
 }
 

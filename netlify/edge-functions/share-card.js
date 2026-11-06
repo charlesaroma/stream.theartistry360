@@ -83,7 +83,7 @@ export async function cardFor(url) {
   return {
     title: pageTitle(page?.title),
     description: page?.description || DEFAULT_DESCRIPTION,
-    image: `${origin}/share/default.png`,
+    image: `${origin}/share/stream-card.jpg`,
     url: `${origin}${url.pathname === "/" ? "/" : url.pathname}`,
     type: "website",
     noindex: Boolean(page?.noindex),
