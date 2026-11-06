@@ -54,7 +54,7 @@ export default function BuyDialog({ title, open, onClose, onDone }) {
     setError("");
     try {
       if (!demo) {
-        const order = await startCheckout({ kind: "ppv", titleId: title.id }, `/watch/${title.id}`);
+        const order = await startCheckout({ kind: "ppv", titleId: title.id, expectedPriceUGX: now.priceUGX }, `/watch/${title.id}`);
         setCheckout({ ...order, amountUGX: charges.totalUGX, label: title.title });
         setBusy(false);
         return;

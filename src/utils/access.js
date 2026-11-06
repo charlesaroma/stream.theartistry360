@@ -29,13 +29,23 @@ export function ppvStage(access, now = new Date()) {
 const PERIOD_WORDS = { week: "week", month: "month", quarter: "3 months", year: "year" };
 export const periodLabel = (plan) => PERIOD_WORDS[plan?.interval] ?? (plan?.period?.days ? `${plan.period.days} days` : "period");
 
+/**
+ * Subscribers watch a pay-per-view film once it reaches the standard price;
+ * early access and the premiere stay paid. Same rule as the API (services/streaming/pricing.mjs).
+ */
+const includedInPlan = (title) => title?.access?.tier === "ppv" && ppvStage(title.access).stage === "standard";
+
 export function accessFor(title, member) {
   const tier = title?.access?.tier;
   // Free titles carry ads, except for subscribers, who never see them.
   if (tier === "free") return member ? { ok: true, ads: member.subscription?.status !== "active" } : { ok: false, reason: "signin" };
   if (!member) return { ok: false, reason: "signin" };
   if (tier === "subscription") return member.subscription?.status === "active" ? { ok: true } : { ok: false, reason: "subscribe" };
-  if (tier === "ppv") return member.purchases?.includes(title.id) ? { ok: true } : { ok: false, reason: "buy", ...ppvStage(title.access) };
+  if (tier === "ppv") {
+    if (member.purchases?.includes(title.id)) return { ok: true };
+    if (member.subscription?.status === "active" && includedInPlan(title)) return { ok: true };
+    return { ok: false, reason: "buy", ...ppvStage(title.access) };
+  }
   return { ok: false, reason: "signin" };
 }
 

@@ -222,7 +222,8 @@ export function signOutEverywhere() {
  */
 export const CHECKOUT_KEY = "a360s:checkout";
 
-export type CheckoutFor = { kind: "subscription"; planId: Id } | { kind: "ppv"; titleId: Id };
+// expectedPriceUGX: the price the page showed; the API answers 409 price_changed if it has moved on.
+export type CheckoutFor = { kind: "subscription"; planId: Id } | { kind: "ppv"; titleId: Id; expectedPriceUGX?: number };
 
 /**
  * Starts paying: → { reference, redirectUrl }, PesaPal's page, which the
