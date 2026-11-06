@@ -67,8 +67,8 @@ export interface Title {
   playbackUrl?: string;
   captions?: Caption[];
   seasons?: Season[];
-  /** `priceUGX` is the price right now; `ppv` is the schedule (early access, premiere, standard). */
-  access: { tier: AccessTier; priceUGX: number; ppv?: { premiereAt: string; earlyUGX: number; premiereUGX: number; standardUGX: number; premiereDays: number } };
+  /** `priceUGX` is the fee (the client edits it any time); `premiereAt` and `ticketUrl` announce a premiere. */
+  access: { tier: AccessTier; priceUGX: number; premiereAt?: string | null; ticketUrl?: string | null };
   publishStatus: PublishStatus;
   releaseAt: string | null;
   featured?: boolean;
