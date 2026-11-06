@@ -8,6 +8,7 @@ import { useKeyLight } from "@/hooks/useKeyLight";
 import { useMember } from "@/store/context/MemberContext";
 import { useProgress, useWatchlist } from "@/store/tanstackStore/queries/member";
 import { prefetchTitle, useTaxonomy } from "@/store/tanstackStore/queries/site";
+import { premiereOf } from "@/utils/access";
 import { cn } from "@/utils/cn";
 import AgeBadge from "./AgeBadge";
 import PreviewCard from "./PreviewCard";
@@ -88,6 +89,11 @@ export default function PosterCard({ title, className, rank }) {
           {rank && (
             <span className="absolute bottom-2 left-2 rounded-lg bg-brand px-1.5 py-0.5 text-caption font-bold tabular-nums text-black" aria-label={`Number ${rank}`}>
               #{rank}
+            </span>
+          )}
+          {title.access?.tier === "ppv" && premiereOf(title.access).upcoming && (
+            <span className="absolute right-2 top-2 rounded-lg bg-brand px-1.5 py-0.5 text-caption font-bold text-black">
+              Premieres {premiereOf(title.access).at.toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
             </span>
           )}
           {title.releaseYear && (
