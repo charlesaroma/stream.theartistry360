@@ -6,7 +6,7 @@ import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
 import { useMember } from "@/store/context/MemberContext";
 import { usePlans } from "@/store/tanstackStore/queries/site";
-import { RENTAL_HOURS, accessFor, periodLabel, ppvStage } from "@/utils/access";
+import { RENTAL_HOURS, accessFor, periodLabel } from "@/utils/access";
 import { formatUGX } from "@/utils/formatCurrency";
 import BuyDialog from "./BuyDialog";
 
@@ -36,7 +36,7 @@ export default function PlayGate({ title, open, onClose }) {
   const lines = {
     free: ["Free to watch", "Create a free account or sign in, and it plays straight away."],
     subscription: ["Watch with a subscription", subscription],
-    ppv: [`Watch for ${formatUGX(ppvStage(title.access).priceUGX)}`, `Pay once, then watch for ${RENTAL_HOURS} hours from payment. Sign in first so it's saved to your account.`],
+    ppv: [`Watch for ${formatUGX(title.access?.priceUGX)}`, `Pay once, then watch for ${RENTAL_HOURS} hours from payment. Sign in first so it's saved to your account.`],
   };
   // An unknown tier falls back to the free copy.
   const [heading, body] = lines[tier] ?? lines.free;
