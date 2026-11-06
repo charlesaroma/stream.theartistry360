@@ -1,6 +1,6 @@
 # The Artistry360 Brand: Logo
 
-Approved 29 September 2026. **One logo, Orbit A, for everything**: theartistry360.com, the Studio, voting, stream.theartistry360.com, the mobile app, print and social (Client decision, Mr. Alexon Audax Mulookozi).
+Approved 29 September 2026. **One logo, Orbit A, for everything**: theartistry360.com, the Studio, voting, stream.theartistry360.com, the mobile app, print and social (Client decision, Mr. Alexon Audax Mulokozi).
 
 ![](../../public/brand/logo/png/artistry360-logo-horizontal-on-light-200px.png)
 
