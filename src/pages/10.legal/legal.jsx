@@ -81,7 +81,7 @@ export default function LegalPage() {
 
           {/* Contact and Print */}
           <footer className="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-white/8 bg-surface-card/60 p-6 text-small text-text-secondary">
-            <p className="flex items-center gap-2"><Mail className="h-4 w-4 text-brand" aria-hidden="true" /> Questions? <a href={`mailto:${COMPANY.email}`} className="font-semibold text-brand hover:underline">{COMPANY.email}</a> · {COMPANY.phone}</p>
+            <p className="flex flex-wrap items-center gap-x-2 gap-y-1 [overflow-wrap:anywhere]"><Mail className="h-4 w-4 shrink-0 text-brand" aria-hidden="true" /> Questions? <a href={`mailto:${COMPANY.email}`} className="font-semibold text-brand hover:underline">{COMPANY.email}</a> · {COMPANY.phone}</p>
             <button type="button" onClick={() => window.print()} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 px-4 font-semibold hover:border-white/30"><Printer className="h-4 w-4" aria-hidden="true" /> Print</button>
           </footer>
         </article>
