@@ -10,6 +10,7 @@ import { recordPayment } from "./accountApi";
 import { appleSignIn } from "./identityProviders";
 import { streamingPlansSeed } from "@/data/streamingPlans";
 import { streamingTitlesSeed } from "@/data/streamingTitles";
+import { ppvStage } from "@/utils/access";
 
 /**
  * Members only: this site has no admin realm. The same member accounts as
@@ -247,7 +248,7 @@ async function checkout(body: CheckoutFor, next: string): Promise<never> {
 }
 
 /** The stand-ins below grant at once (mock); `next` is where a live checkout returns to. */
-const DAYS = { month: 30, quarter: 91, year: 365 } as const;
+const DAYS = { week: 7, month: 30, quarter: 91, year: 365 } as const;
 
 export function subscribe(planId: Id, method = "Mobile money", next = "/") {
   if (!useMockApi) return checkout({ kind: "subscription", planId }, next);
@@ -267,7 +268,7 @@ export function purchase(titleId: Id, method = "Mobile money", next = `/watch/${
     const m = read();
     if (!m) throw new ApiError("Sign in first.", 401);
     const title = streamingTitlesSeed.find((t) => t.id === titleId);
-    recordPayment(m.id, { kind: "purchase", titleId, description: `Watch: ${title?.title ?? "a title"} (24 hours)`, amountUGX: title?.access?.priceUGX ?? 0, method });
+    recordPayment(m.id, { kind: "purchase", titleId, description: `Watch: ${title?.title ?? "a title"} (24 hours)`, amountUGX: ppvStage(title?.access).priceUGX, method });
     return write({ ...m, purchases: [...new Set([...(m.purchases ?? []), titleId])] });
   }, 1200);
 }
