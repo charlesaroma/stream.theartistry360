@@ -6,11 +6,9 @@ import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
 import { useMember } from "@/store/context/MemberContext";
 import { usePlans } from "@/store/tanstackStore/queries/site";
-import { accessFor } from "@/utils/access";
+import { RENTAL_HOURS, accessFor, periodLabel, ppvStage } from "@/utils/access";
 import { formatUGX } from "@/utils/formatCurrency";
 import BuyDialog from "./BuyDialog";
-
-const PER = { month: "a month", quarter: "a quarter", year: "a year" };
 
 /**
  * What it takes to watch, shown only when someone presses Play (the client
@@ -34,11 +32,11 @@ export default function PlayGate({ title, open, onClose }) {
 
   // Quote the lowest plan price, as "from".
   const cheapest = [...plans].sort((a, b) => a.priceUGX - b.priceUGX)[0];
-  const subscription = cheapest ? `Included with a subscription, from ${formatUGX(cheapest.priceUGX)} ${PER[cheapest.interval] ?? ""}.` : "Included with a subscription.";
+  const subscription = cheapest ? `Included with a subscription, from ${formatUGX(cheapest.priceUGX)} every ${periodLabel(cheapest)}.` : "Included with a subscription.";
   const lines = {
     free: ["Free to watch", "Create a free account or sign in, and it plays straight away."],
     subscription: ["Watch with a subscription", subscription],
-    ppv: [`Watch for ${formatUGX(title.access?.priceUGX)}`, "Pay once, then watch for 24 hours from first play. Sign in first so it's saved to your account."],
+    ppv: [`Watch for ${formatUGX(ppvStage(title.access).priceUGX)}`, `Pay once, then watch for ${RENTAL_HOURS} hours from payment. Sign in first so it's saved to your account.`],
   };
   // An unknown tier falls back to the free copy.
   const [heading, body] = lines[tier] ?? lines.free;
