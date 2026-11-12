@@ -67,7 +67,7 @@ function permanent(path, url) {
 const notFoundCard = (origin, pathname) => ({
   title: pageTitle("Page not found"),
   description: DEFAULT_DESCRIPTION,
-  image: `${origin}/share/stream-card.jpg`,
+  image: `${origin}/share/stream-card-v2.jpg`,
   url: `${origin}${pathname}`,
   type: "website",
   noindex: true,
@@ -98,7 +98,7 @@ export async function cardFor(url) {
       const canonical = `${origin}/title/${encodeURIComponent(id)}`;
       return {
         title: pageTitle(t.title),
-        description: [t.kind, t.description].filter(Boolean).join(" — "),
+        description: [t.kind, t.description].filter(Boolean).join(" · "),
         image: `${origin}/share/title/${encodeURIComponent(id)}.jpg?v=${t.version}`,
         url: canonical,
         type: t.type === "series" ? "video.tv_show" : "video.movie",
@@ -114,7 +114,7 @@ export async function cardFor(url) {
   return {
     title: pageTitle(page?.title),
     description: page?.description || DEFAULT_DESCRIPTION,
-    image: `${origin}/share/stream-card.jpg`,
+    image: `${origin}/share/stream-card-v2.jpg`,
     url: `${origin}${url.pathname === "/" ? "/" : url.pathname}`,
     type: "website",
     noindex: Boolean(page?.noindex),
