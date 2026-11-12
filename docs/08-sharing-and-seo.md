@@ -42,3 +42,13 @@ Paste a film link into Facebook's Sharing Debugger, opengraph.xyz or a WhatsApp 
 ## theartistry360.com
 
 The main site does the same for voting campaigns, talent profiles and news (its `docs/18-seo.md`): a shared campaign shows its poster and "Vote: …".
+
+## What Google is told (sitemap, 404s, redirects)
+
+Search Console's "Why pages aren't indexed" came from two real bugs, now fixed, plus things that are correct:
+
+- **The sitemap is live, not from the demo seed.** `netlify/edge-functions/sitemap.js` serves `/sitemap.xml` from the public API (titles that can be watched: ready video and published, or scheduled and due) plus the fixed and legal pages, cached for an hour, with `lastmod` from the title's `updatedAt`. It used to be written at build time from the seed and listed titles that never existed. If the API cannot be reached it lists only the fixed pages. `public/sitemap.xml` (fixed pages only) is just a fallback file.
+- **Unknown addresses answer 404.** `isKnownPath` (`src/seo/seo.js`) says which paths the site has; the edge function answers anything else, and any title the API says does not exist, with status **404** (the app shell, `noindex`, so a visitor still sees the Not-found page). A failed lookup (API down or 5xx) never 404s a page. `scripts/share-catalog.mjs` fails the build if a route in `router.jsx` is missing from `isKnownPath`.
+- **One address per page.** A trailing slash (`/films/`) 301s to the bare address; `/terms` and `/privacy` 301 to `/legal/terms` and `/legal/privacy`. `/watch/:id` stays crawlable for its share card but is `noindex` with its canonical on `/title/:id`.
+- **The API is the default.** The edge functions read `https://api.theartistry360.com` unless `SHARE_API_BASE` is set (`SHARE_API_BASE=catalog` uses the demo seed, for local demos). Nothing has to be configured in Netlify.
+- **Expected, not bugs:** "Excluded by noindex" for the private pages (sign-in, account, search, my list, watch and payment return). Google's ownership files (`/google….html`) and the verification `<meta>` in `index.html` are left alone by the edge function.
