@@ -19,7 +19,6 @@ import Comments from "@/components/title/Comments";
 import Episodes from "@/components/title/Episodes";
 import { isSeries } from "@/utils/episodes";
 import Credits from "./sections/Credits";
-import Guidance from "./sections/Guidance";
 import PrimaryAction from "./sections/PrimaryAction";
 import { usePageMeta } from "@/hooks/usePageMeta";
 
@@ -102,9 +101,8 @@ export default function TitlePage() {
           <Credits cast={title.cast} crew={title.crew} />
           <Comments titleId={title.id} />
         </div>
-        {/* Side Column: guidance and the community card, kept in view on desktop. */}
+        {/* Side Column: the community card, kept in view on desktop. */}
         <div className="flex flex-col gap-6 lg:sticky lg:top-24 lg:self-start">
-          <Guidance title={title} />
           <CommunityCard />
         </div>
       </div>
