@@ -1,1 +1,7 @@
+# Old addresses (the app also redirects them; crawlers want a real redirect).
+/terms /legal/terms 301
+/privacy /legal/privacy 301
+
+# Everything else is the single-page app. Addresses the site does not have are answered with a real 404 by
+# netlify/edge-functions/share-card.js (this rule only supplies the page shell).
 /*  /index.html  200
