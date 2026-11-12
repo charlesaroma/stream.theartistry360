@@ -10,12 +10,21 @@
  * the title, the logo); other pages get their own title and description
  * from src/seo/seo.js, the same file the app reads.
  * Everyone gets the same HTML (crawler or not); the app itself is unchanged.
+ *
+ * Search engines also read the status: an address the site does not have, or
+ * a title the API says does not exist, answers 404 (with the app shell, so a
+ * visitor still sees the site's own Not-found page) instead of a 200 that
+ * Google files as a soft 404. A failed lookup never causes a 404.
  */
-import { DEFAULT_DESCRIPTION, SITE, homeJsonLd, pageMeta, pageTitle, titleJsonLd } from "../../src/seo/seo.js";
+import { DEFAULT_DESCRIPTION, REDIRECTS, SITE, homeJsonLd, isKnownPath, pageMeta, pageTitle, titleJsonLd } from "../../src/seo/seo.js";
 import { lookupTitle } from "../shared/lookup.js";
 
 export default async function shareCard(request, context) {
   const url = new URL(request.url);
+  // /films/ and /films are one page; old addresses redirect to the current ones.
+  const bare = url.pathname.length > 1 ? url.pathname.replace(/\/+$/, "") || "/" : url.pathname;
+  if (REDIRECTS[bare]) return permanent(`${REDIRECTS[bare]}${url.search}`, url);
+  if (bare !== url.pathname) return permanent(`${bare}${url.search}`, url);
   const response = await context.next();
   if (url.pathname.startsWith("/payment/return")) return framableBySelf(response);
   if (!(response.headers.get("content-type") ?? "").includes("text/html")) return response;
@@ -33,7 +42,7 @@ export default async function shareCard(request, context) {
   headers.delete("content-length");
   headers.set("cache-control", "public, max-age=0, must-revalidate");
   if (card.noindex) headers.set("x-robots-tag", "noindex");
-  return new Response(withCard(html, card), { status: response.status, headers });
+  return new Response(withCard(html, card), { status: card.status ?? response.status, headers });
 }
 
 /**
@@ -49,11 +58,29 @@ function framableBySelf(response) {
   return new Response(response.body, { status: response.status, headers });
 }
 
+/** A permanent redirect to a path on this site. */
+function permanent(path, url) {
+  return new Response(null, { status: 301, headers: { location: new URL(path, url.origin).toString(), "cache-control": "public, max-age=3600" } });
+}
+
+/** The card for an address that does not exist: a 404, never indexed. */
+const notFoundCard = (origin, pathname) => ({
+  title: pageTitle("Page not found"),
+  description: DEFAULT_DESCRIPTION,
+  image: `${origin}/share/stream-card.jpg`,
+  url: `${origin}${pathname}`,
+  type: "website",
+  noindex: true,
+  status: 404,
+  jsonLd: [],
+});
+
 // Every page, so even the home page's card points at the address that was
 // actually shared (the Netlify URL today, the real domain later). Files skip it.
 export const config = {
   path: "/*",
-  excludedPath: ["/assets/*", "/share/*", "/captions/*", "/brand/*", "/*.png", "/*.ico", "/*.svg", "/*.webmanifest", "/*.xml", "/*.txt", "/*.json", "/*.js", "/*.css", "/*.wasm"],
+  // Files skip it too, including Google's ownership file (/google….html) and any other real .html file.
+  excludedPath: ["/*.html", "/assets/*", "/share/*", "/captions/*", "/brand/*", "/*.png", "/*.ico", "/*.svg", "/*.webmanifest", "/*.xml", "/*.txt", "/*.json", "/*.js", "/*.css", "/*.wasm"],
 };
 
 /** What the URL points at, as { title, description, image, url, type, noindex?, jsonLd? }. */
@@ -61,8 +88,12 @@ export async function cardFor(url) {
   const [, section, id] = url.pathname.split("/");
   const origin = url.origin;
 
+  // A page the site does not have: a real 404.
+  if (!isKnownPath(url.pathname)) return notFoundCard(origin, url.pathname);
+
   if ((section === "title" || section === "watch") && id) {
-    const t = await lookupTitle(origin, id);
+    const t = await lookupTitle(origin, id); // null: the API says there is no such title
+    if (t === null) return notFoundCard(origin, url.pathname);
     if (t) {
       const canonical = `${origin}/title/${encodeURIComponent(id)}`;
       return {
