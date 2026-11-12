@@ -5,6 +5,8 @@
 // See docs/08-sharing-and-seo.md.
 
 export const SITE = "The Artistry360 Stream";
+/** Where the edge functions read public data when SHARE_API_BASE is not set. SHARE_API_BASE overrides it ("catalog" uses the demo catalogue). */
+export const DEFAULT_API = "https://api.theartistry360.com";
 export const DEFAULT_DESCRIPTION =
   "Films, series, documentaries and behind the scenes from The Artistry360, Kampala. Watch free titles, subscribe, or rent a film with MTN MoMo or Airtel Money.";
 
@@ -40,6 +42,23 @@ export const LEGAL_TITLES = {
   cookies: "Cookies & Ads",
   copyright: "Copyright",
 };
+
+/** Old addresses that still arrive from links: answered with a permanent redirect (the app does the same client-side). */
+export const REDIRECTS = { "/terms": "/legal/terms", "/privacy": "/legal/privacy" };
+
+/**
+ * Is this address a page the site has? Anything else is a real 404: the edge answers it with status 404 instead of
+ * the app shell's 200, so Google never files nonsense URLs as soft 404s. Keep it in step with src/routes/router.jsx
+ * (scripts/share-catalog.mjs fails the build when a route is missing here).
+ */
+export function isKnownPath(pathname) {
+  const path = pathname.length > 1 ? pathname.replace(/\/+$/, "") : "/";
+  if (PAGES[path] || REDIRECTS[path]) return true;
+  const parts = path.split("/").filter(Boolean);
+  if (parts[0] === "legal") return parts.length === 2 && Boolean(LEGAL_TITLES[parts[1]]);
+  if (parts[0] === "title" || parts[0] === "watch") return parts.length === 2;
+  return parts[0] === "payment" && parts[1] === "return";
+}
 
 export const pageTitle = (title) => (title ? `${title} · ${SITE}` : SITE);
 
