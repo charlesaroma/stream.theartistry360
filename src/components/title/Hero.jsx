@@ -99,7 +99,7 @@ export default function Hero({ titles }) {
             )}
           >
             {role === "in" ? (
-              <TrailerBackdrop key={t.id} title={t} onPlayingChange={onTrailer} onSound={setSound} imageClassName="animate-kenburns" />
+              <TrailerBackdrop key={t.id} title={t} onPlayingChange={onTrailer} onSound={setSound} imageClassName="animate-kenburns" priority />
             ) : (
               <img src={t.backdrop || t.poster} alt="" fetchPriority="low" className="h-full w-full object-cover" />
             )}
