@@ -46,9 +46,10 @@ const warn = (reason, detail) => {
  */
 // `autoSound`: turn sound on by itself when allowed (the hero, the Films banner).
 // Hover previews pass false: sound there only when the visitor asks.
+// `priority`: this is the page's largest image (the home hero): fetch it first.
 // `onSound`: the parent draws the sound button itself (the hero puts it in its
 // picker) and gets { ready, muted, done, toggle, replay }; none is drawn here.
-export default function TrailerBackdrop({ title, onPlayingChange, onSound, controlsClassName, imageClassName, startAfter = START_AFTER, autoSound = true }) {
+export default function TrailerBackdrop({ title, onPlayingChange, onSound, controlsClassName, imageClassName, startAfter = START_AFTER, autoSound = true, priority = false }) {
   const { data: site } = useSite();
   const box = useRef(null);
   const video = useRef(null);
@@ -202,7 +203,7 @@ export default function TrailerBackdrop({ title, onPlayingChange, onSound, contr
 
   return (
     <div ref={box} className="absolute inset-0 -z-10">
-      <img src={title.backdrop || title.poster} alt="" className={cn("h-full w-full object-cover", imageClassName)} />
+      <img src={title.backdrop || title.poster} alt="" fetchPriority={priority ? "high" : undefined} decoding="async" className={cn("h-full w-full object-cover", imageClassName)} />
       {start && !failed && (
         <video
           ref={video}
