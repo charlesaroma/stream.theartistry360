@@ -27,11 +27,15 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="apple-mobile-web-app-title" content="The Artistry360" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Font: self-hosted (latin subset), so no third-party request sits in the critical path. -->
+    <link rel="preload" href="/fonts/quicksand-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <!-- The API (site and titles) and the image CDN are the first things the home page needs. -->
+    <link rel="preconnect" href="https://api.theartistry360.com" crossorigin />
+    <link rel="preconnect" href="https://artistryspaces.ams3.cdn.digitaloceanspaces.com" crossorigin />
     <link rel="preconnect" href="https://images.unsplash.com" />
     <title>The Artistry360 Stream</title>
     <style>
+      @font-face { font-family: "Quicksand"; font-style: normal; font-weight: 300 700; font-display: swap; src: url(/fonts/quicksand-latin.woff2) format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
       #splash { position: fixed; inset: 0; z-index: 9999; display: grid; place-items: center; background: #000; transition: opacity 0.45s ease; }
       #splash.splash-out { opacity: 0; pointer-events: none; }
       #splash svg { width: 88px; height: 88px; overflow: visible; }
