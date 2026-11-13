@@ -11,3 +11,10 @@
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(self "https://pay.pesapal.com" "https://cybqa.pesapal.com"), usb=()
   Strict-Transport-Security: max-age=31536000
   Cross-Origin-Opener-Policy: same-origin-allow-popups
+
+# Build output is named by content hash, so it never changes under its name.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+# Fixed names, so a month rather than a year.
+/fonts/*
+  Cache-Control: public, max-age=2592000
