@@ -48,12 +48,23 @@ export function useLiveInvalidation(channel: Channel) {
     let stopped = false;
     const invalidateRoots = () => ALLOWED_ROOTS[channel].forEach((root) => queryClient.invalidateQueries({ queryKey: [root] }));
 
-    import("socket.io-client").then(({ io }) => {
+    // Live updates are not needed to paint the page: connect once it has loaded
+    // and the browser is idle, so the socket's polling never competes with the
+    // site and titles requests (or the hero image) for the first seconds.
+    const whenQuiet = (run: () => void) => {
+      const go = () => (typeof window.requestIdleCallback === "function" ? window.requestIdleCallback(run, { timeout: 4000 }) : window.setTimeout(run, 2000));
+      if (document.readyState === "complete") go();
+      else window.addEventListener("load", go, { once: true });
+    };
+
+    whenQuiet(() => import("socket.io-client").then(({ io }) => {
       if (stopped) return;
       socket = io(`${base.replace(/\/$/, "")}/${channel}`, {
         // Re-read on every (re)connect, so a refreshed token is always the one sent.
         auth: (cb) => cb(channel === "public" ? {} : { token: accessToken(channel) }),
         reconnectionDelayMax: MAX_BACKOFF,
+        // WebSocket first (one connection); long polling stays as the fallback.
+        transports: ["websocket", "polling"],
         autoConnect: false,
       });
 
@@ -73,7 +84,7 @@ export function useLiveInvalidation(channel: Channel) {
 
       // Signed out: nothing to listen for on a private channel.
       if (channel === "public" || accessToken(channel)) socket.connect();
-    });
+    }));
 
     // A new sign-in opens the channel (with the new token); a sign-out closes it.
     const off =
