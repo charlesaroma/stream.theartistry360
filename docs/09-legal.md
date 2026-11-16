@@ -11,7 +11,7 @@
 | Cookies & Ads | `/legal/cookies` | Footer, Privacy Policy |
 | Copyright | `/legal/copyright` | Footer |
 
-`content/company.js` holds the company name, contacts, the "last updated" date and `LEGAL_DRAFT`. While `LEGAL_DRAFT` is true every page says it is a draft and not yet in force.
+`content/company.js` holds the company name, contacts, and the "last updated" date. The "draft for review" banner and its flag were removed.
 
 ## Before launch: confirm with the Client and a Ugandan lawyer
 
@@ -21,4 +21,4 @@
 4. **Numbers the drafts commit to:** refund request window (14 days), reply time (3 working days), refund time (7 working days), renewal reminder (3 days), price-change notice (30 days), report review (2 working days), privacy request reply (30 days). Change any the team can't meet.
 5. **Retention periods:** booking requests 12 months, security logs 90 days, backups 30 days; payment records per tax law.
 6. **Processors:** PesaPal, Google (sign-in, Ad Manager), the video host (Cloudflare Stream, Mux or Bunny), Netlify, and the email/WhatsApp providers, each with a data processing agreement, plus the countries they store data in.
-7. Then set `LEGAL_DRAFT = false` and the date in `content/company.js` (in both repos).
+7. Then update the date in `content/company.js` (in both repos).
