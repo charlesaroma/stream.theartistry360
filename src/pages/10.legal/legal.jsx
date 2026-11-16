@@ -1,10 +1,10 @@
 /* Legal */
 import { Link, Navigate, useParams } from "react-router-dom";
-import { FileWarning, Mail, Printer } from "lucide-react";
+import { Mail, Printer } from "lucide-react";
 
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { cn } from "@/utils/cn";
-import { COMPANY, LEGAL_DRAFT } from "./content/company";
+import { COMPANY } from "./content/company";
 import { LEGAL_DOCS, legalDoc } from "./content";
 import Blocks from "./sections/Blocks";
 
@@ -26,13 +26,6 @@ export default function LegalPage() {
         <p className="eyebrow mb-2">Legal</p>
         <h1 className="text-title">{doc.title}</h1>
         <p className="mt-3 text-small text-text-muted">Last updated {doc.updated} · {COMPANY.name}</p>
-        {/* Draft Banner: shown until the documents are approved and the flag is switched off. */}
-        {LEGAL_DRAFT && (
-          <p className="mt-5 flex items-start gap-3 rounded-2xl border border-warning/30 bg-warning/10 p-4 text-small text-warning">
-            <FileWarning className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-            Draft for The Artistry360's review with a lawyer before launch. Not yet in force.
-          </p>
-        )}
       </header>
 
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-[16rem_minmax(0,1fr)]">
