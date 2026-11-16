@@ -10,6 +10,4 @@ export const COMPANY = {
   sites: ["theartistry360.com", "stream.theartistry360.com"],
 };
 
-/** Shown on every legal page until a lawyer has reviewed the text. */
-export const LEGAL_DRAFT = true;
 export const UPDATED = "1 October 2026";
