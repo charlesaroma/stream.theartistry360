@@ -31,7 +31,7 @@ function AppleLogo() {
  * has to be theirs) and Apple's, each shown only when its id is set in
  * .env.local. Both hand an ID token to the API, which checks it.
  */
-function LiveProviders({ next }) {
+function LiveProviders({ next, onDone }) {
   const { signInWith } = useMember();
   const navigate = useNavigate();
   const slot = useRef(null);
@@ -43,7 +43,8 @@ function LiveProviders({ next }) {
     setError("");
     try {
       await signInWith(provider, idToken);
-      navigate(next, { replace: true, viewTransition: true });
+      if (onDone) onDone();
+      else navigate(next, { replace: true, viewTransition: true });
     } catch (e) {
       setError(e.message || "Sign-in didn't finish. Try again.");
       setBusy("");
@@ -99,13 +100,16 @@ function LiveProviders({ next }) {
   );
 }
 
-/** One button for sign in and sign up: a Google account needs no password here. Live: Google and Apple. */
-export default function GoogleButton({ next }) {
+/**
+ * One button for sign in and sign up: a Google account needs no password here. Live: Google and Apple.
+ * Signed in, it goes to `next`; with `onDone` (a dialog), it calls that and stays on the page.
+ */
+export default function GoogleButton({ next, onDone }) {
   const { demo } = useMember();
-  return demo ? <DemoGoogleButton next={next} /> : <LiveProviders next={next} />;
+  return demo ? <DemoGoogleButton next={next} onDone={onDone} /> : <LiveProviders next={next} onDone={onDone} />;
 }
 
-function DemoGoogleButton({ next }) {
+function DemoGoogleButton({ next, onDone }) {
   const { signInWithGoogle } = useMember();
   const navigate = useNavigate();
   const [busy, setBusy] = useState(false);
@@ -116,7 +120,8 @@ function DemoGoogleButton({ next }) {
     setError("");
     try {
       await signInWithGoogle(next);
-      navigate(next, { replace: true, viewTransition: true });
+      if (onDone) onDone();
+      else navigate(next, { replace: true, viewTransition: true });
     } catch (e) {
       setError(e.message || "Google sign-in didn't finish. Try again.");
       // Busy stays on after success, since the page navigates away.
